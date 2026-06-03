@@ -1,27 +1,45 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { type Language, dirForLanguage, translate } from "@/lib/i18n";
 
-type Language = "fr" | "en" | "he";
+const STORAGE_KEY = "nadlan-lang";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   dir: "ltr" | "rtl";
+  t: (key: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>("fr");
+function getInitialLanguage(): Language {
+  if (typeof window === "undefined") return "fr";
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  if (stored === "fr" || stored === "en" || stored === "he") return stored;
+  return "fr";
+}
 
-  const dir = language === "he" ? "rtl" : "ltr";
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+
+  const dir = dirForLanguage(language);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY, lang);
+    }
+  };
 
   useEffect(() => {
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
   }, [dir, language]);
 
+  const t = (key: string) => translate(language, key);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, dir }}>
+    <LanguageContext.Provider value={{ language, setLanguage, dir, t }}>
       {children}
     </LanguageContext.Provider>
   );

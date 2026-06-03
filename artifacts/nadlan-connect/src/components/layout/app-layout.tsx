@@ -1,8 +1,10 @@
 import { Navbar } from "./navbar";
 import { MarketBar } from "./market-bar";
+import { useLanguage } from "./language-provider";
 import { Link } from "wouter";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <MarketBar />
@@ -18,34 +20,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <span className="font-serif text-xl text-white">NadlanConnect</span>
             </div>
             <p className="text-sm max-w-sm text-[#6B7280]">
-              La plateforme premium pour l'immobilier israélien.
-              Connectez-vous avec les meilleurs agents et promoteurs.
+              {t("footer.tagline")}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-white mb-4">Liens Rapides</h4>
+            <h4 className="font-semibold text-white mb-4">{t("footer.quickLinks")}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:text-[#C9A84C] transition-colors">Accueil</Link></li>
-              <li><Link href="/listings" className="hover:text-[#C9A84C] transition-colors">Propriétés</Link></li>
-              <li><Link href="/auth" className="hover:text-[#C9A84C] transition-colors">Connexion</Link></li>
+              <li><Link href="/" className="hover:text-[#C9A84C] transition-colors">{t("nav.home")}</Link></li>
+              <li><Link href="/listings" className="hover:text-[#C9A84C] transition-colors">{t("nav.properties")}</Link></li>
+              <li><Link href="/auth" className="hover:text-[#C9A84C] transition-colors">{t("nav.login")}</Link></li>
               <li>
                 <a href="https://israel-simzip.replit.app/" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A84C] transition-colors">
-                  Simulateur IA
+                  {t("footer.aiSimulator")}
                 </a>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-white mb-4">Contact</h4>
+            <h4 className="font-semibold text-white mb-4">{t("footer.contact")}</h4>
             <ul className="space-y-2 text-sm">
-              <li>Tel Aviv, Israël</li>
+              <li>{t("footer.location")}</li>
               <li>contact@nadlanconnect.co.il</li>
             </ul>
           </div>
         </div>
         <div className="container border-t border-white/5 pb-8 pt-6 text-center">
           <p className="text-[11px] text-[#8995A5]">
-            © {new Date().getFullYear()} NadlanConnect · Estimations indicatives, non contractuelles.
+            © {new Date().getFullYear()} NadlanConnect · {t("footer.disclaimer")}
           </p>
         </div>
       </footer>

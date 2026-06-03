@@ -1,18 +1,20 @@
 import { useGetFeaturedListings, useGetListingsStats } from "@workspace/api-client-react";
 import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/layout/language-provider";
 import { ArrowRight, Building2, TrendingUp, Users } from "lucide-react";
 import { Link } from "wouter";
-
-const HERO_STATS = [
-  { val: "50 000+", lbl: "transactions Nadlan" },
-  { val: "12 villes", lbl: "couvertes" },
-  { val: "3 outils", lbl: "de valorisation" },
-];
 
 export default function Home() {
   const { data: featuredListings, isLoading: isFeaturedLoading } = useGetFeaturedListings();
   const { data: stats } = useGetListingsStats();
+  const { t } = useLanguage();
+
+  const HERO_STATS = [
+    { val: t("home.heroStat1Val"), lbl: t("home.heroStat1") },
+    { val: t("home.heroStat2Val"), lbl: t("home.heroStat2") },
+    { val: t("home.heroStat3Val"), lbl: t("home.heroStat3") },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -51,28 +53,27 @@ export default function Home() {
         <div className="relative mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/35 bg-[#C9A84C]/15 px-3.5 py-1.5">
           <span className="text-sm">🇮🇱</span>
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#C9A84C]">
-            Plateforme immobilière israélienne
+            {t("home.eyebrow")}
           </span>
         </div>
 
         {/* Title */}
         <h1 className="relative mb-4 max-w-3xl font-serif font-normal leading-tight text-white" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>
-          Trouvez l'investissement parfait
+          {t("home.titleLine1")}
           <br />
-          <span className="text-[#C9A84C]">en Israël</span>
+          <span className="text-[#C9A84C]">{t("home.titleHighlight")}</span>
         </h1>
 
         {/* Subtitle */}
         <p className="relative mb-7 max-w-xl text-[15px] leading-relaxed text-[#85B7EB]">
-          Données précises, opportunités exclusives et connexion directe avec les
-          meilleurs professionnels du marché.
+          {t("home.subtitle")}
         </p>
 
         {/* CTAs */}
         <div className="relative mb-8 flex flex-wrap items-center justify-center gap-3">
           <Link href="/listings">
             <Button className="rounded-full bg-[#C9A84C] px-7 py-6 text-sm font-bold text-[#0F2235] hover:bg-[#b8963e]">
-              Explorer les biens <ArrowRight className="ml-1 h-4 w-4" />
+              {t("home.exploreCta")} <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
           <Link href="/auth">
@@ -80,7 +81,7 @@ export default function Home() {
               variant="outline"
               className="rounded-full border-white/30 bg-white/10 px-7 py-6 text-sm font-semibold text-white hover:bg-white/20 hover:text-white"
             >
-              Devenir partenaire <ArrowRight className="ml-1 h-4 w-4" />
+              {t("home.partnerCta")} <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
         </div>
@@ -106,7 +107,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">{stats?.totalListings || 0}</div>
-                <div className="text-sm text-muted-foreground font-medium">Propriétés exclusives</div>
+                <div className="text-sm text-muted-foreground font-medium">{t("home.statExclusive")}</div>
               </div>
             </div>
             <div className="flex items-center gap-4 bg-background p-6 rounded-xl shadow-sm">
@@ -114,8 +115,8 @@ export default function Home() {
                 <TrendingUp className="h-6 w-6" />
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary">Data-driven</div>
-                <div className="text-sm text-muted-foreground font-medium">Scores d'investissement précis</div>
+                <div className="text-3xl font-bold text-primary">{t("home.statDataDriven")}</div>
+                <div className="text-sm text-muted-foreground font-medium">{t("home.statDataDrivenSub")}</div>
               </div>
             </div>
             <div className="flex items-center gap-4 bg-background p-6 rounded-xl shadow-sm">
@@ -123,8 +124,8 @@ export default function Home() {
                 <Users className="h-6 w-6" />
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary">Réseau Pro</div>
-                <div className="text-sm text-muted-foreground font-medium">Agents et promoteurs vérifiés</div>
+                <div className="text-3xl font-bold text-primary">{t("home.statProNetwork")}</div>
+                <div className="text-sm text-muted-foreground font-medium">{t("home.statProNetworkSub")}</div>
               </div>
             </div>
           </div>
@@ -136,12 +137,12 @@ export default function Home() {
         <div className="container">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-primary mb-2">Opportunités à la une</h2>
-              <p className="text-muted-foreground">Sélection rigoureuse des meilleurs biens sur le marché</p>
+              <h2 className="font-serif text-3xl font-bold text-primary mb-2">{t("home.featuredTitle")}</h2>
+              <p className="text-muted-foreground">{t("home.featuredSubtitle")}</p>
             </div>
             <Link href="/listings">
               <Button variant="ghost" className="text-primary hover:text-primary/80 group">
-                Voir tout <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                {t("home.viewAll")} <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>

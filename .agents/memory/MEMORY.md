@@ -6,4 +6,6 @@
 - [NadlanConnect agency verification](nadlan-agency-verification.md) — manual Risha'yon licence_statut + VerifiedBadge; badge-on-listing/email deferred (no public profile page, no email, listings link via users not profiles).
 - [NadlanConnect B2B onboarding](nadlan-b2b-onboarding.md) — promoteur/agence forms write to a `profiles` table (status pending), NOT the Replit-Auth users flow.
 - [NadlanConnect AI property analysis](nadlan-ai-property-analysis.md) — Replit-managed Anthropic, stateless contract-first endpoint; public LLM route MUST keep input cap + rate limit + lazy client import.
+- [NadlanConnect i18n FR/EN/HE+RTL](nadlan-i18n.md) — functional t() dict + dir-on-html + Tailwind rtl: variant; every public string needs a key in all 3 blocks; AI language is part of the contract.
+- [Workspace composite tsconfig gotcha](workspace-composite-typecheck.md) — a lib tsconfig missing composite/declarationMap/emitDeclarationOnly aborts the WHOLE `pnpm run typecheck` with TS6306, masking real downstream type errors.
 - [Branded PDF export](react-pdf-fonts.md) — client-side @react-pdf reports; fonts MUST be static TTF (not woff/variable), lazy-import the module, Helvetica fallback for body.

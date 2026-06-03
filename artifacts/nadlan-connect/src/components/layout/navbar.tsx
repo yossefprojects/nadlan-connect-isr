@@ -11,7 +11,7 @@ export function Navbar() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, logout } = useAuth();
   const { role, profile } = useUserRole();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   const handleLogout = async () => {
     await logout();
@@ -19,19 +19,19 @@ export function Navbar() {
   };
 
   const navItems = [
-    { label: "Accueil", href: "/" },
-    { label: "Propriétés", href: "/listings" },
-    { label: "Analyse IA", href: "/outils/analyse-ia" },
+    { label: t("nav.home"), href: "/" },
+    { label: t("nav.properties"), href: "/listings" },
+    { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
   ];
 
   if (isAuthenticated) {
     if (role === "buyer") {
-      navItems.push({ label: "Favoris", href: "/favorites" });
-      navItems.push({ label: "Mes Demandes", href: "/leads" });
+      navItems.push({ label: t("nav.favorites"), href: "/favorites" });
+      navItems.push({ label: t("nav.myLeads"), href: "/leads" });
     } else if (role === "agent" || role === "developer") {
-      navItems.push({ label: "Dashboard", href: "/dashboard" });
+      navItems.push({ label: t("nav.dashboard"), href: "/dashboard" });
     } else if (role === "admin") {
-      navItems.push({ label: "Admin", href: "/admin" });
+      navItems.push({ label: t("nav.admin"), href: "/admin" });
     }
   }
 
@@ -73,7 +73,7 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9 text-white/70 hover:text-white hover:bg-white/10">
                 <Globe className="h-4 w-4" />
-                <span className="sr-only">Changer de langue</span>
+                <span className="sr-only">{t("nav.changeLanguage")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -95,20 +95,20 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="gap-2 text-white/80 hover:text-white hover:bg-white/10 border border-white/20">
                     <UserCircle className="h-4 w-4" />
-                    <span className="max-w-[100px] truncate">{profile?.fullName || "Mon compte"}</span>
+                    <span className="max-w-[100px] truncate">{profile?.fullName || t("nav.account")}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Déconnexion
+                    {t("nav.logout")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link href="/auth/login">
                 <Button className="bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">
-                  Connexion
+                  {t("nav.login")}
                 </Button>
               </Link>
             )}
@@ -118,7 +118,7 @@ export function Navbar() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden text-white hover:bg-white/10">
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Menu</span>
+                <span className="sr-only">{t("nav.menu")}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[80vw] sm:w-[350px] bg-[#1A3A5C] border-white/10">
@@ -136,11 +136,11 @@ export function Navbar() {
                   {isAuthenticated ? (
                     <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10" onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Déconnexion
+                      {t("nav.logout")}
                     </Button>
                   ) : (
                     <Link href="/auth/login" className="block w-full">
-                      <Button className="w-full bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">Connexion</Button>
+                      <Button className="w-full bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">{t("nav.login")}</Button>
                     </Link>
                   )}
                 </div>

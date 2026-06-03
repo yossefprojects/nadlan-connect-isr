@@ -9,6 +9,18 @@ export interface HealthStatus {
   status: string;
 }
 
+/**
+ * Language for the AI-generated free-text fields (summary, comments, recommendation).
+ */
+export type AnalyzePropertyInputLanguage = typeof AnalyzePropertyInputLanguage[keyof typeof AnalyzePropertyInputLanguage];
+
+
+export const AnalyzePropertyInputLanguage = {
+  fr: 'fr',
+  en: 'en',
+  he: 'he',
+} as const;
+
 export interface AnalyzePropertyInput {
   /**
      * Raw real-estate listing text (e.g. copied from Yad2 or Madlan).
@@ -16,6 +28,8 @@ export interface AnalyzePropertyInput {
      * @maxLength 8000
      */
   listingText: string;
+  /** Language for the AI-generated free-text fields (summary, comments, recommendation). */
+  language?: AnalyzePropertyInputLanguage;
 }
 
 export interface PropertyFeatures {

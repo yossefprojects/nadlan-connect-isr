@@ -25,7 +25,7 @@ export default function Favorites() {
               For this mockup we assume favorites come with listing data or we fetch them. 
               Let's display a placeholder notice for the mock. */}
           <div className="col-span-full text-center p-8 bg-muted/20 rounded-lg">
-            Les favoris sont sauvegardés (IDs: {favorites?.map(f => f.listingId).join(", ")}).
+            Les favoris sont sauvegardés (IDs: {favorites?.map(f => f.id).join(", ")}).
           </div>
         </div>
       )}

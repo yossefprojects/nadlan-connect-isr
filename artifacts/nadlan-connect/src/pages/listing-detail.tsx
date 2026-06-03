@@ -9,6 +9,7 @@ import {
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserRole } from "@/hooks/use-user-role";
+import { useLanguage } from "@/components/layout/language-provider";
 import { InvestmentScore } from "@/components/investment-score";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,10 +48,11 @@ export default function ListingDetail() {
   });
   const listingId = detail?.listing.id ?? 0;
   const { data: favorites } = useGetMyFavorites();
-  const isFavorited = favorites?.some(f => f.listingId === listingId) || false;
+  const isFavorited = favorites?.some(f => f.id === listingId) || false;
   
   const { isAuthenticated } = useAuth();
   const { role } = useUserRole();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -59,7 +61,7 @@ export default function ListingDetail() {
   const createLead = useCreateLead();
   const applyForMandate = useApplyForMandate();
 
-  const { data: myMandates } = useGetMyMandates({ query: { enabled: isAuthenticated && role === "agent" } });
+  const { data: myMandates } = useGetMyMandates({ query: { enabled: isAuthenticated && role === "agent", queryKey: getGetMyMandatesQueryKey() } });
   const existingMandate = myMandates?.find(m => m.listingId === listingId);
 
   const [message, setMessage] = useState("");
@@ -74,21 +76,21 @@ export default function ListingDetail() {
 
   const toggleFavorite = () => {
     if (!isAuthenticated) {
-      toast({ title: "Connectez-vous pour ajouter aux favoris", variant: "destructive" });
+      toast({ title: t("detail.loginFavorite"), variant: "destructive" });
       return;
     }
     if (isFavorited) {
-      removeFavorite.mutate({ data: { listingId } }, {
+      removeFavorite.mutate({ listingId }, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
-          toast({ title: "Retiré des favoris" });
+          toast({ title: t("detail.removedFavorite") });
         }
       });
     } else {
-      addFavorite.mutate({ data: { listingId } }, {
+      addFavorite.mutate({ listingId }, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
-          toast({ title: "Ajouté aux favoris" });
+          toast({ title: t("detail.addedFavorite") });
         }
       });
     }
@@ -96,12 +98,12 @@ export default function ListingDetail() {
 
   const handleSendLead = () => {
     if (!isAuthenticated) {
-      toast({ title: "Connectez-vous pour contacter l'agent", variant: "destructive" });
+      toast({ title: t("detail.loginContact"), variant: "destructive" });
       return;
     }
     createLead.mutate({ data: { listingId, message } }, {
       onSuccess: () => {
-        toast({ title: "Message envoyé avec succès" });
+        toast({ title: t("detail.messageSent") });
         setMessage("");
       }
     });
@@ -114,11 +116,11 @@ export default function ListingDetail() {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMyMandatesQueryKey() });
           setShowMandateForm(false);
-          toast({ title: "Candidature envoyée !", description: "Le promoteur examinera votre demande." });
+          toast({ title: t("detail.mandateSent"), description: t("detail.mandateSentDesc") });
         },
         onError: (err: unknown) => {
-          const message = err instanceof Error ? err.message : "Erreur lors de l'envoi";
-          toast({ title: "Erreur", description: message, variant: "destructive" });
+          const message = err instanceof Error ? err.message : t("detail.sendError");
+          toast({ title: t("detail.error"), description: message, variant: "destructive" });
         }
       }
     );
@@ -202,13 +204,13 @@ export default function ListingDetail() {
     setAiSent(true);
     setShowAiModal(false);
     toast({
-      title: "Bien envoyé au simulateur IA",
-      description: "Le simulateur s'est ouvert avec la description pré-remplie.",
+      title: t("detail.sentToSim"),
+      description: t("detail.sentToSimDesc"),
     });
   };
 
-  if (isLoading) return <div className="p-8 text-center">Chargement...</div>;
-  if (!detail) return <div className="p-8 text-center">Propriété introuvable.</div>;
+  if (isLoading) return <div className="p-8 text-center">{t("detail.loading")}</div>;
+  if (!detail) return <div className="p-8 text-center">{t("detail.notFound")}</div>;
 
   const listing = detail.listing;
 
@@ -218,9 +220,9 @@ export default function ListingDetail() {
     rejected: "border-red-200 text-red-700 bg-red-50",
   };
   const mandateStatusLabel: Record<string, string> = {
-    pending: "En attente",
-    approved: "Approuvé",
-    rejected: "Refusé",
+    pending: t("detail.statusPending"),
+    approved: t("detail.statusApproved"),
+    rejected: t("detail.statusRejected"),
   };
 
   return (
@@ -244,7 +246,7 @@ export default function ListingDetail() {
             </div>
             <div className="absolute top-4 left-4 flex gap-2">
               <Badge variant="secondary" className="bg-white/90 text-primary hover:bg-white">
-                {listing.type === "new_development" ? "Neuf" : "Revente"}
+                {listing.type === "new_development" ? t("listings.newDev") : t("listings.resale")}
               </Badge>
             </div>
           </div>
@@ -260,14 +262,14 @@ export default function ListingDetail() {
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg text-primary"><Maximize className="h-6 w-6" /></div>
               <div>
-                <div className="text-sm text-muted-foreground">Surface</div>
+                <div className="text-sm text-muted-foreground">{t("detail.surface")}</div>
                 <div className="font-semibold text-lg">{listing.surface} m²</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg text-primary"><Home className="h-6 w-6" /></div>
               <div>
-                <div className="text-sm text-muted-foreground">Pièces</div>
+                <div className="text-sm text-muted-foreground">{t("detail.rooms")}</div>
                 <div className="font-semibold text-lg">{listing.nbPieces}</div>
               </div>
             </div>
@@ -281,9 +283,9 @@ export default function ListingDetail() {
                   <Handshake className="h-6 w-6 text-[#1A3A5C]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-primary mb-1">Devenir mandataire sur ce projet</h4>
+                  <h4 className="font-semibold text-primary mb-1">{t("detail.becomeMandateTitle")}</h4>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Postulez auprès du promoteur pour commercialiser ce programme neuf — avec ou sans exclusivité.
+                    {t("detail.becomeMandateDesc")}
                   </p>
 
                   {existingMandate ? (
@@ -292,7 +294,7 @@ export default function ListingDetail() {
                         {mandateStatusLabel[existingMandate.status] ?? existingMandate.status}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
-                        {existingMandate.exclusive ? "Exclusivité demandée" : "Sans exclusivité"}
+                        {existingMandate.exclusive ? t("detail.exclusiveRequested") : t("detail.nonExclusive")}
                       </span>
                     </div>
                   ) : (
@@ -301,7 +303,7 @@ export default function ListingDetail() {
                       className="bg-[#1A3A5C] hover:bg-[#142d47] text-white"
                     >
                       <Handshake className="h-4 w-4 mr-2" />
-                      Postuler comme mandataire
+                      {t("detail.applyMandate")}
                     </Button>
                   )}
                 </div>
@@ -315,9 +317,9 @@ export default function ListingDetail() {
               <Bot className="h-6 w-6 text-[#C9A84C]" />
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h4 className="font-semibold text-primary mb-1">Analyser avec le simulateur IA</h4>
+              <h4 className="font-semibold text-primary mb-1">{t("detail.simTitle")}</h4>
               <p className="text-sm text-muted-foreground">
-                Envoyez ce bien au simulateur immobilier israélien pour obtenir une estimation détaillée, un bilan locatif et une analyse d'investissement.
+                {t("detail.simDesc")}
               </p>
             </div>
             <Button
@@ -325,14 +327,14 @@ export default function ListingDetail() {
               className="flex-shrink-0 gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
             >
               {aiSent ? <Check className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-              {aiSent ? "Envoyé ✓" : "Analyser"}
+              {aiSent ? t("detail.sent") : t("detail.analyze")}
             </Button>
           </div>
           
           <div>
-            <h3 className="font-serif text-2xl font-bold text-primary mb-4">Description</h3>
+            <h3 className="font-serif text-2xl font-bold text-primary mb-4">{t("detail.description")}</h3>
             <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-              {listing.description || "Aucune description fournie."}
+              {listing.description || t("detail.noDescription")}
             </p>
           </div>
         </div>
@@ -345,7 +347,7 @@ export default function ListingDetail() {
             </div>
             {listing.estimatedPrice && (
               <div className="text-sm font-medium text-emerald-600 mb-6">
-                Estimation du marché: ₪{listing.estimatedPrice.toLocaleString("he-IL")}
+                {t("detail.marketEstimate")}: ₪{listing.estimatedPrice.toLocaleString("he-IL")}
               </div>
             )}
             
@@ -356,10 +358,10 @@ export default function ListingDetail() {
             )}
 
             <div className="border-t pt-6 mt-6">
-              <h4 className="font-semibold mb-4">Contacter le professionnel</h4>
+              <h4 className="font-semibold mb-4">{t("detail.contactPro")}</h4>
               <div className="space-y-4">
                 <Textarea 
-                  placeholder="Bonjour, je suis intéressé par ce bien..." 
+                  placeholder={t("detail.messagePlaceholder")} 
                   className="resize-none" 
                   rows={4}
                   value={message}
@@ -372,7 +374,7 @@ export default function ListingDetail() {
                   disabled={createLead.isPending || !message.trim()}
                 >
                   <Send className="h-4 w-4" />
-                  {createLead.isPending ? "Envoi..." : "Envoyer une demande"}
+                  {createLead.isPending ? t("detail.sending") : t("detail.sendRequest")}
                 </Button>
               </div>
             </div>
@@ -386,10 +388,10 @@ export default function ListingDetail() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-primary">
               <Handshake className="h-5 w-5 text-[#1A3A5C]" />
-              Candidature mandataire
+              {t("detail.mandateModalTitle")}
             </DialogTitle>
             <DialogDescription>
-              Remplissez ce formulaire pour proposer vos services au promoteur de ce projet.
+              {t("detail.mandateModalDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -399,10 +401,10 @@ export default function ListingDetail() {
               <div>
                 <div className="font-medium flex items-center gap-2">
                   <Star className="h-4 w-4 text-[#C9A84C]" />
-                  Mandat exclusif
+                  {t("detail.exclusiveMandate")}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Vous seriez le seul agent autorisé à vendre ce projet
+                  {t("detail.exclusiveMandateDesc")}
                 </p>
               </div>
               <Switch checked={exclusive} onCheckedChange={setExclusive} />
@@ -410,10 +412,10 @@ export default function ListingDetail() {
 
             {/* Note / motivation */}
             <div className="space-y-2">
-              <Label htmlFor="mandate-note">Présentation & motivation</Label>
+              <Label htmlFor="mandate-note">{t("detail.presentation")}</Label>
               <Textarea
                 id="mandate-note"
-                placeholder="Décrivez votre expérience, votre réseau d'acquéreurs, et pourquoi vous êtes le bon partenaire pour ce projet..."
+                placeholder={t("detail.presentationPlaceholder")}
                 rows={4}
                 value={mandateNote}
                 onChange={(e) => setMandateNote(e.target.value)}
@@ -424,10 +426,10 @@ export default function ListingDetail() {
             <div className="space-y-2">
               <Label htmlFor="justification-url" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Justificatif professionnel
+                {t("detail.justification")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Lien vers votre carte professionnelle ou attestation FNAIM (hébergez le document et collez l'URL)
+                {t("detail.justificationDesc")}
               </p>
               <input
                 id="justification-url"
@@ -442,7 +444,7 @@ export default function ListingDetail() {
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => setShowMandateForm(false)}>
-              Annuler
+              {t("detail.cancel")}
             </Button>
             <Button
               className="flex-1 gap-2 bg-[#1A3A5C] hover:bg-[#142d47] text-white"
@@ -450,7 +452,7 @@ export default function ListingDetail() {
               disabled={applyForMandate.isPending}
             >
               <Send className="h-4 w-4" />
-              {applyForMandate.isPending ? "Envoi..." : "Envoyer ma candidature"}
+              {applyForMandate.isPending ? t("detail.sending") : t("detail.submitMandate")}
             </Button>
           </div>
         </DialogContent>
@@ -462,43 +464,43 @@ export default function ListingDetail() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-primary">
               <Bot className="h-5 w-5 text-[#C9A84C]" />
-              Envoyer au simulateur IA
+              {t("detail.simModalTitle")}
             </DialogTitle>
             <DialogDescription>
-              Les données suivantes seront transmises au simulateur immobilier israélien :
+              {t("detail.simModalDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="bg-muted/40 rounded-lg p-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Bien</span>
+              <span className="text-muted-foreground">{t("detail.property")}</span>
               <span className="font-medium text-right max-w-[60%] truncate">{listing.title}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Ville</span>
+              <span className="text-muted-foreground">{t("detail.city")}</span>
               <span className="font-medium">{VILLE_LABELS[listing.ville] ?? listing.ville}{listing.quartier ? ` — ${listing.quartier}` : ""}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Surface</span>
+              <span className="text-muted-foreground">{t("detail.surface")}</span>
               <span className="font-medium">{listing.surface} m²</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Pièces</span>
+              <span className="text-muted-foreground">{t("detail.rooms")}</span>
               <span className="font-medium">{listing.nbPieces}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Prix</span>
+              <span className="text-muted-foreground">{t("detail.price")}</span>
               <span className="font-medium">₪{listing.price.toLocaleString("he-IL")}</span>
             </div>
             {listing.estimatedPrice && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Estimation marché</span>
+                <span className="text-muted-foreground">{t("detail.marketEstimateShort")}</span>
                 <span className="font-medium text-emerald-600">₪{listing.estimatedPrice.toLocaleString("he-IL")}</span>
               </div>
             )}
             {listing.investmentScore != null && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Score investissement</span>
+                <span className="text-muted-foreground">{t("detail.investmentScore")}</span>
                 <span className="font-semibold text-[#C9A84C]">{listing.investmentScore}/100</span>
               </div>
             )}
@@ -506,14 +508,14 @@ export default function ListingDetail() {
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => setShowAiModal(false)}>
-              Annuler
+              {t("detail.cancel")}
             </Button>
             <Button
               className="flex-1 gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
               onClick={handleSendToSimulator}
             >
               <ExternalLink className="h-4 w-4" />
-              Ouvrir le simulateur
+              {t("detail.openSim")}
             </Button>
           </div>
         </DialogContent>

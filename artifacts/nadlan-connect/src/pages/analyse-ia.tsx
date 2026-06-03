@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAnalyzeProperty } from "@workspace/api-client-react";
 import type { AnalyzePropertyResult } from "@workspace/api-client-react";
+import { useLanguage } from "@/components/layout/language-provider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -30,37 +31,16 @@ const GOLD = "#C9A84C";
 
 const EXAMPLE = `Appartement 4 pièces à vendre, Florentin, Tel Aviv. 92 m², 3ème étage avec ascenseur. Mamad, balcon, rénové récemment. Proche de la gare. Prix: 3,200,000 ₪. Possibilité de location 8500₪/mois.`;
 
-const RECO: Record<string, { label: string; bg: string; text: string; dot: string }> = {
-  green: { label: "Opportunité", bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
-  orange: { label: "Prudence", bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
-  red: { label: "À éviter", bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
+const RECO_STYLE: Record<string, { bg: string; text: string; dot: string }> = {
+  green: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  orange: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  red: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
 };
 
-const SEVERITY: Record<string, { label: string; cls: string }> = {
-  low: { label: "Faible", cls: "bg-slate-100 text-slate-700 border-slate-200" },
-  medium: { label: "Moyen", cls: "bg-amber-100 text-amber-800 border-amber-200" },
-  high: { label: "Élevé", cls: "bg-red-100 text-red-800 border-red-200" },
-};
-
-const VERDICT_FR: Record<string, string> = {
-  underpriced: "Sous-évalué",
-  fair: "Prix de marché",
-  overpriced: "Surévalué",
-  unknown: "Indéterminé",
-};
-
-const LEVEL_FR: Record<string, string> = {
-  none: "Aucun travaux",
-  refresh: "Rafraîchissement",
-  renovation: "Rénovation",
-  unknown: "Indéterminé",
-};
-
-const POTENTIAL_FR: Record<string, string> = {
-  yes: "Oui",
-  no: "Non",
-  possible: "Possible",
-  unknown: "Indéterminé",
+const SEVERITY_STYLE: Record<string, string> = {
+  low: "bg-slate-100 text-slate-700 border-slate-200",
+  medium: "bg-amber-100 text-amber-800 border-amber-200",
+  high: "bg-red-100 text-red-800 border-red-200",
 };
 
 function fmtShekel(n: number | null | undefined): string {
@@ -71,11 +51,6 @@ function fmtShekel(n: number | null | undefined): string {
 function fmtPct(n: number | null | undefined): string {
   if (n === null || n === undefined) return "—";
   return n.toFixed(1).replace(".", ",") + " %";
-}
-
-function boolFr(b: boolean | null | undefined): string {
-  if (b === null || b === undefined) return "—";
-  return b ? "Oui" : "Non";
 }
 
 function StatRow({ label, value }: { label: string; value: string }) {
@@ -89,27 +64,31 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 export default function AnalyseIA() {
   const { toast } = useToast();
+  const { t, language } = useLanguage();
   const [text, setText] = useState("");
   const [result, setResult] = useState<AnalyzePropertyResult | null>(null);
   const [analyzedText, setAnalyzedText] = useState("");
   const [exporting, setExporting] = useState(false);
   const analyze = useAnalyzeProperty();
 
+  const boolT = (b: boolean | null | undefined): string =>
+    b === null || b === undefined ? "—" : t(b ? "common.yes" : "common.no");
+
   const handleAnalyze = async () => {
     if (text.trim().length < 10) {
-      toast({ title: "Veuillez coller une annonce (au moins 10 caractères).", variant: "destructive" });
+      toast({ title: t("analyse.toastMinChars"), variant: "destructive" });
       return;
     }
     setResult(null);
     const trimmed = text.trim();
     try {
-      const res = await analyze.mutateAsync({ data: { listingText: trimmed } });
+      const res = await analyze.mutateAsync({ data: { listingText: trimmed, language } });
       setAnalyzedText(trimmed);
       setResult(res);
     } catch {
       toast({
-        title: "L'analyse a échoué.",
-        description: "Le service IA est momentanément indisponible. Réessayez dans un instant.",
+        title: t("analyse.toastFailed"),
+        description: t("analyse.toastFailedDesc"),
         variant: "destructive",
       });
     }
@@ -123,8 +102,8 @@ export default function AnalyseIA() {
       await downloadAnalysisPdf(analyzedText, result);
     } catch {
       toast({
-        title: "Le téléchargement du PDF a échoué.",
-        description: "Réessayez dans un instant.",
+        title: t("analyse.pdfFailed"),
+        description: t("analyse.pdfFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -132,7 +111,7 @@ export default function AnalyseIA() {
     }
   };
 
-  const reco = result ? RECO[result.recommendation] ?? RECO.orange : null;
+  const reco = result ? RECO_STYLE[result.recommendation] ?? RECO_STYLE.orange : null;
 
   return (
     <div className="min-h-screen bg-[#F8F7F4]">
@@ -141,13 +120,12 @@ export default function AnalyseIA() {
         <div className="container py-12">
           <div className="flex items-center gap-2 mb-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tracking-wide text-[#C9A84C]">
-              <Sparkles className="h-3.5 w-3.5" /> ANALYSE IA · CLAUDE
+              <Sparkles className="h-3.5 w-3.5" /> {t("analyse.badge")}
             </span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl">Dashboard Investisseur</h1>
+          <h1 className="font-serif text-3xl md:text-4xl">{t("analyse.title")}</h1>
           <p className="mt-2 max-w-2xl text-white/70">
-            Collez une annonce (Yad2, Madlan, WhatsApp…) et obtenez une estimation, une détection
-            d'anomalies, une simulation de rentabilité et le potentiel urbanistique du bien en Israël.
+            {t("analyse.subtitle")}
           </p>
         </div>
       </div>
@@ -157,14 +135,14 @@ export default function AnalyseIA() {
         <div className="lg:col-span-2">
           <Card className="sticky top-20">
             <CardHeader>
-              <CardTitle className="text-[#1A3A5C]">L'annonce à analyser</CardTitle>
-              <CardDescription>Copiez-collez le texte complet de l'annonce.</CardDescription>
+              <CardTitle className="text-[#1A3A5C]">{t("analyse.inputTitle")}</CardTitle>
+              <CardDescription>{t("analyse.inputDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Ex : Appartement 4 pièces, Florentin Tel Aviv, 92 m², 3ème étage, ascenseur, Mamad, 3 200 000 ₪…"
+                placeholder={t("analyse.placeholder")}
                 className="min-h-[220px] resize-y"
               />
               <div className="flex items-center justify-between gap-2">
@@ -173,9 +151,9 @@ export default function AnalyseIA() {
                   onClick={() => setText(EXAMPLE)}
                   className="text-xs text-[#1A3A5C] underline underline-offset-2 hover:text-[#C9A84C]"
                 >
-                  Insérer un exemple
+                  {t("analyse.insertExample")}
                 </button>
-                <span className="text-xs text-muted-foreground">{text.length} caractères</span>
+                <span className="text-xs text-muted-foreground">{text.length} {t("analyse.charCount")}</span>
               </div>
               <Button
                 onClick={handleAnalyze}
@@ -186,12 +164,12 @@ export default function AnalyseIA() {
                 {analyze.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyse en cours…
+                    {t("analyse.analyzing")}
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Analyser le bien
+                    {t("analyse.analyzeBtn")}
                   </>
                 )}
               </Button>
@@ -205,8 +183,8 @@ export default function AnalyseIA() {
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
                 <Gauge className="h-10 w-10 mb-3 text-[#C9A84C]" />
-                <p className="font-medium text-[#1A3A5C]">Aucune analyse pour le moment</p>
-                <p className="text-sm">Collez une annonce et lancez l'analyse pour voir les résultats ici.</p>
+                <p className="font-medium text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
+                <p className="text-sm">{t("analyse.emptyDesc")}</p>
               </CardContent>
             </Card>
           )}
@@ -215,8 +193,8 @@ export default function AnalyseIA() {
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-20 text-center">
                 <Loader2 className="h-10 w-10 mb-3 animate-spin text-[#C9A84C]" />
-                <p className="font-medium text-[#1A3A5C]">Claude analyse l'annonce…</p>
-                <p className="text-sm text-muted-foreground">Cela prend généralement quelques secondes.</p>
+                <p className="font-medium text-[#1A3A5C]">{t("analyse.claudeAnalyzing")}</p>
+                <p className="text-sm text-muted-foreground">{t("analyse.claudeAnalyzingSub")}</p>
               </CardContent>
             </Card>
           )}
@@ -231,12 +209,12 @@ export default function AnalyseIA() {
                     style={{ backgroundColor: NAVY }}
                   >
                     <span className="text-5xl font-serif">{result.overallScore}</span>
-                    <span className="text-xs uppercase tracking-wider text-white/60">Score / 100</span>
+                    <span className="text-xs uppercase tracking-wider text-white/60">{t("analyse.scoreOf")}</span>
                   </div>
                   <div className="flex-1 p-6">
                     <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${reco.bg} ${reco.text}`}>
                       <span className={`h-2 w-2 rounded-full ${reco.dot}`} />
-                      {reco.label}
+                      {t(`reco.${result.recommendation}`)}
                     </div>
                     <p className="mt-3 text-sm text-[#1A3A5C]">{result.recommendationText}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -250,12 +228,12 @@ export default function AnalyseIA() {
                         {exporting ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Génération du PDF…
+                            {t("analyse.generatingPdf")}
                           </>
                         ) : (
                           <>
                             <Download className="mr-2 h-4 w-4" />
-                            Télécharger le PDF
+                            {t("analyse.downloadPdf")}
                           </>
                         )}
                       </Button>
@@ -267,7 +245,7 @@ export default function AnalyseIA() {
               {/* Summary */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-[#1A3A5C]">Résumé</CardTitle>
+                  <CardTitle className="text-base text-[#1A3A5C]">{t("analyse.summary")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">{result.summary}</p>
@@ -279,17 +257,17 @@ export default function AnalyseIA() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                      <Home className="h-4 w-4 text-[#C9A84C]" /> Caractéristiques
+                      <Home className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.features")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <StatRow label="Surface" value={result.features.surface ? `${result.features.surface} m²` : "—"} />
-                    <StatRow label="Pièces" value={result.features.rooms?.toString() ?? "—"} />
-                    <StatRow label="Étage" value={result.features.floor ?? "—"} />
-                    <StatRow label="Mamad" value={boolFr(result.features.hasMamad)} />
-                    <StatRow label="Ascenseur" value={boolFr(result.features.hasElevator)} />
-                    <StatRow label="Parking" value={boolFr(result.features.hasParking)} />
-                    <StatRow label="Localisation" value={[result.features.neighborhood, result.features.city].filter(Boolean).join(", ") || "—"} />
+                    <StatRow label={t("analyse.surface")} value={result.features.surface ? `${result.features.surface} m²` : "—"} />
+                    <StatRow label={t("analyse.rooms")} value={result.features.rooms?.toString() ?? "—"} />
+                    <StatRow label={t("analyse.floor")} value={result.features.floor ?? "—"} />
+                    <StatRow label={t("analyse.mamad")} value={boolT(result.features.hasMamad)} />
+                    <StatRow label={t("analyse.elevator")} value={boolT(result.features.hasElevator)} />
+                    <StatRow label={t("analyse.parking")} value={boolT(result.features.hasParking)} />
+                    <StatRow label={t("analyse.location")} value={[result.features.neighborhood, result.features.city].filter(Boolean).join(", ") || "—"} />
                   </CardContent>
                 </Card>
 
@@ -298,17 +276,17 @@ export default function AnalyseIA() {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
                       <span className="flex items-center gap-2">
-                        <Gauge className="h-4 w-4 text-[#C9A84C]" /> Estimation de marché
+                        <Gauge className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.marketEstimate")}
                       </span>
                       <Badge variant="outline" className="font-normal">
-                        {VERDICT_FR[result.marketEstimate.verdict]}
+                        {t(`verdict.${result.marketEstimate.verdict}`)}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <StatRow label="Prix au m² estimé" value={fmtShekel(result.marketEstimate.pricePerSqm)} />
-                    <StatRow label="Valeur estimée" value={fmtShekel(result.marketEstimate.estimatedValue)} />
-                    <StatRow label="Prix affiché" value={fmtShekel(result.marketEstimate.listedPrice)} />
+                    <StatRow label={t("analyse.pricePerSqm")} value={fmtShekel(result.marketEstimate.pricePerSqm)} />
+                    <StatRow label={t("analyse.estimatedValue")} value={fmtShekel(result.marketEstimate.estimatedValue)} />
+                    <StatRow label={t("analyse.listedPrice")} value={fmtShekel(result.marketEstimate.listedPrice)} />
                     <p className="pt-3 text-xs text-muted-foreground leading-relaxed">{result.marketEstimate.comment}</p>
                   </CardContent>
                 </Card>
@@ -317,13 +295,13 @@ export default function AnalyseIA() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                      <TrendingUp className="h-4 w-4 text-[#C9A84C]" /> Rentabilité locative
+                      <TrendingUp className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.rentalYield")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <StatRow label="Loyer mensuel estimé" value={fmtShekel(result.rentalYield.estimatedMonthlyRent)} />
-                    <StatRow label="Rendement brut" value={fmtPct(result.rentalYield.grossYieldPct)} />
-                    <StatRow label="Rendement net" value={fmtPct(result.rentalYield.netYieldPct)} />
+                    <StatRow label={t("analyse.monthlyRent")} value={fmtShekel(result.rentalYield.estimatedMonthlyRent)} />
+                    <StatRow label={t("analyse.grossYield")} value={fmtPct(result.rentalYield.grossYieldPct)} />
+                    <StatRow label={t("analyse.netYield")} value={fmtPct(result.rentalYield.netYieldPct)} />
                     <p className="pt-3 text-xs text-muted-foreground leading-relaxed">{result.rentalYield.comment}</p>
                   </CardContent>
                 </Card>
@@ -333,15 +311,15 @@ export default function AnalyseIA() {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
                       <span className="flex items-center gap-2">
-                        <Wrench className="h-4 w-4 text-[#C9A84C]" /> Travaux
+                        <Wrench className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.renovation")}
                       </span>
                       <Badge variant="outline" className="font-normal">
-                        {LEVEL_FR[result.renovation.level]}
+                        {t(`level.${result.renovation.level}`)}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <StatRow label="Budget estimé" value={fmtShekel(result.renovation.estimatedBudget)} />
+                    <StatRow label={t("analyse.budget")} value={fmtShekel(result.renovation.estimatedBudget)} />
                     <p className="pt-3 text-xs text-muted-foreground leading-relaxed">{result.renovation.comment}</p>
                   </CardContent>
                 </Card>
@@ -351,16 +329,16 @@ export default function AnalyseIA() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                    <Building2 className="h-4 w-4 text-[#C9A84C]" /> Potentiel urbanistique
+                    <Building2 className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.urbanPotential")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="flex flex-wrap gap-3 mb-3">
                     <Badge variant="outline" className="font-normal">
-                      TAMA 38 : {POTENTIAL_FR[result.urbanPotential.tama38]}
+                      TAMA 38 : {t(`potential.${result.urbanPotential.tama38}`)}
                     </Badge>
                     <Badge variant="outline" className="font-normal">
-                      Pinoui Binoui : {POTENTIAL_FR[result.urbanPotential.pinouiBinoui]}
+                      Pinoui Binoui : {t(`potential.${result.urbanPotential.pinouiBinoui}`)}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{result.urbanPotential.comment}</p>
@@ -372,10 +350,10 @@ export default function AnalyseIA() {
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
                     <span className="flex items-center gap-2">
-                      <Calculator className="h-4 w-4 text-[#C9A84C]" /> Bilan promoteur (ROI)
+                      <Calculator className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.promoterRoi")}
                     </span>
                     <Badge variant="outline" className="font-normal">
-                      {result.promoterRoi.applicable ? "Opération de promotion" : "Non applicable"}
+                      {result.promoterRoi.applicable ? t("analyse.promotionOp") : t("analyse.notApplicable")}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -387,17 +365,17 @@ export default function AnalyseIA() {
                           {fmtPct(result.promoterRoi.grossRoiPct)}
                         </span>
                         <span className="text-xs uppercase tracking-wider text-white/60">
-                          ROI brut estimé
+                          {t("analyse.grossRoiEst")}
                         </span>
                       </div>
                       <div className="grid gap-x-6 sm:grid-cols-2">
-                        <StatRow label="Surface existante" value={result.promoterRoi.existingSurface != null ? `${result.promoterRoi.existingSurface} m²` : "—"} />
-                        <StatRow label="Surface projetée" value={result.promoterRoi.projectedSurface != null ? `${result.promoterRoi.projectedSurface} m²` : "—"} />
-                        <StatRow label="Prix d'acquisition" value={fmtShekel(result.promoterRoi.acquisitionPrice)} />
-                        <StatRow label="Coût construction / m²" value={fmtShekel(result.promoterRoi.constructionCostPerSqm)} />
-                        <StatRow label="Coûts de construction" value={fmtShekel(result.promoterRoi.estimatedConstructionCosts)} />
-                        <StatRow label="Chiffre d'affaires estimé" value={fmtShekel(result.promoterRoi.estimatedRevenue)} />
-                        <StatRow label="Permis de construire" value={boolFr(result.promoterRoi.hasBuildingPermit)} />
+                        <StatRow label={t("analyse.existingSurface")} value={result.promoterRoi.existingSurface != null ? `${result.promoterRoi.existingSurface} m²` : "—"} />
+                        <StatRow label={t("analyse.projectedSurface")} value={result.promoterRoi.projectedSurface != null ? `${result.promoterRoi.projectedSurface} m²` : "—"} />
+                        <StatRow label={t("analyse.acquisitionPrice")} value={fmtShekel(result.promoterRoi.acquisitionPrice)} />
+                        <StatRow label={t("analyse.constructionCostSqm")} value={fmtShekel(result.promoterRoi.constructionCostPerSqm)} />
+                        <StatRow label={t("analyse.constructionCosts")} value={fmtShekel(result.promoterRoi.estimatedConstructionCosts)} />
+                        <StatRow label={t("analyse.estimatedRevenue")} value={fmtShekel(result.promoterRoi.estimatedRevenue)} />
+                        <StatRow label={t("analyse.buildingPermit")} value={boolT(result.promoterRoi.hasBuildingPermit)} />
                       </div>
                     </>
                   ) : null}
@@ -409,21 +387,21 @@ export default function AnalyseIA() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                    <TriangleAlert className="h-4 w-4 text-[#C9A84C]" /> Anomalies détectées
+                    <TriangleAlert className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.anomalies")}
                     <span className="text-sm font-normal text-muted-foreground">({result.anomalies.length})</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
                   {result.anomalies.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Aucune anomalie détectée.</p>
+                    <p className="text-sm text-muted-foreground">{t("analyse.noAnomalies")}</p>
                   )}
                   {result.anomalies.map((a, i) => {
-                    const sev = SEVERITY[a.severity] ?? SEVERITY.low;
+                    const sevCls = SEVERITY_STYLE[a.severity] ?? SEVERITY_STYLE.low;
                     return (
                       <div key={i} className="rounded-lg border border-black/5 bg-white p-3">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm font-semibold text-[#1A3A5C]">{a.label}</span>
-                          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${sev.cls}`}>{sev.label}</span>
+                          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${sevCls}`}>{t(`severity.${a.severity}`)}</span>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{a.detail}</p>
                       </div>
@@ -433,7 +411,7 @@ export default function AnalyseIA() {
               </Card>
 
               <p className="text-center text-xs text-muted-foreground">
-                Estimations générées par IA, indicatives et non contractuelles.
+                {t("analyse.disclaimer")}
               </p>
             </>
           )}

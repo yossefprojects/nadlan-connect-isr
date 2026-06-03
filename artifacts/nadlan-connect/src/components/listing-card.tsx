@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Listing } from "@workspace/api-client-react";
 import { InvestmentScore } from "./investment-score";
 import { MapPin, Maximize, Home as HomeIcon } from "lucide-react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 interface ListingCardProps {
   listing: Listing;
@@ -20,6 +21,7 @@ const CITY_LABELS: Record<string, string> = {
 };
 
 export function ListingCard({ listing, showStatus }: ListingCardProps) {
+  const { t } = useLanguage();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("he-IL", {
       style: "currency",
@@ -45,13 +47,13 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
               <HomeIcon className="h-10 w-10 opacity-20" />
             </div>
           )}
-          <div className="absolute top-3 left-3 flex gap-2">
+          <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3 flex gap-2">
             <Badge variant="secondary" className="bg-white/90 text-primary hover:bg-white backdrop-blur-sm shadow-sm font-semibold">
-              {listing.type === "new_development" ? "Neuf" : "Revente"}
+              {listing.type === "new_development" ? t("listings.newDev") : t("listings.resale")}
             </Badge>
             {showStatus && listing.status !== "published" && (
               <Badge variant="outline" className="bg-background/90 backdrop-blur-sm shadow-sm">
-                {listing.status === "draft" ? "Brouillon" : listing.status === "sold" ? "Vendu" : "Archivé"}
+                {listing.status === "draft" ? t("card.draft") : listing.status === "sold" ? t("card.sold") : t("card.archived")}
               </Badge>
             )}
           </div>
@@ -77,7 +79,7 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
             </div>
             <div className="flex items-center gap-1">
               <HomeIcon className="h-4 w-4 text-primary/70" />
-              <span>{listing.nbPieces} pièces</span>
+              <span>{listing.nbPieces} {t("card.rooms")}</span>
             </div>
           </div>
 
@@ -93,7 +95,7 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
             </div>
             {listing.estimatedPrice != null && listing.estimatedPrice > listing.price && (
               <div className="text-xs font-medium text-emerald-600 mt-1">
-                Estimation: {formatPrice(listing.estimatedPrice)}
+                {t("card.estimation")}: {formatPrice(listing.estimatedPrice)}
               </div>
             )}
           </div>

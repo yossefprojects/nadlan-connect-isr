@@ -969,10 +969,11 @@ export const AdminUpdateListingStatusResponse = zod.object({
 export const analyzePropertyBodyListingTextMin = 10;
 export const analyzePropertyBodyListingTextMax = 8000;
 
-
+export const analyzePropertyBodyLanguageDefault = `fr`;
 
 export const AnalyzePropertyBody = zod.object({
-  "listingText": zod.string().min(analyzePropertyBodyListingTextMin).max(analyzePropertyBodyListingTextMax).describe('Raw real-estate listing text (e.g. copied from Yad2 or Madlan).')
+  "listingText": zod.string().min(analyzePropertyBodyListingTextMin).max(analyzePropertyBodyListingTextMax).describe('Raw real-estate listing text (e.g. copied from Yad2 or Madlan).'),
+  "language": zod.enum(['fr', 'en', 'he']).default(analyzePropertyBodyLanguageDefault).describe('Language for the AI-generated free-text fields (summary, comments, recommendation).')
 })
 
 export const analyzePropertyResponseOverallScoreMin = 0;

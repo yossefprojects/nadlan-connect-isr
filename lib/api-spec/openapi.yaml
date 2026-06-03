@@ -1130,6 +1130,11 @@ components:
           minLength: 10
           maxLength: 8000
           description: Raw real-estate listing text (e.g. copied from Yad2 or Madlan).
+        language:
+          type: string
+          enum: [fr, en, he]
+          default: fr
+          description: Language for the AI-generated free-text fields (summary, comments, recommendation).
     PropertyFeatures:
       type: object
       required: [surface, rooms, floor, hasMamad, hasElevator, hasParking, city, neighborhood]

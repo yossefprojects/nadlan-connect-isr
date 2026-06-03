@@ -16,6 +16,7 @@ export * from './agenceRegistrationInput';
 export * from './agenceRegistrationInputPlan';
 export * from './agenceRegistrationInputSpecialtiesItem';
 export * from './analyzePropertyInput';
+export * from './analyzePropertyInputLanguage';
 export * from './analyzePropertyResult';
 export * from './analyzePropertyResultRecommendation';
 export * from './authorizationSessionHeaderParameter';

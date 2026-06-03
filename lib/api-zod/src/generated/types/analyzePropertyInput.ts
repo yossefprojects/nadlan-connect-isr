@@ -5,6 +5,7 @@
  * NadlanConnect API
  * OpenAPI spec version: 0.1.0
  */
+import type { AnalyzePropertyInputLanguage } from './analyzePropertyInputLanguage';
 
 export interface AnalyzePropertyInput {
   /**
@@ -13,4 +14,6 @@ export interface AnalyzePropertyInput {
      * @maxLength 8000
      */
   listingText: string;
+  /** Language for the AI-generated free-text fields (summary, comments, recommendation). */
+  language?: AnalyzePropertyInputLanguage;
 }

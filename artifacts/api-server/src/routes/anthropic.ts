@@ -26,7 +26,20 @@ function allowRequest(key: string): boolean {
   return true;
 }
 
-const SYSTEM_PROMPT = `Tu es un expert en immobilier spécialisé dans le marché israélien (Tel Aviv, Jérusalem, Netanya, Haïfa, Ashdod, etc.). Ton rôle est d'analyser des annonces immobilières pour des investisseurs et de produire une évaluation rigoureuse.
+const LANG_LABEL: Record<string, string> = {
+  fr: "français",
+  en: "English",
+  he: "Hebrew (עברית)",
+};
+
+function buildSystemPrompt(language: string): string {
+  const langLabel = LANG_LABEL[language] ?? LANG_LABEL.fr;
+  return `${SYSTEM_PROMPT_BASE}
+
+LANGUE DE SORTIE : tous les champs de texte libre (summary, comment, detail, recommendationText) DOIVENT être rédigés en ${langLabel}. Les clés JSON et les valeurs d'énumération (verdict, severity, level, tama38, pinouiBinoui, recommendation) restent en anglais comme spécifié.`;
+}
+
+const SYSTEM_PROMPT_BASE = `Tu es un expert en immobilier spécialisé dans le marché israélien (Tel Aviv, Jérusalem, Netanya, Haïfa, Ashdod, etc.). Ton rôle est d'analyser des annonces immobilières pour des investisseurs et de produire une évaluation rigoureuse.
 
 Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun texte avant ou après, pas de balises Markdown). L'objet doit respecter EXACTEMENT cette structure :
 
@@ -88,7 +101,7 @@ Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun tex
 Règles importantes :
 - Tous les champs sont OBLIGATOIRES. Si une donnée est inconnue, utilise null (pour les nombres/chaînes/booléens) ou "unknown" (pour les énumérations), jamais une valeur inventée.
 - Tous les montants sont en shekels (₪).
-- Tous les textes (summary, comment, detail, recommendationText) doivent être en français.
+- Les textes libres (summary, comment, detail, recommendationText) doivent être rédigés dans la langue de sortie indiquée plus bas.
 - overallScore doit être un entier entre 0 et 100.
 - Base tes estimations sur des fourchettes réalistes du marché israélien pour le quartier identifié.
 
@@ -151,7 +164,7 @@ router.post("/anthropic/analyze-property", async (req, res): Promise<void> => {
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 8192,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(parsed.data.language ?? "fr"),
       messages: [
         {
           role: "user",

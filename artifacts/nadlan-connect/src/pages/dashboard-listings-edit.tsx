@@ -106,7 +106,7 @@ export default function DashboardListingsEdit() {
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(listingId) });
+      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
       toast({ title: "Propriété mise à jour" });
       setLocation("/dashboard");
     } catch (err) {

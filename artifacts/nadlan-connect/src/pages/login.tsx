@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useLocation, Link } from "wouter";
 import { getMyProfile } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/components/layout/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ function pathForRole(role: string | null | undefined): string {
 
 export default function Login() {
   const { isAuthenticated, isLoading, login, register } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [mode, setMode] = useState<"login" | "register">("login");
 
@@ -61,7 +63,7 @@ export default function Login() {
         setLocation("/");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+      setError(err instanceof Error ? err.message : t("login.genericError"));
     } finally {
       setSubmitting(false);
     }
@@ -82,31 +84,29 @@ export default function Login() {
             className="font-serif text-3xl"
             style={{ color: NAVY }}
           >
-            {mode === "login" ? "Connexion" : "Créer un compte"}
+            {mode === "login" ? t("login.title") : t("login.registerTitle")}
           </CardTitle>
           <CardDescription>
-            {mode === "login"
-              ? "Accédez à la plateforme premium de l'immobilier israélien."
-              : "Rejoignez NadlanConnect en tant qu'acheteur ou investisseur."}
+            {mode === "login" ? t("login.subtitle") : t("login.registerSubtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "register" && (
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nom complet</Label>
+                <Label htmlFor="fullName">{t("login.fullName")}</Label>
                 <Input
                   id="fullName"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Votre nom"
+                  placeholder={t("login.fullNamePlaceholder")}
                   required
                   autoComplete="name"
                 />
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("login.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -118,13 +118,13 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t("login.password")}</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === "register" ? "8 caractères minimum" : "••••••••"}
+                placeholder={mode === "register" ? t("login.passwordHint") : "••••••••"}
                 required
                 minLength={mode === "register" ? 8 : undefined}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
@@ -145,7 +145,7 @@ export default function Login() {
               disabled={submitting}
             >
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === "login" ? "Se connecter" : "Créer mon compte"}
+              {mode === "login" ? t("login.submitLogin") : t("login.submitRegister")}
             </Button>
           </form>
 
@@ -159,9 +159,9 @@ export default function Login() {
                   setError(null);
                 }}
               >
-                Pas encore de compte ?{" "}
+                {t("login.noAccount")}{" "}
                 <span style={{ color: NAVY }} className="font-medium">
-                  Créer un compte
+                  {t("login.registerTitle")}
                 </span>
               </button>
             ) : (
@@ -173,30 +173,30 @@ export default function Login() {
                   setError(null);
                 }}
               >
-                Déjà inscrit ?{" "}
+                {t("login.haveAccount")}{" "}
                 <span style={{ color: NAVY }} className="font-medium">
-                  Se connecter
+                  {t("login.submitLogin")}
                 </span>
               </button>
             )}
           </div>
 
           <div className="border-t pt-4 text-center text-sm text-muted-foreground space-y-1">
-            <p>Vous êtes un professionnel ?</p>
+            <p>{t("login.proPrompt")}</p>
             <div className="flex justify-center gap-4">
               <Link
                 href="/auth/register/agence"
                 className="font-medium hover:underline"
                 style={{ color: NAVY }}
               >
-                Agence
+                {t("login.agency")}
               </Link>
               <Link
                 href="/auth/register/promoteur"
                 className="font-medium hover:underline"
                 style={{ color: NAVY }}
               >
-                Promoteur
+                {t("login.developer")}
               </Link>
             </div>
           </div>
