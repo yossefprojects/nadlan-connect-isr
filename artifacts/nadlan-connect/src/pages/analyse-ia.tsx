@@ -901,13 +901,13 @@ export default function AnalyseIA() {
                   {messages.map((m, i) =>
                     m.role === "user" ? (
                       <div key={i} className="flex justify-end">
-                        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-[#1A3A5C] px-4 py-2.5 text-sm text-white">
+                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-[#1A3A5C] px-4 py-2.5 text-sm text-white">
                           {m.content}
                         </div>
                       </div>
                     ) : (
                       <div key={i} className="flex justify-start">
-                        <div className="markdown-body max-w-[90%] rounded-2xl rounded-bl-sm border border-black/5 bg-white px-4 py-3 text-sm text-[#1A3A5C]">
+                        <div className="markdown-body min-w-0 max-w-[90%] overflow-hidden rounded-2xl rounded-bl-sm border border-black/5 bg-white px-4 py-3 text-sm text-[#1A3A5C]">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                         </div>
                       </div>
