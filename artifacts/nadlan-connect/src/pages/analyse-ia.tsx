@@ -22,6 +22,7 @@ import {
   Wrench,
   Building2,
   Gauge,
+  Calculator,
 } from "lucide-react";
 
 const NAVY = "#1A3A5C";
@@ -120,6 +121,21 @@ function buildReport(text: string, r: AnalyzePropertyResult): string {
   lines.push("- TAMA 38 : " + (POTENTIAL_FR[r.urbanPotential.tama38] ?? ""));
   lines.push("- Pinoui Binoui : " + (POTENTIAL_FR[r.urbanPotential.pinouiBinoui] ?? ""));
   lines.push(r.urbanPotential.comment);
+  lines.push("");
+  lines.push("BILAN PROMOTEUR (ROI)");
+  if (r.promoterRoi.applicable) {
+    lines.push("- Surface existante : " + (r.promoterRoi.existingSurface ?? "—") + " m²");
+    lines.push("- Surface projetée : " + (r.promoterRoi.projectedSurface ?? "—") + " m²");
+    lines.push("- Prix d'acquisition : " + fmtShekel(r.promoterRoi.acquisitionPrice));
+    lines.push("- Coût construction au m² : " + fmtShekel(r.promoterRoi.constructionCostPerSqm));
+    lines.push("- Coûts de construction : " + fmtShekel(r.promoterRoi.estimatedConstructionCosts));
+    lines.push("- Chiffre d'affaires estimé : " + fmtShekel(r.promoterRoi.estimatedRevenue));
+    lines.push("- ROI brut : " + fmtPct(r.promoterRoi.grossRoiPct));
+    lines.push("- Permis de construire accordé : " + boolFr(r.promoterRoi.hasBuildingPermit));
+  } else {
+    lines.push("- Non applicable (ce bien n'est pas une opération de promotion).");
+  }
+  lines.push(r.promoterRoi.comment);
   lines.push("");
   lines.push("ANOMALIES DÉTECTÉES (" + r.anomalies.length + ")");
   if (r.anomalies.length === 0) {
@@ -408,6 +424,44 @@ export default function AnalyseIA() {
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{result.urbanPotential.comment}</p>
+                </CardContent>
+              </Card>
+
+              {/* Promoter ROI */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                    <span className="flex items-center gap-2">
+                      <Calculator className="h-4 w-4 text-[#C9A84C]" /> Bilan promoteur (ROI)
+                    </span>
+                    <Badge variant="outline" className="font-normal">
+                      {result.promoterRoi.applicable ? "Opération de promotion" : "Non applicable"}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {result.promoterRoi.applicable ? (
+                    <>
+                      <div className="mb-4 flex items-center gap-3 rounded-lg bg-[#0F2235] p-4 text-white">
+                        <span className="text-3xl font-serif" style={{ color: GOLD }}>
+                          {fmtPct(result.promoterRoi.grossRoiPct)}
+                        </span>
+                        <span className="text-xs uppercase tracking-wider text-white/60">
+                          ROI brut estimé
+                        </span>
+                      </div>
+                      <div className="grid gap-x-6 sm:grid-cols-2">
+                        <StatRow label="Surface existante" value={result.promoterRoi.existingSurface != null ? `${result.promoterRoi.existingSurface} m²` : "—"} />
+                        <StatRow label="Surface projetée" value={result.promoterRoi.projectedSurface != null ? `${result.promoterRoi.projectedSurface} m²` : "—"} />
+                        <StatRow label="Prix d'acquisition" value={fmtShekel(result.promoterRoi.acquisitionPrice)} />
+                        <StatRow label="Coût construction / m²" value={fmtShekel(result.promoterRoi.constructionCostPerSqm)} />
+                        <StatRow label="Coûts de construction" value={fmtShekel(result.promoterRoi.estimatedConstructionCosts)} />
+                        <StatRow label="Chiffre d'affaires estimé" value={fmtShekel(result.promoterRoi.estimatedRevenue)} />
+                        <StatRow label="Permis de construire" value={boolFr(result.promoterRoi.hasBuildingPermit)} />
+                      </div>
+                    </>
+                  ) : null}
+                  <p className="pt-3 text-xs text-muted-foreground leading-relaxed">{result.promoterRoi.comment}</p>
                 </CardContent>
               </Card>
 

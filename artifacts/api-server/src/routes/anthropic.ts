@@ -68,6 +68,18 @@ Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun tex
     "pinouiBinoui": "yes"|"no"|"possible"|"unknown",  // potentiel Pinoui Binoui
     "comment": string
   },
+  "promoterRoi": {                            // bilan financier PROMOTEUR (opération de promotion/développement)
+    "applicable": boolean,                    // true uniquement si le bien est une opportunité de promotion (terrain, immeuble, bien à transformer/revendre). false pour un simple appartement de revente.
+    "existingSurface": number|null,           // surface bâtie existante en m²
+    "projectedSurface": number|null,          // surface habitable totale projetée après opération en m²
+    "acquisitionPrice": number|null,          // prix d'acquisition en ₪
+    "constructionCostPerSqm": number|null,    // coût de construction retenu au m² en ₪
+    "estimatedConstructionCosts": number|null,// coûts de construction totaux estimés en ₪
+    "estimatedRevenue": number|null,          // chiffre d'affaires estimé (vente) en ₪
+    "grossRoiPct": number|null,               // ROI brut en %
+    "hasBuildingPermit": boolean|null,        // un permis de construire est-il déjà accordé ?
+    "comment": string
+  },
   "overallScore": number,                     // score d'investissement global 0-100 (entier)
   "recommendation": "green"|"orange"|"red",   // feu vert / prudence / éviter
   "recommendationText": string                // recommandation en 1-2 phrases (français)
@@ -78,7 +90,16 @@ Règles importantes :
 - Tous les montants sont en shekels (₪).
 - Tous les textes (summary, comment, detail, recommendationText) doivent être en français.
 - overallScore doit être un entier entre 0 et 100.
-- Base tes estimations sur des fourchettes réalistes du marché israélien pour le quartier identifié.`;
+- Base tes estimations sur des fourchettes réalistes du marché israélien pour le quartier identifié.
+
+RÈGLES DE CALCUL FINANCIER PROMOTEUR (objet "promoterRoi") :
+- Détermine d'abord "applicable". Mets true seulement si le bien se prête à une opération de promotion (terrain à bâtir, immeuble à surélever/diviser, bien à transformer pour revendre, fort potentiel TAMA 38 / Pinoui Binoui). Pour un simple appartement de revente standard, mets applicable=false et laisse les champs chiffrés à null avec un commentaire expliquant pourquoi.
+- Coût de construction/rénovation standard : 18 000 ₪/m² pour du standing standard à élevé. N'applique 28 000 ₪/m² QUE si le texte mentionne explicitement du « Très Grand Luxe / Ultra-Premium ».
+- Sous-sols/parkings excavés : forfait de 15 000 ₪/m² pour ces surfaces, sauf contrainte technique majeure spécifiée.
+- Chiffre d'affaires (estimatedRevenue) = surface projetée habitable totale × prix moyen du m² du quartier.
+- Coût total = (prix d'acquisition + coûts de construction) × 1,15 (les honoraires et imprévus représentent 15 % de ce sous-total).
+- grossRoiPct = ((chiffre d'affaires − coût total) / coût total) × 100.
+- Si un permis de construire est « déjà accordé » (hasBuildingPermit=true), valorise positivement cet actif dans overallScore (gain d'environ 3 ans de procédures) et mentionne-le dans le commentaire.`;
 
 function extractJson(text: string): string {
   const trimmed = text.trim();

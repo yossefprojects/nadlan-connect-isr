@@ -1217,6 +1217,50 @@ components:
           enum: [yes, no, possible, unknown]
         comment:
           type: string
+    PromoterRoi:
+      type: object
+      description: Promoter/developer financial appraisal (development project ROI).
+      required:
+        - applicable
+        - existingSurface
+        - projectedSurface
+        - acquisitionPrice
+        - constructionCostPerSqm
+        - estimatedConstructionCosts
+        - estimatedRevenue
+        - grossRoiPct
+        - hasBuildingPermit
+        - comment
+      properties:
+        applicable:
+          type: boolean
+          description: True when the property is a development/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.
+        existingSurface:
+          type: [number, 'null']
+          description: Existing built surface in m².
+        projectedSurface:
+          type: [number, 'null']
+          description: Total projected habitable surface after development, in m².
+        acquisitionPrice:
+          type: [number, 'null']
+          description: Acquisition price in ₪.
+        constructionCostPerSqm:
+          type: [number, 'null']
+          description: Applied construction cost per m² in ₪ (18000 standard/high, 28000 only if ultra-premium).
+        estimatedConstructionCosts:
+          type: [number, 'null']
+          description: Total estimated construction costs in ₪ (incl. excavated basement/parking at 15000 ₪/m²).
+        estimatedRevenue:
+          type: [number, 'null']
+          description: Estimated sales revenue in ₪ (projected surface × neighborhood price/m²).
+        grossRoiPct:
+          type: [number, 'null']
+          description: Gross ROI percentage = ((revenue - total cost) / total cost) × 100, total cost includes 15% fees/contingency.
+        hasBuildingPermit:
+          type: [boolean, 'null']
+          description: Whether a building permit is already granted (valued positively — ~3 years saved).
+        comment:
+          type: string
     AnalyzePropertyResult:
       type: object
       required:
@@ -1227,6 +1271,7 @@ components:
         - rentalYield
         - renovation
         - urbanPotential
+        - promoterRoi
         - overallScore
         - recommendation
         - recommendationText
@@ -1247,6 +1292,8 @@ components:
           $ref: '#/components/schemas/RenovationEstimate'
         urbanPotential:
           $ref: '#/components/schemas/UrbanPotential'
+        promoterRoi:
+          $ref: '#/components/schemas/PromoterRoi'
         overallScore:
           type: integer
           minimum: 0

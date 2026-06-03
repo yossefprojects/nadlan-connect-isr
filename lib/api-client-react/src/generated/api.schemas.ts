@@ -144,6 +144,55 @@ export interface UrbanPotential {
   comment: string;
 }
 
+/**
+ * Promoter/developer financial appraisal (development project ROI).
+ */
+export interface PromoterRoi {
+  /** True when the property is a development/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment. */
+  applicable: boolean;
+  /**
+     * Existing built surface in m².
+     * @nullable
+     */
+  existingSurface: number | null;
+  /**
+     * Total projected habitable surface after development, in m².
+     * @nullable
+     */
+  projectedSurface: number | null;
+  /**
+     * Acquisition price in ₪.
+     * @nullable
+     */
+  acquisitionPrice: number | null;
+  /**
+     * Applied construction cost per m² in ₪ (18000 standard/high, 28000 only if ultra-premium).
+     * @nullable
+     */
+  constructionCostPerSqm: number | null;
+  /**
+     * Total estimated construction costs in ₪ (incl. excavated basement/parking at 15000 ₪/m²).
+     * @nullable
+     */
+  estimatedConstructionCosts: number | null;
+  /**
+     * Estimated sales revenue in ₪ (projected surface × neighborhood price/m²).
+     * @nullable
+     */
+  estimatedRevenue: number | null;
+  /**
+     * Gross ROI percentage = ((revenue - total cost) / total cost) × 100, total cost includes 15% fees/contingency.
+     * @nullable
+     */
+  grossRoiPct: number | null;
+  /**
+     * Whether a building permit is already granted (valued positively — ~3 years saved).
+     * @nullable
+     */
+  hasBuildingPermit: boolean | null;
+  comment: string;
+}
+
 export type AnalyzePropertyResultRecommendation = typeof AnalyzePropertyResultRecommendation[keyof typeof AnalyzePropertyResultRecommendation];
 
 
@@ -161,6 +210,7 @@ export interface AnalyzePropertyResult {
   rentalYield: RentalYield;
   renovation: RenovationEstimate;
   urbanPotential: UrbanPotential;
+  promoterRoi: PromoterRoi;
   /**
      * @minimum 0
      * @maximum 100

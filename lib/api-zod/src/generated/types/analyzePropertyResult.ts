@@ -7,6 +7,7 @@
  */
 import type { AnalyzePropertyResultRecommendation } from './analyzePropertyResultRecommendation';
 import type { MarketEstimate } from './marketEstimate';
+import type { PromoterRoi } from './promoterRoi';
 import type { PropertyAnomaly } from './propertyAnomaly';
 import type { PropertyFeatures } from './propertyFeatures';
 import type { RenovationEstimate } from './renovationEstimate';
@@ -21,6 +22,7 @@ export interface AnalyzePropertyResult {
   rentalYield: RentalYield;
   renovation: RenovationEstimate;
   urbanPotential: UrbanPotential;
+  promoterRoi: PromoterRoi;
   /**
      * @minimum 0
      * @maximum 100

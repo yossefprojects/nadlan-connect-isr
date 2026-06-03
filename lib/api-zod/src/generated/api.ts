@@ -1020,6 +1020,18 @@ export const AnalyzePropertyResponse = zod.object({
   "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
   "comment": zod.string()
 }),
+  "promoterRoi": zod.object({
+  "applicable": zod.boolean().describe('True when the property is a development\/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.'),
+  "existingSurface": zod.number().nullable().describe('Existing built surface in m².'),
+  "projectedSurface": zod.number().nullable().describe('Total projected habitable surface after development, in m².'),
+  "acquisitionPrice": zod.number().nullable().describe('Acquisition price in ₪.'),
+  "constructionCostPerSqm": zod.number().nullable().describe('Applied construction cost per m² in ₪ (18000 standard\/high, 28000 only if ultra-premium).'),
+  "estimatedConstructionCosts": zod.number().nullable().describe('Total estimated construction costs in ₪ (incl. excavated basement\/parking at 15000 ₪\/m²).'),
+  "estimatedRevenue": zod.number().nullable().describe('Estimated sales revenue in ₪ (projected surface × neighborhood price\/m²).'),
+  "grossRoiPct": zod.number().nullable().describe('Gross ROI percentage = ((revenue - total cost) \/ total cost) × 100, total cost includes 15% fees\/contingency.'),
+  "hasBuildingPermit": zod.boolean().nullable().describe('Whether a building permit is already granted (valued positively — ~3 years saved).'),
+  "comment": zod.string()
+}).describe('Promoter\/developer financial appraisal (development project ROI).'),
   "overallScore": zod.number().min(analyzePropertyResponseOverallScoreMin).max(analyzePropertyResponseOverallScoreMax),
   "recommendation": zod.enum(['green', 'orange', 'red']),
   "recommendationText": zod.string()

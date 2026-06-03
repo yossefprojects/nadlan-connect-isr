@@ -66,6 +66,7 @@ export * from './profileRegistrationResultRole';
 export * from './profileSummary';
 export * from './profileSummaryLicenceStatut';
 export * from './profileSummaryRole';
+export * from './promoterRoi';
 export * from './promoteurRegistrationInput';
 export * from './promoteurRegistrationInputPlan';
 export * from './propertyAnomaly';
