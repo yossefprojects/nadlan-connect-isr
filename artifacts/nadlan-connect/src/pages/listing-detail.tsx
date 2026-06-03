@@ -162,7 +162,8 @@ export default function ListingDetail() {
     });
 
     const simulatorUrl = `${SIMULATOR_URL}?${params.toString()}`;
-    const win = window.open(simulatorUrl, "_blank", "noopener,noreferrer");
+    // Note: must NOT use "noopener" — it nullifies the window reference needed for postMessage
+    const win = window.open(simulatorUrl, "_blank");
 
     if (win) {
       const payload = {
@@ -186,12 +187,15 @@ export default function ListingDetail() {
 
       let attempts = 0;
       const sendMessage = () => {
-        if (attempts >= 8 || win.closed) return;
-        try { win.postMessage(payload, SIMULATOR_URL); } catch { /* cross-origin */ }
+        if (attempts >= 15 || win.closed) return;
+        try {
+          // Use "*" as targetOrigin so it works from any environment (dev or prod)
+          win.postMessage(payload, "*");
+        } catch { /* cross-origin */ }
         attempts++;
-        setTimeout(sendMessage, 1000);
+        setTimeout(sendMessage, 800);
       };
-      setTimeout(sendMessage, 800);
+      setTimeout(sendMessage, 600);
     }
 
     setAiSent(true);
