@@ -962,3 +962,67 @@ export const AdminUpdateListingStatusResponse = zod.object({
 })
 
 
+/**
+ * Sends a raw real-estate listing text to Claude and returns a structured investment analysis.
+ * @summary AI analysis of a property listing (Claude)
+ */
+export const analyzePropertyBodyListingTextMin = 10;
+export const analyzePropertyBodyListingTextMax = 8000;
+
+
+
+export const AnalyzePropertyBody = zod.object({
+  "listingText": zod.string().min(analyzePropertyBodyListingTextMin).max(analyzePropertyBodyListingTextMax).describe('Raw real-estate listing text (e.g. copied from Yad2 or Madlan).')
+})
+
+export const analyzePropertyResponseOverallScoreMin = 0;
+export const analyzePropertyResponseOverallScoreMax = 100;
+
+
+
+export const AnalyzePropertyResponse = zod.object({
+  "summary": zod.string(),
+  "features": zod.object({
+  "surface": zod.number().nullable().describe('Surface in m².'),
+  "rooms": zod.number().nullable(),
+  "floor": zod.string().nullable(),
+  "hasMamad": zod.boolean().nullable(),
+  "hasElevator": zod.boolean().nullable(),
+  "hasParking": zod.boolean().nullable(),
+  "city": zod.string().nullable(),
+  "neighborhood": zod.string().nullable()
+}),
+  "anomalies": zod.array(zod.object({
+  "label": zod.string(),
+  "severity": zod.enum(['low', 'medium', 'high']),
+  "detail": zod.string()
+})),
+  "marketEstimate": zod.object({
+  "pricePerSqm": zod.number().nullable().describe('Estimated market price per m² in ₪.'),
+  "estimatedValue": zod.number().nullable().describe('Estimated fair market value in ₪.'),
+  "listedPrice": zod.number().nullable().describe('Listed price detected in the text, in ₪.'),
+  "verdict": zod.enum(['underpriced', 'fair', 'overpriced', 'unknown']),
+  "comment": zod.string()
+}),
+  "rentalYield": zod.object({
+  "estimatedMonthlyRent": zod.number().nullable().describe('Estimated monthly rent in ₪.'),
+  "grossYieldPct": zod.number().nullable(),
+  "netYieldPct": zod.number().nullable(),
+  "comment": zod.string()
+}),
+  "renovation": zod.object({
+  "level": zod.enum(['none', 'refresh', 'renovation', 'unknown']),
+  "estimatedBudget": zod.number().nullable().describe('Estimated renovation budget in ₪.'),
+  "comment": zod.string()
+}),
+  "urbanPotential": zod.object({
+  "tama38": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "comment": zod.string()
+}),
+  "overallScore": zod.number().min(analyzePropertyResponseOverallScoreMin).max(analyzePropertyResponseOverallScoreMax),
+  "recommendation": zod.enum(['green', 'orange', 'red']),
+  "recommendationText": zod.string()
+})
+
+

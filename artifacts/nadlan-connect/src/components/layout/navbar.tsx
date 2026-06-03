@@ -21,6 +21,7 @@ export function Navbar() {
   const navItems = [
     { label: "Accueil", href: "/" },
     { label: "Propriétés", href: "/listings" },
+    { label: "Analyse IA", href: "/outils/analyse-ia" },
   ];
 
   if (isAuthenticated) {

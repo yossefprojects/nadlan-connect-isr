@@ -32,6 +32,9 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 - `lib/db/src/schema/` — Drizzle DB schema (`auth.ts`, `listings.ts`, `leads.ts`)
 - `artifacts/api-server/src/routes/` — Express route handlers
 - `artifacts/api-server/src/lib/engine.ts` — price estimation + investment scoring engine
+- `artifacts/api-server/src/routes/anthropic.ts` — AI property-analysis route (Anthropic Claude)
+- `lib/integrations-anthropic-ai/` — Replit-managed Anthropic client (billed to credits, no user key)
+- `artifacts/nadlan-connect/src/pages/analyse-ia.tsx` — "Dashboard Investisseur" AI analysis page (`/outils/analyse-ia`)
 - `artifacts/nadlan-connect/src/pages/` — React page components
 - `artifacts/nadlan-connect/src/components/` — Shared UI components
 
@@ -52,6 +55,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 - **Buyer**: Save favorites, submit leads/contact agents, view messages.
 - **Agent/Developer**: Pro dashboard — manage own listings (draft/publish), view incoming leads and messages, upload listing photos.
 - **Admin**: Moderate all listings (approve/reject), view platform stats.
+- **AI analysis** (`/outils/analyse-ia`, public): Paste a listing → Claude returns a structured investment analysis (features incl. Mamad/elevator, anomalies, market price/m², rental yield, renovation budget, urban potential TAMA38/Pinoui Binoui, score + recommendation). Public LLM endpoint is protected by a contract input cap (maxLength) + in-memory rate limit; the integration client is imported lazily so missing env fails only this route.
 
 ## Brand
 

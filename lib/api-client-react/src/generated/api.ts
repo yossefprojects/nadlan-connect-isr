@@ -25,6 +25,8 @@ import type {
   AdminStats,
   AdminUserUpdate,
   AgenceRegistrationInput,
+  AnalyzePropertyInput,
+  AnalyzePropertyResult,
   AuthUserEnvelope,
   DashboardStats,
   DeleteSuccess,
@@ -3345,5 +3347,77 @@ export const useAdminUpdateListingStatus = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getAdminUpdateListingStatusMutationOptions(options));
+    }
+
+export const getAnalyzePropertyUrl = () => {
+
+
+
+
+  return `/api/anthropic/analyze-property`
+}
+
+/**
+ * Sends a raw real-estate listing text to Claude and returns a structured investment analysis.
+ * @summary AI analysis of a property listing (Claude)
+ */
+export const analyzeProperty = async (analyzePropertyInput: AnalyzePropertyInput, options?: RequestInit): Promise<AnalyzePropertyResult> => {
+
+  return customFetch<AnalyzePropertyResult>(getAnalyzePropertyUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      analyzePropertyInput,)
+  }
+);}
+
+
+
+
+export const getAnalyzePropertyMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProperty>>, TError,{data: BodyType<AnalyzePropertyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeProperty>>, TError,{data: BodyType<AnalyzePropertyInput>}, TContext> => {
+
+const mutationKey = ['analyzeProperty'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeProperty>>, {data: BodyType<AnalyzePropertyInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeProperty(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzePropertyMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeProperty>>>
+    export type AnalyzePropertyMutationBody = BodyType<AnalyzePropertyInput>
+    export type AnalyzePropertyMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary AI analysis of a property listing (Claude)
+ */
+export const useAnalyzeProperty = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeProperty>>, TError,{data: BodyType<AnalyzePropertyInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeProperty>>,
+        TError,
+        {data: BodyType<AnalyzePropertyInput>},
+        TContext
+      > => {
+      return useMutation(getAnalyzePropertyMutationOptions(options));
     }
 

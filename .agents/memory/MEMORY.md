@@ -5,3 +5,4 @@
 - [NadlanConnect admin authorization](nadlan-auth-admin-guard.md) — open self-registration makes every admin route need an explicit role guard; self-service role-set must never allow admin.
 - [NadlanConnect agency verification](nadlan-agency-verification.md) — manual Risha'yon licence_statut + VerifiedBadge; badge-on-listing/email deferred (no public profile page, no email, listings link via users not profiles).
 - [NadlanConnect B2B onboarding](nadlan-b2b-onboarding.md) — promoteur/agence forms write to a `profiles` table (status pending), NOT the Replit-Auth users flow.
+- [NadlanConnect AI property analysis](nadlan-ai-property-analysis.md) — Replit-managed Anthropic, stateless contract-first endpoint; public LLM route MUST keep input cap + rate limit + lazy client import.

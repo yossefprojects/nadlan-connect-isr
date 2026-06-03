@@ -27,6 +27,8 @@ tags:
     description: In-lead messaging.
   - name: Dashboard
     description: Pro and admin dashboard stats.
+  - name: AI
+    description: AI-powered property analysis (Anthropic Claude).
 
 paths:
   /healthz:
@@ -1053,6 +1055,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/Listing'
 
+  # ── AI ────────────────────────────────────────────────────────────────────
+  /anthropic/analyze-property:
+    post:
+      tags: [AI]
+      operationId: analyzeProperty
+      summary: AI analysis of a property listing (Claude)
+      description: Sends a raw real-estate listing text to Claude and returns a structured investment analysis.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzePropertyInput'
+      responses:
+        '200':
+          description: Structured property analysis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyzePropertyResult'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '502':
+          description: AI analysis failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -1078,6 +1119,143 @@ components:
           type: string
       required:
         - status
+
+    # ── AI property analysis ──
+    AnalyzePropertyInput:
+      type: object
+      required: [listingText]
+      properties:
+        listingText:
+          type: string
+          minLength: 10
+          maxLength: 8000
+          description: Raw real-estate listing text (e.g. copied from Yad2 or Madlan).
+    PropertyFeatures:
+      type: object
+      required: [surface, rooms, floor, hasMamad, hasElevator, hasParking, city, neighborhood]
+      properties:
+        surface:
+          type: [number, 'null']
+          description: Surface in m².
+        rooms:
+          type: [number, 'null']
+        floor:
+          type: [string, 'null']
+        hasMamad:
+          type: [boolean, 'null']
+        hasElevator:
+          type: [boolean, 'null']
+        hasParking:
+          type: [boolean, 'null']
+        city:
+          type: [string, 'null']
+        neighborhood:
+          type: [string, 'null']
+    PropertyAnomaly:
+      type: object
+      required: [label, severity, detail]
+      properties:
+        label:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        detail:
+          type: string
+    MarketEstimate:
+      type: object
+      required: [pricePerSqm, estimatedValue, listedPrice, verdict, comment]
+      properties:
+        pricePerSqm:
+          type: [number, 'null']
+          description: Estimated market price per m² in ₪.
+        estimatedValue:
+          type: [number, 'null']
+          description: Estimated fair market value in ₪.
+        listedPrice:
+          type: [number, 'null']
+          description: Listed price detected in the text, in ₪.
+        verdict:
+          type: string
+          enum: [underpriced, fair, overpriced, unknown]
+        comment:
+          type: string
+    RentalYield:
+      type: object
+      required: [estimatedMonthlyRent, grossYieldPct, netYieldPct, comment]
+      properties:
+        estimatedMonthlyRent:
+          type: [number, 'null']
+          description: Estimated monthly rent in ₪.
+        grossYieldPct:
+          type: [number, 'null']
+        netYieldPct:
+          type: [number, 'null']
+        comment:
+          type: string
+    RenovationEstimate:
+      type: object
+      required: [level, estimatedBudget, comment]
+      properties:
+        level:
+          type: string
+          enum: [none, refresh, renovation, unknown]
+        estimatedBudget:
+          type: [number, 'null']
+          description: Estimated renovation budget in ₪.
+        comment:
+          type: string
+    UrbanPotential:
+      type: object
+      required: [tama38, pinouiBinoui, comment]
+      properties:
+        tama38:
+          type: string
+          enum: [yes, no, possible, unknown]
+        pinouiBinoui:
+          type: string
+          enum: [yes, no, possible, unknown]
+        comment:
+          type: string
+    AnalyzePropertyResult:
+      type: object
+      required:
+        - summary
+        - features
+        - anomalies
+        - marketEstimate
+        - rentalYield
+        - renovation
+        - urbanPotential
+        - overallScore
+        - recommendation
+        - recommendationText
+      properties:
+        summary:
+          type: string
+        features:
+          $ref: '#/components/schemas/PropertyFeatures'
+        anomalies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyAnomaly'
+        marketEstimate:
+          $ref: '#/components/schemas/MarketEstimate'
+        rentalYield:
+          $ref: '#/components/schemas/RentalYield'
+        renovation:
+          $ref: '#/components/schemas/RenovationEstimate'
+        urbanPotential:
+          $ref: '#/components/schemas/UrbanPotential'
+        overallScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        recommendation:
+          type: string
+          enum: [green, orange, red]
+        recommendationText:
+          type: string
 
     # ── Auth ──
     AuthUser:

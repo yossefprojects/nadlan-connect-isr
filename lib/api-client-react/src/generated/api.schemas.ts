@@ -9,6 +9,167 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface AnalyzePropertyInput {
+  /**
+     * Raw real-estate listing text (e.g. copied from Yad2 or Madlan).
+     * @minLength 10
+     * @maxLength 8000
+     */
+  listingText: string;
+}
+
+export interface PropertyFeatures {
+  /**
+     * Surface in m².
+     * @nullable
+     */
+  surface: number | null;
+  /** @nullable */
+  rooms: number | null;
+  /** @nullable */
+  floor: string | null;
+  /** @nullable */
+  hasMamad: boolean | null;
+  /** @nullable */
+  hasElevator: boolean | null;
+  /** @nullable */
+  hasParking: boolean | null;
+  /** @nullable */
+  city: string | null;
+  /** @nullable */
+  neighborhood: string | null;
+}
+
+export type PropertyAnomalySeverity = typeof PropertyAnomalySeverity[keyof typeof PropertyAnomalySeverity];
+
+
+export const PropertyAnomalySeverity = {
+  low: 'low',
+  medium: 'medium',
+  high: 'high',
+} as const;
+
+export interface PropertyAnomaly {
+  label: string;
+  severity: PropertyAnomalySeverity;
+  detail: string;
+}
+
+export type MarketEstimateVerdict = typeof MarketEstimateVerdict[keyof typeof MarketEstimateVerdict];
+
+
+export const MarketEstimateVerdict = {
+  underpriced: 'underpriced',
+  fair: 'fair',
+  overpriced: 'overpriced',
+  unknown: 'unknown',
+} as const;
+
+export interface MarketEstimate {
+  /**
+     * Estimated market price per m² in ₪.
+     * @nullable
+     */
+  pricePerSqm: number | null;
+  /**
+     * Estimated fair market value in ₪.
+     * @nullable
+     */
+  estimatedValue: number | null;
+  /**
+     * Listed price detected in the text, in ₪.
+     * @nullable
+     */
+  listedPrice: number | null;
+  verdict: MarketEstimateVerdict;
+  comment: string;
+}
+
+export interface RentalYield {
+  /**
+     * Estimated monthly rent in ₪.
+     * @nullable
+     */
+  estimatedMonthlyRent: number | null;
+  /** @nullable */
+  grossYieldPct: number | null;
+  /** @nullable */
+  netYieldPct: number | null;
+  comment: string;
+}
+
+export type RenovationEstimateLevel = typeof RenovationEstimateLevel[keyof typeof RenovationEstimateLevel];
+
+
+export const RenovationEstimateLevel = {
+  none: 'none',
+  refresh: 'refresh',
+  renovation: 'renovation',
+  unknown: 'unknown',
+} as const;
+
+export interface RenovationEstimate {
+  level: RenovationEstimateLevel;
+  /**
+     * Estimated renovation budget in ₪.
+     * @nullable
+     */
+  estimatedBudget: number | null;
+  comment: string;
+}
+
+export type UrbanPotentialTama38 = typeof UrbanPotentialTama38[keyof typeof UrbanPotentialTama38];
+
+
+export const UrbanPotentialTama38 = {
+  yes: 'yes',
+  no: 'no',
+  possible: 'possible',
+  unknown: 'unknown',
+} as const;
+
+export type UrbanPotentialPinouiBinoui = typeof UrbanPotentialPinouiBinoui[keyof typeof UrbanPotentialPinouiBinoui];
+
+
+export const UrbanPotentialPinouiBinoui = {
+  yes: 'yes',
+  no: 'no',
+  possible: 'possible',
+  unknown: 'unknown',
+} as const;
+
+export interface UrbanPotential {
+  tama38: UrbanPotentialTama38;
+  pinouiBinoui: UrbanPotentialPinouiBinoui;
+  comment: string;
+}
+
+export type AnalyzePropertyResultRecommendation = typeof AnalyzePropertyResultRecommendation[keyof typeof AnalyzePropertyResultRecommendation];
+
+
+export const AnalyzePropertyResultRecommendation = {
+  green: 'green',
+  orange: 'orange',
+  red: 'red',
+} as const;
+
+export interface AnalyzePropertyResult {
+  summary: string;
+  features: PropertyFeatures;
+  anomalies: PropertyAnomaly[];
+  marketEstimate: MarketEstimate;
+  rentalYield: RentalYield;
+  renovation: RenovationEstimate;
+  urbanPotential: UrbanPotential;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  overallScore: number;
+  recommendation: AnalyzePropertyResultRecommendation;
+  recommendationText: string;
+}
+
 export interface AuthUser {
   id: string;
   /** @nullable */

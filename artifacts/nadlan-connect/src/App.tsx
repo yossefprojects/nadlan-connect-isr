@@ -14,6 +14,7 @@ import RegisterPromoteur from "@/pages/register-promoteur";
 import RegisterAgence from "@/pages/register-agence";
 import Listings from "@/pages/listings";
 import ListingDetail from "@/pages/listing-detail";
+import AnalyseIA from "@/pages/analyse-ia";
 import Dashboard from "@/pages/dashboard";
 import DashboardListingsNew from "@/pages/dashboard-listings-new";
 import DashboardListingsEdit from "@/pages/dashboard-listings-edit";
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/auth/register/agence" component={RegisterAgence} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
+      <Route path="/outils/analyse-ia" component={AnalyseIA} />
       
       {/* Dashboard Routes */}
       <Route path="/dashboard" component={Dashboard} />
