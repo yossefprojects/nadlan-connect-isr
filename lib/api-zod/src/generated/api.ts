@@ -198,6 +198,64 @@ export const AdminUpdateUserResponse = zod.object({
 
 
 /**
+ * @summary Register a promoteur (developer) onboarding application
+ */
+
+
+
+
+export const registerPromoteurBodyNbProgrammesMin = 0;
+
+export const registerPromoteurBodyPasswordMin = 8;
+
+
+
+export const RegisterPromoteurBody = zod.object({
+  "firstName": zod.string().min(1),
+  "lastName": zod.string().min(1),
+  "email": zod.string().email(),
+  "phone": zod.string().optional(),
+  "companyName": zod.string().min(1),
+  "ville": zod.string().min(1),
+  "nbProgrammes": zod.number().min(registerPromoteurBodyNbProgrammesMin),
+  "website": zod.string().optional(),
+  "plan": zod.enum(['starter', 'pro']),
+  "password": zod.string().min(registerPromoteurBodyPasswordMin),
+  "cguAccepted": zod.boolean()
+})
+
+
+/**
+ * @summary Register an agence (agent) onboarding application
+ */
+
+
+
+
+
+export const registerAgenceBodyNbAgentsMin = 0;
+
+export const registerAgenceBodyPasswordMin = 8;
+
+
+
+export const RegisterAgenceBody = zod.object({
+  "firstName": zod.string().min(1),
+  "lastName": zod.string().min(1),
+  "email": zod.string().email(),
+  "phone": zod.string().optional(),
+  "companyName": zod.string().min(1),
+  "licenseNumber": zod.string().min(1),
+  "ville": zod.string().min(1),
+  "nbAgents": zod.number().min(registerAgenceBodyNbAgentsMin),
+  "specialties": zod.array(zod.enum(['residentiel_neuf', 'investissement', 'luxe', 'tama38', 'diaspora_francophone', 'commercial'])).optional(),
+  "plan": zod.enum(['starter', 'pro']),
+  "password": zod.string().min(registerAgenceBodyPasswordMin),
+  "cguAccepted": zod.boolean()
+})
+
+
+/**
  * @summary Search and filter listings
  */
 export const ListListingsQueryParams = zod.object({

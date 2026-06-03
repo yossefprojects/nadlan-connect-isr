@@ -8,6 +8,8 @@ import NotFound from "@/pages/not-found";
 
 import Home from "@/pages/home";
 import Auth from "@/pages/auth";
+import RegisterPromoteur from "@/pages/register-promoteur";
+import RegisterAgence from "@/pages/register-agence";
 import Listings from "@/pages/listings";
 import ListingDetail from "@/pages/listing-detail";
 import Dashboard from "@/pages/dashboard";
@@ -27,6 +29,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/auth" component={Auth} />
+      <Route path="/auth/register/promoteur" component={RegisterPromoteur} />
+      <Route path="/auth/register/agence" component={RegisterAgence} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
       

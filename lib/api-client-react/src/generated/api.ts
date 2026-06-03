@@ -23,6 +23,7 @@ import type {
   AdminListListingsParams,
   AdminStats,
   AdminUserUpdate,
+  AgenceRegistrationInput,
   AuthUserEnvelope,
   BeginBrowserLoginParams,
   DashboardStats,
@@ -51,6 +52,8 @@ import type {
   MandateStatusUpdate,
   Message,
   MessageInput,
+  ProfileRegistrationResult,
+  PromoteurRegistrationInput,
   RoleSelection,
   UploadUrlRequest,
   UploadUrlResponse,
@@ -990,6 +993,148 @@ export const useAdminUpdateUser = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getAdminUpdateUserMutationOptions(options));
+    }
+
+export const getRegisterPromoteurUrl = () => {
+
+
+
+
+  return `/api/profiles/promoteur`
+}
+
+/**
+ * @summary Register a promoteur (developer) onboarding application
+ */
+export const registerPromoteur = async (promoteurRegistrationInput: PromoteurRegistrationInput, options?: RequestInit): Promise<ProfileRegistrationResult> => {
+
+  return customFetch<ProfileRegistrationResult>(getRegisterPromoteurUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      promoteurRegistrationInput,)
+  }
+);}
+
+
+
+
+export const getRegisterPromoteurMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerPromoteur>>, TError,{data: BodyType<PromoteurRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof registerPromoteur>>, TError,{data: BodyType<PromoteurRegistrationInput>}, TContext> => {
+
+const mutationKey = ['registerPromoteur'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerPromoteur>>, {data: BodyType<PromoteurRegistrationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  registerPromoteur(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegisterPromoteurMutationResult = NonNullable<Awaited<ReturnType<typeof registerPromoteur>>>
+    export type RegisterPromoteurMutationBody = BodyType<PromoteurRegistrationInput>
+    export type RegisterPromoteurMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Register a promoteur (developer) onboarding application
+ */
+export const useRegisterPromoteur = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerPromoteur>>, TError,{data: BodyType<PromoteurRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof registerPromoteur>>,
+        TError,
+        {data: BodyType<PromoteurRegistrationInput>},
+        TContext
+      > => {
+      return useMutation(getRegisterPromoteurMutationOptions(options));
+    }
+
+export const getRegisterAgenceUrl = () => {
+
+
+
+
+  return `/api/profiles/agence`
+}
+
+/**
+ * @summary Register an agence (agent) onboarding application
+ */
+export const registerAgence = async (agenceRegistrationInput: AgenceRegistrationInput, options?: RequestInit): Promise<ProfileRegistrationResult> => {
+
+  return customFetch<ProfileRegistrationResult>(getRegisterAgenceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      agenceRegistrationInput,)
+  }
+);}
+
+
+
+
+export const getRegisterAgenceMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerAgence>>, TError,{data: BodyType<AgenceRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof registerAgence>>, TError,{data: BodyType<AgenceRegistrationInput>}, TContext> => {
+
+const mutationKey = ['registerAgence'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerAgence>>, {data: BodyType<AgenceRegistrationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  registerAgence(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegisterAgenceMutationResult = NonNullable<Awaited<ReturnType<typeof registerAgence>>>
+    export type RegisterAgenceMutationBody = BodyType<AgenceRegistrationInput>
+    export type RegisterAgenceMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Register an agence (agent) onboarding application
+ */
+export const useRegisterAgence = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerAgence>>, TError,{data: BodyType<AgenceRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof registerAgence>>,
+        TError,
+        {data: BodyType<AgenceRegistrationInput>},
+        TContext
+      > => {
+      return useMutation(getRegisterAgenceMutationOptions(options));
     }
 
 export const getListListingsUrl = (params?: ListListingsParams,) => {

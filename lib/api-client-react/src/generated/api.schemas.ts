@@ -92,6 +92,92 @@ export interface AdminUserUpdate {
   role?: AdminUserUpdateRole;
 }
 
+export type PromoteurRegistrationInputPlan = typeof PromoteurRegistrationInputPlan[keyof typeof PromoteurRegistrationInputPlan];
+
+
+export const PromoteurRegistrationInputPlan = {
+  starter: 'starter',
+  pro: 'pro',
+} as const;
+
+export interface PromoteurRegistrationInput {
+  /** @minLength 1 */
+  firstName: string;
+  /** @minLength 1 */
+  lastName: string;
+  email: string;
+  phone?: string;
+  /** @minLength 1 */
+  companyName: string;
+  /** @minLength 1 */
+  ville: string;
+  /** @minimum 0 */
+  nbProgrammes: number;
+  website?: string;
+  plan: PromoteurRegistrationInputPlan;
+  /** @minLength 8 */
+  password: string;
+  cguAccepted: boolean;
+}
+
+export type AgenceRegistrationInputSpecialtiesItem = typeof AgenceRegistrationInputSpecialtiesItem[keyof typeof AgenceRegistrationInputSpecialtiesItem];
+
+
+export const AgenceRegistrationInputSpecialtiesItem = {
+  residentiel_neuf: 'residentiel_neuf',
+  investissement: 'investissement',
+  luxe: 'luxe',
+  tama38: 'tama38',
+  diaspora_francophone: 'diaspora_francophone',
+  commercial: 'commercial',
+} as const;
+
+export type AgenceRegistrationInputPlan = typeof AgenceRegistrationInputPlan[keyof typeof AgenceRegistrationInputPlan];
+
+
+export const AgenceRegistrationInputPlan = {
+  starter: 'starter',
+  pro: 'pro',
+} as const;
+
+export interface AgenceRegistrationInput {
+  /** @minLength 1 */
+  firstName: string;
+  /** @minLength 1 */
+  lastName: string;
+  email: string;
+  phone?: string;
+  /** @minLength 1 */
+  companyName: string;
+  /** @minLength 1 */
+  licenseNumber: string;
+  /** @minLength 1 */
+  ville: string;
+  /** @minimum 0 */
+  nbAgents: number;
+  specialties?: AgenceRegistrationInputSpecialtiesItem[];
+  plan: AgenceRegistrationInputPlan;
+  /** @minLength 8 */
+  password: string;
+  cguAccepted: boolean;
+}
+
+export type ProfileRegistrationResultRole = typeof ProfileRegistrationResultRole[keyof typeof ProfileRegistrationResultRole];
+
+
+export const ProfileRegistrationResultRole = {
+  developer: 'developer',
+  agent: 'agent',
+} as const;
+
+export interface ProfileRegistrationResult {
+  success: boolean;
+  id: number;
+  role: ProfileRegistrationResultRole;
+  status: string;
+  message: string;
+}
+
 export type ListingType = typeof ListingType[keyof typeof ListingType];
 
 

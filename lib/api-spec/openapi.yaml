@@ -280,6 +280,69 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfile'
 
+  # ── Registration (B2B onboarding) ──────────────────────────────────────────
+  /profiles/promoteur:
+    post:
+      tags: [Profiles]
+      operationId: registerPromoteur
+      summary: Register a promoteur (developer) onboarding application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromoteurRegistrationInput'
+      responses:
+        '201':
+          description: Profile created (pending verification)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileRegistrationResult'
+        '400':
+          description: Invalid input or CGU not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '409':
+          description: A profile already exists with this email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /profiles/agence:
+    post:
+      tags: [Profiles]
+      operationId: registerAgence
+      summary: Register an agence (agent) onboarding application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgenceRegistrationInput'
+      responses:
+        '201':
+          description: Profile created (pending verification)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileRegistrationResult'
+        '400':
+          description: Invalid input or CGU not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '409':
+          description: A profile already exists with this email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
   # ── Listings ──────────────────────────────────────────────────────────────
   /listings:
     get:
@@ -1005,6 +1068,97 @@ components:
         role:
           type: string
           enum: [buyer, agent, developer, admin]
+
+    # ── Registration (B2B onboarding) ──
+    PromoteurRegistrationInput:
+      type: object
+      required: [firstName, lastName, email, companyName, ville, nbProgrammes, plan, password, cguAccepted]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        companyName:
+          type: string
+          minLength: 1
+        ville:
+          type: string
+          minLength: 1
+        nbProgrammes:
+          type: integer
+          minimum: 0
+        website:
+          type: string
+        plan:
+          type: string
+          enum: [starter, pro]
+        password:
+          type: string
+          minLength: 8
+        cguAccepted:
+          type: boolean
+    AgenceRegistrationInput:
+      type: object
+      required: [firstName, lastName, email, companyName, licenseNumber, ville, nbAgents, plan, password, cguAccepted]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        companyName:
+          type: string
+          minLength: 1
+        licenseNumber:
+          type: string
+          minLength: 1
+        ville:
+          type: string
+          minLength: 1
+        nbAgents:
+          type: integer
+          minimum: 0
+        specialties:
+          type: array
+          items:
+            type: string
+            enum: [residentiel_neuf, investissement, luxe, tama38, diaspora_francophone, commercial]
+        plan:
+          type: string
+          enum: [starter, pro]
+        password:
+          type: string
+          minLength: 8
+        cguAccepted:
+          type: boolean
+    ProfileRegistrationResult:
+      type: object
+      required: [success, id, role, status, message]
+      properties:
+        success:
+          type: boolean
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [developer, agent]
+        status:
+          type: string
+        message:
+          type: string
 
     # ── Listings ──
     Listing:
