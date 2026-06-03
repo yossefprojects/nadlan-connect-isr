@@ -46,6 +46,18 @@ export async function authMiddleware(
   next();
 }
 
+export function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  next();
+}
+
 export async function requireAdmin(
   req: Request,
   res: Response,

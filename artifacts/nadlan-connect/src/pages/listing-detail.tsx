@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { 
   useGetListing, getGetListingQueryKey,
   useAddFavorite, useRemoveFavorite, getGetMyFavoritesQueryKey,
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star } from "lucide-react";
+import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star, Scale } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SIMULATOR_URL = "https://israel-simzip.replit.app/";
@@ -41,6 +41,7 @@ const VILLE_LABELS: Record<string, string> = {
 
 export default function ListingDetail() {
   const [, params] = useRoute("/listings/:slug");
+  const [, setLocation] = useLocation();
   const slug = params?.slug ?? "";
 
   const { data: detail, isLoading } = useGetListing(slug, {
@@ -142,6 +143,21 @@ export default function ListingDetail() {
     const descStr = listing.description ? ` Description : ${listing.description}` : "";
 
     return `${listing.title} — ${loc}, ${listing.surface} m², ${listing.nbPieces} pièces${etageStr}, type ${typeLabel}. Prix d'acquisition : ${prixStr} ₪${estimStr}${scoreStr}.${descStr}`;
+  };
+
+  const handleEvaluate = () => {
+    if (!detail) return;
+    const listing = detail.listing;
+    const params = new URLSearchParams({
+      ville: listing.ville,
+      villeLabel: VILLE_LABELS[listing.ville] ?? listing.ville,
+      surface: String(listing.surface),
+      titre: listing.title,
+      prompt: buildSimulatorPrompt(listing),
+      ...(listing.quartier ? { quartier: listing.quartier } : {}),
+      ...(listing.etage != null ? { etage: String(listing.etage) } : {}),
+    });
+    setLocation(`/outils/analyse-ia?${params.toString()}`);
   };
 
   const handleSendToSimulator = () => {
@@ -322,13 +338,23 @@ export default function ListingDetail() {
                 {t("detail.simDesc")}
               </p>
             </div>
-            <Button
-              onClick={handleSendToSimulator}
-              className="flex-shrink-0 gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
-            >
-              {aiSent ? <Check className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-              {aiSent ? t("detail.sent") : t("detail.analyze")}
-            </Button>
+            <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
+              <Button
+                onClick={handleEvaluate}
+                variant="outline"
+                className="gap-2 border-[#1A3A5C]/30 text-[#1A3A5C] hover:bg-[#1A3A5C]/5"
+              >
+                <Scale className="h-4 w-4" />
+                {t("detail.evaluate")}
+              </Button>
+              <Button
+                onClick={handleSendToSimulator}
+                className="gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
+              >
+                {aiSent ? <Check className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                {aiSent ? t("detail.sent") : t("detail.analyze")}
+              </Button>
+            </div>
           </div>
           
           <div>

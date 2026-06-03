@@ -28,7 +28,9 @@ import type {
   AnalyzePropertyInput,
   AnalyzePropertyResult,
   AuthUserEnvelope,
+  CreateReportInput,
   DashboardStats,
+  DeleteReportResult,
   DeleteSuccess,
   ErrorEnvelope,
   Favorite,
@@ -60,6 +62,9 @@ import type {
   PromoteurRegistrationInput,
   RegisterInput,
   RoleSelection,
+  SavedReport,
+  ShamaiChatInput,
+  ShamaiChatResult,
   UpdateLicenceStatutInput,
   UploadUrlRequest,
   UploadUrlResponse,
@@ -3419,5 +3424,372 @@ export const useAnalyzeProperty = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getAnalyzePropertyMutationOptions(options));
+    }
+
+export const getShamaiChatUrl = () => {
+
+
+
+
+  return `/api/anthropic/shamai-chat`
+}
+
+/**
+ * Multi-turn conversation with the Agent Shamai IA. Returns a Markdown reply.
+ * @summary Conversational Shamai (appraisal expert) chat
+ */
+export const shamaiChat = async (shamaiChatInput: ShamaiChatInput, options?: RequestInit): Promise<ShamaiChatResult> => {
+
+  return customFetch<ShamaiChatResult>(getShamaiChatUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      shamaiChatInput,)
+  }
+);}
+
+
+
+
+export const getShamaiChatMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof shamaiChat>>, TError,{data: BodyType<ShamaiChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof shamaiChat>>, TError,{data: BodyType<ShamaiChatInput>}, TContext> => {
+
+const mutationKey = ['shamaiChat'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof shamaiChat>>, {data: BodyType<ShamaiChatInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  shamaiChat(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ShamaiChatMutationResult = NonNullable<Awaited<ReturnType<typeof shamaiChat>>>
+    export type ShamaiChatMutationBody = BodyType<ShamaiChatInput>
+    export type ShamaiChatMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Conversational Shamai (appraisal expert) chat
+ */
+export const useShamaiChat = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof shamaiChat>>, TError,{data: BodyType<ShamaiChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof shamaiChat>>,
+        TError,
+        {data: BodyType<ShamaiChatInput>},
+        TContext
+      > => {
+      return useMutation(getShamaiChatMutationOptions(options));
+    }
+
+export const getListMyReportsUrl = () => {
+
+
+
+
+  return `/api/reports`
+}
+
+/**
+ * @summary List the current user's saved reports
+ */
+export const listMyReports = async ( options?: RequestInit): Promise<SavedReport[]> => {
+
+  return customFetch<SavedReport[]>(getListMyReportsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyReportsQueryKey = () => {
+    return [
+    `/api/reports`
+    ] as const;
+    }
+
+
+export const getListMyReportsQueryOptions = <TData = Awaited<ReturnType<typeof listMyReports>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyReportsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyReports>>> = ({ signal }) => listMyReports({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyReports>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMyReportsQueryResult = NonNullable<Awaited<ReturnType<typeof listMyReports>>>
+export type ListMyReportsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List the current user's saved reports
+ */
+
+export function useListMyReports<TData = Awaited<ReturnType<typeof listMyReports>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMyReportsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateReportUrl = () => {
+
+
+
+
+  return `/api/reports`
+}
+
+/**
+ * @summary Save a report to the user's profile
+ */
+export const createReport = async (createReportInput: CreateReportInput, options?: RequestInit): Promise<SavedReport> => {
+
+  return customFetch<SavedReport>(getCreateReportUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createReportInput,)
+  }
+);}
+
+
+
+
+export const getCreateReportMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,{data: BodyType<CreateReportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,{data: BodyType<CreateReportInput>}, TContext> => {
+
+const mutationKey = ['createReport'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createReport>>, {data: BodyType<CreateReportInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createReport(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateReportMutationResult = NonNullable<Awaited<ReturnType<typeof createReport>>>
+    export type CreateReportMutationBody = BodyType<CreateReportInput>
+    export type CreateReportMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Save a report to the user's profile
+ */
+export const useCreateReport = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,{data: BodyType<CreateReportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createReport>>,
+        TError,
+        {data: BodyType<CreateReportInput>},
+        TContext
+      > => {
+      return useMutation(getCreateReportMutationOptions(options));
+    }
+
+export const getGetReportUrl = (reportId: number,) => {
+
+
+
+
+  return `/api/reports/${reportId}`
+}
+
+/**
+ * @summary Get a saved report by id
+ */
+export const getReport = async (reportId: number, options?: RequestInit): Promise<SavedReport> => {
+
+  return customFetch<SavedReport>(getGetReportUrl(reportId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetReportQueryKey = (reportId: number,) => {
+    return [
+    `/api/reports/${reportId}`
+    ] as const;
+    }
+
+
+export const getGetReportQueryOptions = <TData = Awaited<ReturnType<typeof getReport>>, TError = ErrorType<ErrorEnvelope>>(reportId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetReportQueryKey(reportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReport>>> = ({ signal }) => getReport(reportId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(reportId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetReportQueryResult = NonNullable<Awaited<ReturnType<typeof getReport>>>
+export type GetReportQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a saved report by id
+ */
+
+export function useGetReport<TData = Awaited<ReturnType<typeof getReport>>, TError = ErrorType<ErrorEnvelope>>(
+ reportId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetReportQueryOptions(reportId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDeleteReportUrl = (reportId: number,) => {
+
+
+
+
+  return `/api/reports/${reportId}`
+}
+
+/**
+ * @summary Delete a saved report
+ */
+export const deleteReport = async (reportId: number, options?: RequestInit): Promise<DeleteReportResult> => {
+
+  return customFetch<DeleteReportResult>(getDeleteReportUrl(reportId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteReportMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReport>>, TError,{reportId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteReport>>, TError,{reportId: number}, TContext> => {
+
+const mutationKey = ['deleteReport'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteReport>>, {reportId: number}> = (props) => {
+          const {reportId} = props ?? {};
+
+          return  deleteReport(reportId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteReportMutationResult = NonNullable<Awaited<ReturnType<typeof deleteReport>>>
+
+    export type DeleteReportMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Delete a saved report
+ */
+export const useDeleteReport = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteReport>>, TError,{reportId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteReport>>,
+        TError,
+        {reportId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteReportMutationOptions(options));
     }
 

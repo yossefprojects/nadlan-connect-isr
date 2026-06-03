@@ -9,6 +9,7 @@ import leadsRouter from "./leads";
 import mandatesRouter from "./mandates";
 import dashboardRouter from "./dashboard";
 import anthropicRouter from "./anthropic";
+import reportsRouter from "./reports";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(leadsRouter);
 router.use(mandatesRouter);
 router.use(dashboardRouter);
 router.use(anthropicRouter);
+router.use(reportsRouter);
 
 export default router;

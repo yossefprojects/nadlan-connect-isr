@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AnalyzePropertyResultRecommendation } from './analyzePropertyResultRecommendation';
+import type { AppraisalBreakdown } from './appraisalBreakdown';
+import type { FiscalAnalysis } from './fiscalAnalysis';
 import type { MarketEstimate } from './marketEstimate';
 import type { PromoterRoi } from './promoterRoi';
 import type { PropertyAnomaly } from './propertyAnomaly';
@@ -13,15 +15,19 @@ import type { PropertyFeatures } from './propertyFeatures';
 import type { RenovationEstimate } from './renovationEstimate';
 import type { RentalYield } from './rentalYield';
 import type { UrbanPotential } from './urbanPotential';
+import type { UrbanScore } from './urbanScore';
 
 export interface AnalyzePropertyResult {
   summary: string;
   features: PropertyFeatures;
   anomalies: PropertyAnomaly[];
+  appraisal: AppraisalBreakdown;
   marketEstimate: MarketEstimate;
+  fiscalAnalysis: FiscalAnalysis;
   rentalYield: RentalYield;
   renovation: RenovationEstimate;
   urbanPotential: UrbanPotential;
+  urbanScore: UrbanScore;
   promoterRoi: PromoterRoi;
   /**
      * @minimum 0

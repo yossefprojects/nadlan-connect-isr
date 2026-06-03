@@ -976,6 +976,9 @@ export const AnalyzePropertyBody = zod.object({
   "language": zod.enum(['fr', 'en', 'he']).default(analyzePropertyBodyLanguageDefault).describe('Language for the AI-generated free-text fields (summary, comments, recommendation).')
 })
 
+export const analyzePropertyResponseUrbanScoreScoreMin = 0;
+export const analyzePropertyResponseUrbanScoreScoreMax = 100;
+
 export const analyzePropertyResponseOverallScoreMin = 0;
 export const analyzePropertyResponseOverallScoreMax = 100;
 
@@ -998,6 +1001,19 @@ export const AnalyzePropertyResponse = zod.object({
   "severity": zod.enum(['low', 'medium', 'high']),
   "detail": zod.string()
 })),
+  "appraisal": zod.object({
+  "estimatedValue": zod.number().nullable().describe('Central estimated market value (vénale) in ₪.'),
+  "valueLow": zod.number().nullable().describe('Low end of the value range in ₪.'),
+  "valueHigh": zod.number().nullable().describe('High end of the value range in ₪.'),
+  "pricePerSqm": zod.number().nullable().describe('Estimated price per m² for THIS property in ₪ (after coefficients).'),
+  "marketPricePerSqm": zod.number().nullable().describe('Median neighborhood market price per m² in ₪ (Nadlan Gov reference).'),
+  "method": zod.string().describe('Primary valuation method used (comparative \/ revenu \/ résiduelle \/ coût).'),
+  "coefficients": zod.array(zod.object({
+  "factor": zod.string().describe('Adjustment factor name (e.g. \"État du bien\", \"Étage\", \"Âge\").'),
+  "coefficient": zod.number().nullable().describe('Applied multiplier (e.g. 1.08).'),
+  "impact": zod.string().describe('Human-readable impact on price\/m² (e.g. \"+3 360 ₪\/m²\").')
+}))
+}).describe('Shamai-style appraisal — value range and coefficient decomposition (comparative method).'),
   "marketEstimate": zod.object({
   "pricePerSqm": zod.number().nullable().describe('Estimated market price per m² in ₪.'),
   "estimatedValue": zod.number().nullable().describe('Estimated fair market value in ₪.'),
@@ -1005,6 +1021,26 @@ export const AnalyzePropertyResponse = zod.object({
   "verdict": zod.enum(['underpriced', 'fair', 'overpriced', 'unknown']),
   "comment": zod.string()
 }),
+  "fiscalAnalysis": zod.object({
+  "masRechisha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "masShevach": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "heitelHashvacha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "acquisitionTotalCost": zod.number().nullable().describe('Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.'),
+  "sellerNetProceeds": zod.number().nullable().describe('Estimated net proceeds for the seller after taxes in ₪.'),
+  "comment": zod.string()
+}).describe('Israeli real-estate taxation (Mas Rechisha \/ Mas Shevach \/ Heitel Hashvacha).'),
   "rentalYield": zod.object({
   "estimatedMonthlyRent": zod.number().nullable().describe('Estimated monthly rent in ₪.'),
   "grossYieldPct": zod.number().nullable(),
@@ -1021,6 +1057,15 @@ export const AnalyzePropertyResponse = zod.object({
   "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
   "comment": zod.string()
 }),
+  "urbanScore": zod.object({
+  "score": zod.number().min(analyzePropertyResponseUrbanScoreScoreMin).max(analyzePropertyResponseUrbanScoreScoreMax).nullable(),
+  "criteria": zod.array(zod.object({
+  "label": zod.string(),
+  "status": zod.string().describe('Status text (e.g. \"Oui\", \"Non\", \"À vérifier\").'),
+  "valueImpact": zod.string().describe('Estimated value impact (e.g. \"+15 à +25%\").')
+})),
+  "comment": zod.string()
+}).describe('Urban-renewal potential score (0-100) with criteria breakdown.'),
   "promoterRoi": zod.object({
   "applicable": zod.boolean().describe('True when the property is a development\/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.'),
   "existingSurface": zod.number().nullable().describe('Existing built surface in m².'),
@@ -1036,6 +1081,419 @@ export const AnalyzePropertyResponse = zod.object({
   "overallScore": zod.number().min(analyzePropertyResponseOverallScoreMin).max(analyzePropertyResponseOverallScoreMax),
   "recommendation": zod.enum(['green', 'orange', 'red']),
   "recommendationText": zod.string()
+})
+
+
+/**
+ * Multi-turn conversation with the Agent Shamai IA. Returns a Markdown reply.
+ * @summary Conversational Shamai (appraisal expert) chat
+ */
+export const shamaiChatBodyMessagesItemContentMax = 8000;
+
+export const shamaiChatBodyMessagesMax = 40;
+
+export const shamaiChatBodyLanguageDefault = `fr`;
+
+export const ShamaiChatBody = zod.object({
+  "messages": zod.array(zod.object({
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string().min(1).max(shamaiChatBodyMessagesItemContentMax)
+})).min(1).max(shamaiChatBodyMessagesMax),
+  "language": zod.enum(['fr', 'en', 'he']).default(shamaiChatBodyLanguageDefault)
+})
+
+export const ShamaiChatResponse = zod.object({
+  "reply": zod.string().describe('Assistant reply as Markdown (a Shamai-style report or conversational answer).')
+})
+
+
+/**
+ * @summary List the current user's saved reports
+ */
+export const ListMyReportsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const listMyReportsResponseAnalysisOneUrbanScoreScoreMin = 0;
+export const listMyReportsResponseAnalysisOneUrbanScoreScoreMax = 100;
+
+export const listMyReportsResponseAnalysisOneOverallScoreMin = 0;
+export const listMyReportsResponseAnalysisOneOverallScoreMax = 100;
+
+
+
+export const ListMyReportsResponseItem = zod.object({
+  "id": zod.number(),
+  "kind": zod.enum(['analysis', 'chat']),
+  "title": zod.string(),
+  "listingText": zod.string().nullable(),
+  "analysis": zod.union([zod.object({
+  "summary": zod.string(),
+  "features": zod.object({
+  "surface": zod.number().nullable().describe('Surface in m².'),
+  "rooms": zod.number().nullable(),
+  "floor": zod.string().nullable(),
+  "hasMamad": zod.boolean().nullable(),
+  "hasElevator": zod.boolean().nullable(),
+  "hasParking": zod.boolean().nullable(),
+  "city": zod.string().nullable(),
+  "neighborhood": zod.string().nullable()
+}),
+  "anomalies": zod.array(zod.object({
+  "label": zod.string(),
+  "severity": zod.enum(['low', 'medium', 'high']),
+  "detail": zod.string()
+})),
+  "appraisal": zod.object({
+  "estimatedValue": zod.number().nullable().describe('Central estimated market value (vénale) in ₪.'),
+  "valueLow": zod.number().nullable().describe('Low end of the value range in ₪.'),
+  "valueHigh": zod.number().nullable().describe('High end of the value range in ₪.'),
+  "pricePerSqm": zod.number().nullable().describe('Estimated price per m² for THIS property in ₪ (after coefficients).'),
+  "marketPricePerSqm": zod.number().nullable().describe('Median neighborhood market price per m² in ₪ (Nadlan Gov reference).'),
+  "method": zod.string().describe('Primary valuation method used (comparative \/ revenu \/ résiduelle \/ coût).'),
+  "coefficients": zod.array(zod.object({
+  "factor": zod.string().describe('Adjustment factor name (e.g. \"État du bien\", \"Étage\", \"Âge\").'),
+  "coefficient": zod.number().nullable().describe('Applied multiplier (e.g. 1.08).'),
+  "impact": zod.string().describe('Human-readable impact on price\/m² (e.g. \"+3 360 ₪\/m²\").')
+}))
+}).describe('Shamai-style appraisal — value range and coefficient decomposition (comparative method).'),
+  "marketEstimate": zod.object({
+  "pricePerSqm": zod.number().nullable().describe('Estimated market price per m² in ₪.'),
+  "estimatedValue": zod.number().nullable().describe('Estimated fair market value in ₪.'),
+  "listedPrice": zod.number().nullable().describe('Listed price detected in the text, in ₪.'),
+  "verdict": zod.enum(['underpriced', 'fair', 'overpriced', 'unknown']),
+  "comment": zod.string()
+}),
+  "fiscalAnalysis": zod.object({
+  "masRechisha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "masShevach": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "heitelHashvacha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "acquisitionTotalCost": zod.number().nullable().describe('Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.'),
+  "sellerNetProceeds": zod.number().nullable().describe('Estimated net proceeds for the seller after taxes in ₪.'),
+  "comment": zod.string()
+}).describe('Israeli real-estate taxation (Mas Rechisha \/ Mas Shevach \/ Heitel Hashvacha).'),
+  "rentalYield": zod.object({
+  "estimatedMonthlyRent": zod.number().nullable().describe('Estimated monthly rent in ₪.'),
+  "grossYieldPct": zod.number().nullable(),
+  "netYieldPct": zod.number().nullable(),
+  "comment": zod.string()
+}),
+  "renovation": zod.object({
+  "level": zod.enum(['none', 'refresh', 'renovation', 'unknown']),
+  "estimatedBudget": zod.number().nullable().describe('Estimated renovation budget in ₪.'),
+  "comment": zod.string()
+}),
+  "urbanPotential": zod.object({
+  "tama38": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "comment": zod.string()
+}),
+  "urbanScore": zod.object({
+  "score": zod.number().min(listMyReportsResponseAnalysisOneUrbanScoreScoreMin).max(listMyReportsResponseAnalysisOneUrbanScoreScoreMax).nullable(),
+  "criteria": zod.array(zod.object({
+  "label": zod.string(),
+  "status": zod.string().describe('Status text (e.g. \"Oui\", \"Non\", \"À vérifier\").'),
+  "valueImpact": zod.string().describe('Estimated value impact (e.g. \"+15 à +25%\").')
+})),
+  "comment": zod.string()
+}).describe('Urban-renewal potential score (0-100) with criteria breakdown.'),
+  "promoterRoi": zod.object({
+  "applicable": zod.boolean().describe('True when the property is a development\/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.'),
+  "existingSurface": zod.number().nullable().describe('Existing built surface in m².'),
+  "projectedSurface": zod.number().nullable().describe('Total projected habitable surface after development, in m².'),
+  "acquisitionPrice": zod.number().nullable().describe('Acquisition price in ₪.'),
+  "constructionCostPerSqm": zod.number().nullable().describe('Applied construction cost per m² in ₪ (18000 standard\/high, 28000 only if ultra-premium).'),
+  "estimatedConstructionCosts": zod.number().nullable().describe('Total estimated construction costs in ₪ (incl. excavated basement\/parking at 15000 ₪\/m²).'),
+  "estimatedRevenue": zod.number().nullable().describe('Estimated sales revenue in ₪ (projected surface × neighborhood price\/m²).'),
+  "grossRoiPct": zod.number().nullable().describe('Gross ROI percentage = ((revenue - total cost) \/ total cost) × 100, total cost includes 15% fees\/contingency.'),
+  "hasBuildingPermit": zod.boolean().nullable().describe('Whether a building permit is already granted (valued positively — ~3 years saved).'),
+  "comment": zod.string()
+}).describe('Promoter\/developer financial appraisal (development project ROI).'),
+  "overallScore": zod.number().min(listMyReportsResponseAnalysisOneOverallScoreMin).max(listMyReportsResponseAnalysisOneOverallScoreMax),
+  "recommendation": zod.enum(['green', 'orange', 'red']),
+  "recommendationText": zod.string()
+}),zod.null()]),
+  "chatMarkdown": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+export const ListMyReportsResponse = zod.array(ListMyReportsResponseItem)
+
+
+/**
+ * @summary Save a report to the user's profile
+ */
+export const CreateReportHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const createReportBodyTitleMax = 200;
+
+export const createReportBodyAnalysisOneUrbanScoreScoreMin = 0;
+export const createReportBodyAnalysisOneUrbanScoreScoreMax = 100;
+
+export const createReportBodyAnalysisOneOverallScoreMin = 0;
+export const createReportBodyAnalysisOneOverallScoreMax = 100;
+
+
+
+export const CreateReportBody = zod.object({
+  "kind": zod.enum(['analysis', 'chat']),
+  "title": zod.string().min(1).max(createReportBodyTitleMax),
+  "listingText": zod.string().nullish(),
+  "analysis": zod.union([zod.object({
+  "summary": zod.string(),
+  "features": zod.object({
+  "surface": zod.number().nullable().describe('Surface in m².'),
+  "rooms": zod.number().nullable(),
+  "floor": zod.string().nullable(),
+  "hasMamad": zod.boolean().nullable(),
+  "hasElevator": zod.boolean().nullable(),
+  "hasParking": zod.boolean().nullable(),
+  "city": zod.string().nullable(),
+  "neighborhood": zod.string().nullable()
+}),
+  "anomalies": zod.array(zod.object({
+  "label": zod.string(),
+  "severity": zod.enum(['low', 'medium', 'high']),
+  "detail": zod.string()
+})),
+  "appraisal": zod.object({
+  "estimatedValue": zod.number().nullable().describe('Central estimated market value (vénale) in ₪.'),
+  "valueLow": zod.number().nullable().describe('Low end of the value range in ₪.'),
+  "valueHigh": zod.number().nullable().describe('High end of the value range in ₪.'),
+  "pricePerSqm": zod.number().nullable().describe('Estimated price per m² for THIS property in ₪ (after coefficients).'),
+  "marketPricePerSqm": zod.number().nullable().describe('Median neighborhood market price per m² in ₪ (Nadlan Gov reference).'),
+  "method": zod.string().describe('Primary valuation method used (comparative \/ revenu \/ résiduelle \/ coût).'),
+  "coefficients": zod.array(zod.object({
+  "factor": zod.string().describe('Adjustment factor name (e.g. \"État du bien\", \"Étage\", \"Âge\").'),
+  "coefficient": zod.number().nullable().describe('Applied multiplier (e.g. 1.08).'),
+  "impact": zod.string().describe('Human-readable impact on price\/m² (e.g. \"+3 360 ₪\/m²\").')
+}))
+}).describe('Shamai-style appraisal — value range and coefficient decomposition (comparative method).'),
+  "marketEstimate": zod.object({
+  "pricePerSqm": zod.number().nullable().describe('Estimated market price per m² in ₪.'),
+  "estimatedValue": zod.number().nullable().describe('Estimated fair market value in ₪.'),
+  "listedPrice": zod.number().nullable().describe('Listed price detected in the text, in ₪.'),
+  "verdict": zod.enum(['underpriced', 'fair', 'overpriced', 'unknown']),
+  "comment": zod.string()
+}),
+  "fiscalAnalysis": zod.object({
+  "masRechisha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "masShevach": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "heitelHashvacha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "acquisitionTotalCost": zod.number().nullable().describe('Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.'),
+  "sellerNetProceeds": zod.number().nullable().describe('Estimated net proceeds for the seller after taxes in ₪.'),
+  "comment": zod.string()
+}).describe('Israeli real-estate taxation (Mas Rechisha \/ Mas Shevach \/ Heitel Hashvacha).'),
+  "rentalYield": zod.object({
+  "estimatedMonthlyRent": zod.number().nullable().describe('Estimated monthly rent in ₪.'),
+  "grossYieldPct": zod.number().nullable(),
+  "netYieldPct": zod.number().nullable(),
+  "comment": zod.string()
+}),
+  "renovation": zod.object({
+  "level": zod.enum(['none', 'refresh', 'renovation', 'unknown']),
+  "estimatedBudget": zod.number().nullable().describe('Estimated renovation budget in ₪.'),
+  "comment": zod.string()
+}),
+  "urbanPotential": zod.object({
+  "tama38": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "comment": zod.string()
+}),
+  "urbanScore": zod.object({
+  "score": zod.number().min(createReportBodyAnalysisOneUrbanScoreScoreMin).max(createReportBodyAnalysisOneUrbanScoreScoreMax).nullable(),
+  "criteria": zod.array(zod.object({
+  "label": zod.string(),
+  "status": zod.string().describe('Status text (e.g. \"Oui\", \"Non\", \"À vérifier\").'),
+  "valueImpact": zod.string().describe('Estimated value impact (e.g. \"+15 à +25%\").')
+})),
+  "comment": zod.string()
+}).describe('Urban-renewal potential score (0-100) with criteria breakdown.'),
+  "promoterRoi": zod.object({
+  "applicable": zod.boolean().describe('True when the property is a development\/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.'),
+  "existingSurface": zod.number().nullable().describe('Existing built surface in m².'),
+  "projectedSurface": zod.number().nullable().describe('Total projected habitable surface after development, in m².'),
+  "acquisitionPrice": zod.number().nullable().describe('Acquisition price in ₪.'),
+  "constructionCostPerSqm": zod.number().nullable().describe('Applied construction cost per m² in ₪ (18000 standard\/high, 28000 only if ultra-premium).'),
+  "estimatedConstructionCosts": zod.number().nullable().describe('Total estimated construction costs in ₪ (incl. excavated basement\/parking at 15000 ₪\/m²).'),
+  "estimatedRevenue": zod.number().nullable().describe('Estimated sales revenue in ₪ (projected surface × neighborhood price\/m²).'),
+  "grossRoiPct": zod.number().nullable().describe('Gross ROI percentage = ((revenue - total cost) \/ total cost) × 100, total cost includes 15% fees\/contingency.'),
+  "hasBuildingPermit": zod.boolean().nullable().describe('Whether a building permit is already granted (valued positively — ~3 years saved).'),
+  "comment": zod.string()
+}).describe('Promoter\/developer financial appraisal (development project ROI).'),
+  "overallScore": zod.number().min(createReportBodyAnalysisOneOverallScoreMin).max(createReportBodyAnalysisOneOverallScoreMax),
+  "recommendation": zod.enum(['green', 'orange', 'red']),
+  "recommendationText": zod.string()
+}),zod.null()]).optional(),
+  "chatMarkdown": zod.string().nullish()
+})
+
+
+/**
+ * @summary Get a saved report by id
+ */
+export const GetReportParams = zod.object({
+  "reportId": zod.coerce.number()
+})
+
+export const GetReportHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const getReportResponseAnalysisOneUrbanScoreScoreMin = 0;
+export const getReportResponseAnalysisOneUrbanScoreScoreMax = 100;
+
+export const getReportResponseAnalysisOneOverallScoreMin = 0;
+export const getReportResponseAnalysisOneOverallScoreMax = 100;
+
+
+
+export const GetReportResponse = zod.object({
+  "id": zod.number(),
+  "kind": zod.enum(['analysis', 'chat']),
+  "title": zod.string(),
+  "listingText": zod.string().nullable(),
+  "analysis": zod.union([zod.object({
+  "summary": zod.string(),
+  "features": zod.object({
+  "surface": zod.number().nullable().describe('Surface in m².'),
+  "rooms": zod.number().nullable(),
+  "floor": zod.string().nullable(),
+  "hasMamad": zod.boolean().nullable(),
+  "hasElevator": zod.boolean().nullable(),
+  "hasParking": zod.boolean().nullable(),
+  "city": zod.string().nullable(),
+  "neighborhood": zod.string().nullable()
+}),
+  "anomalies": zod.array(zod.object({
+  "label": zod.string(),
+  "severity": zod.enum(['low', 'medium', 'high']),
+  "detail": zod.string()
+})),
+  "appraisal": zod.object({
+  "estimatedValue": zod.number().nullable().describe('Central estimated market value (vénale) in ₪.'),
+  "valueLow": zod.number().nullable().describe('Low end of the value range in ₪.'),
+  "valueHigh": zod.number().nullable().describe('High end of the value range in ₪.'),
+  "pricePerSqm": zod.number().nullable().describe('Estimated price per m² for THIS property in ₪ (after coefficients).'),
+  "marketPricePerSqm": zod.number().nullable().describe('Median neighborhood market price per m² in ₪ (Nadlan Gov reference).'),
+  "method": zod.string().describe('Primary valuation method used (comparative \/ revenu \/ résiduelle \/ coût).'),
+  "coefficients": zod.array(zod.object({
+  "factor": zod.string().describe('Adjustment factor name (e.g. \"État du bien\", \"Étage\", \"Âge\").'),
+  "coefficient": zod.number().nullable().describe('Applied multiplier (e.g. 1.08).'),
+  "impact": zod.string().describe('Human-readable impact on price\/m² (e.g. \"+3 360 ₪\/m²\").')
+}))
+}).describe('Shamai-style appraisal — value range and coefficient decomposition (comparative method).'),
+  "marketEstimate": zod.object({
+  "pricePerSqm": zod.number().nullable().describe('Estimated market price per m² in ₪.'),
+  "estimatedValue": zod.number().nullable().describe('Estimated fair market value in ₪.'),
+  "listedPrice": zod.number().nullable().describe('Listed price detected in the text, in ₪.'),
+  "verdict": zod.enum(['underpriced', 'fair', 'overpriced', 'unknown']),
+  "comment": zod.string()
+}),
+  "fiscalAnalysis": zod.object({
+  "masRechisha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "masShevach": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "heitelHashvacha": zod.object({
+  "amount": zod.number().nullable().describe('Tax amount in ₪.'),
+  "ratePct": zod.number().nullable().describe('Effective rate in %.'),
+  "note": zod.string()
+}),
+  "acquisitionTotalCost": zod.number().nullable().describe('Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.'),
+  "sellerNetProceeds": zod.number().nullable().describe('Estimated net proceeds for the seller after taxes in ₪.'),
+  "comment": zod.string()
+}).describe('Israeli real-estate taxation (Mas Rechisha \/ Mas Shevach \/ Heitel Hashvacha).'),
+  "rentalYield": zod.object({
+  "estimatedMonthlyRent": zod.number().nullable().describe('Estimated monthly rent in ₪.'),
+  "grossYieldPct": zod.number().nullable(),
+  "netYieldPct": zod.number().nullable(),
+  "comment": zod.string()
+}),
+  "renovation": zod.object({
+  "level": zod.enum(['none', 'refresh', 'renovation', 'unknown']),
+  "estimatedBudget": zod.number().nullable().describe('Estimated renovation budget in ₪.'),
+  "comment": zod.string()
+}),
+  "urbanPotential": zod.object({
+  "tama38": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "pinouiBinoui": zod.enum(['yes', 'no', 'possible', 'unknown']),
+  "comment": zod.string()
+}),
+  "urbanScore": zod.object({
+  "score": zod.number().min(getReportResponseAnalysisOneUrbanScoreScoreMin).max(getReportResponseAnalysisOneUrbanScoreScoreMax).nullable(),
+  "criteria": zod.array(zod.object({
+  "label": zod.string(),
+  "status": zod.string().describe('Status text (e.g. \"Oui\", \"Non\", \"À vérifier\").'),
+  "valueImpact": zod.string().describe('Estimated value impact (e.g. \"+15 à +25%\").')
+})),
+  "comment": zod.string()
+}).describe('Urban-renewal potential score (0-100) with criteria breakdown.'),
+  "promoterRoi": zod.object({
+  "applicable": zod.boolean().describe('True when the property is a development\/promotion opportunity (lot, building, renovation-to-resell). False for a simple resale apartment.'),
+  "existingSurface": zod.number().nullable().describe('Existing built surface in m².'),
+  "projectedSurface": zod.number().nullable().describe('Total projected habitable surface after development, in m².'),
+  "acquisitionPrice": zod.number().nullable().describe('Acquisition price in ₪.'),
+  "constructionCostPerSqm": zod.number().nullable().describe('Applied construction cost per m² in ₪ (18000 standard\/high, 28000 only if ultra-premium).'),
+  "estimatedConstructionCosts": zod.number().nullable().describe('Total estimated construction costs in ₪ (incl. excavated basement\/parking at 15000 ₪\/m²).'),
+  "estimatedRevenue": zod.number().nullable().describe('Estimated sales revenue in ₪ (projected surface × neighborhood price\/m²).'),
+  "grossRoiPct": zod.number().nullable().describe('Gross ROI percentage = ((revenue - total cost) \/ total cost) × 100, total cost includes 15% fees\/contingency.'),
+  "hasBuildingPermit": zod.boolean().nullable().describe('Whether a building permit is already granted (valued positively — ~3 years saved).'),
+  "comment": zod.string()
+}).describe('Promoter\/developer financial appraisal (development project ROI).'),
+  "overallScore": zod.number().min(getReportResponseAnalysisOneOverallScoreMin).max(getReportResponseAnalysisOneOverallScoreMax),
+  "recommendation": zod.enum(['green', 'orange', 'red']),
+  "recommendationText": zod.string()
+}),zod.null()]),
+  "chatMarkdown": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a saved report
+ */
+export const DeleteReportParams = zod.object({
+  "reportId": zod.coerce.number()
+})
+
+export const DeleteReportHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const DeleteReportResponse = zod.object({
+  "success": zod.boolean()
 })
 
 

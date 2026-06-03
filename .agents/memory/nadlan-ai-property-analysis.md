@@ -14,6 +14,15 @@ Feature: paste a real-estate listing → structured investment analysis (feature
 ## Contract-first
 - Single endpoint `POST /anthropic/analyze-property`, normal JSON (not SSE) because the output is one structured object → lets Orval generate a React Query hook + zod schema. Server validates the model's JSON against the generated zod `AnalyzePropertyResponse` and returns 502 if it doesn't conform.
 
+## "Agent Shamai" enrichment (certified appraiser)
+- The structured result was extended additively with appraiser fields: `appraisal` (value range + coefficient breakdown via comparative method), `fiscalAnalysis` (Mas Rechisha / Mas Shevach / Heitel Hashvacha), `urbanScore` (renewal score + criteria). All arithmetic is LLM-done → indicative, not audited.
+- A SECOND endpoint `POST /anthropic/shamai-chat` is **conversational** (messages[] + language → Markdown `reply`). It returns free-form Markdown (rendered with `react-markdown` + `remark-gfm`, styled via `.markdown-body` CSS), NOT a validated JSON contract — so it has no zod result schema. It still MUST keep the same public-LLM guards (input cap, rate limit, lazy client import).
+- **Both endpoints need an api-server restart to pick up newly added routes** — a 404 on a route that exists in code usually means the workflow hasn't reloaded.
+
+## Saved reports
+- `/reports` CRUD (auth-gated, `requireAuth` + ownership filter by `userId`) persists analyses/chats to `saved_reports`. The frontend "Mes rapports" page (`/outils/mes-rapports`) lists/downloads/deletes them; chat is serialized to Markdown for save + PDF.
+- Deep-link prefill into `/outils/analyse-ia` supports `?mode=chat` — when chat mode is requested, prefill must target `chatInput`, not the analysis textarea.
+
 ## Dual analysis in one response (investor + promoter)
 - The single result carries BOTH an investor/buyer analysis (market price, rental yield, renovation, urban potential) AND a `promoterRoi` development appraisal — kept **additive** per the user's choice (don't replace the investor view).
 - `promoterRoi.applicable` is the gate: the model sets it true only for development opportunities (lot/building/transform-to-resell), false for a plain resale apartment (then numeric fields null). UI/export render the full ROI breakdown only when applicable.

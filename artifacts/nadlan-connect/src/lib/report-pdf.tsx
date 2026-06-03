@@ -326,9 +326,46 @@ function ReportDoc({
           <Text style={s.para}>{sanitize(r.summary)}</Text>
         </View>
 
-        {/* 2. Données extraites */}
+        {/* 2. Évaluation Shamai */}
         <View style={s.section}>
-          <SecHead n={2} title="DONNÉES EXTRAITES" />
+          <SecHead n={2} title="ÉVALUATION (SHAMAI)" />
+          <Row
+            label="Valeur vénale estimée"
+            value={fmtShekel(r.appraisal.estimatedValue)}
+          />
+          <Row
+            label="Fourchette"
+            value={`${fmtShekel(r.appraisal.valueLow)} - ${fmtShekel(r.appraisal.valueHigh)}`}
+          />
+          <Row
+            label="Prix / m² estimé (ce bien)"
+            value={fmtShekel(r.appraisal.pricePerSqm)}
+          />
+          <Row
+            label="Prix marché / m² (quartier)"
+            value={fmtShekel(r.appraisal.marketPricePerSqm)}
+          />
+          <Row
+            label="Méthode principale"
+            value={sanitize(r.appraisal.method) || "—"}
+          />
+          {r.appraisal.coefficients.length > 0 && (
+            <View style={{ marginTop: 10 }}>
+              <Text style={s.bulletTitle}>Décomposition des coefficients</Text>
+              {r.appraisal.coefficients.map((c, i) => (
+                <Row
+                  key={i}
+                  label={sanitize(c.factor)}
+                  value={`${c.coefficient != null ? c.coefficient.toFixed(2) : "—"}  ·  ${sanitize(c.impact)}`}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* 3. Données extraites */}
+        <View style={s.section}>
+          <SecHead n={3} title="DONNÉES EXTRAITES" />
           <Row
             label="Localisation"
             value={
@@ -372,7 +409,7 @@ function ReportDoc({
 
         {/* 3. Hypothèses retenues */}
         <View style={s.section}>
-          <SecHead n={3} title="HYPOTHÈSES RETENUES" />
+          <SecHead n={4} title="HYPOTHÈSES RETENUES" />
           {p.applicable ? (
             <>
               <Row
@@ -409,7 +446,7 @@ function ReportDoc({
 
         {/* 4. Estimation des coûts */}
         <View style={s.section}>
-          <SecHead n={4} title="ESTIMATION DES COÛTS" />
+          <SecHead n={5} title="ESTIMATION DES COÛTS" />
           {p.applicable ? (
             <>
               <Row label="Prix d'acquisition" value={fmtShekel(acq)} />
@@ -442,7 +479,7 @@ function ReportDoc({
 
         {/* 5. Analyse financière */}
         <View style={s.section}>
-          <SecHead n={5} title="ANALYSE FINANCIÈRE" />
+          <SecHead n={6} title="ANALYSE FINANCIÈRE" />
           <Row
             label={`Estimation de marché (${VERDICT_FR[r.marketEstimate.verdict] ?? "—"})`}
             value={fmtShekel(r.marketEstimate.estimatedValue)}
@@ -549,9 +586,56 @@ function ReportDoc({
           ) : null}
         </View>
 
-        {/* 6. Analyse des risques */}
+        {/* 7. Analyse fiscale */}
         <View style={s.section}>
-          <SecHead n={6} title="ANALYSE DES RISQUES" />
+          <SecHead n={7} title="ANALYSE FISCALE" />
+          <Row
+            label="Mas Rechisha (acquisition)"
+            value={`${fmtShekel(r.fiscalAnalysis.masRechisha.amount)} (${fmtPct(r.fiscalAnalysis.masRechisha.ratePct)})`}
+          />
+          <Row
+            label="Mas Shevach (plus-value)"
+            value={`${fmtShekel(r.fiscalAnalysis.masShevach.amount)} (${fmtPct(r.fiscalAnalysis.masShevach.ratePct)})`}
+          />
+          <Row
+            label="Heitel Hashvacha (valorisation)"
+            value={`${fmtShekel(r.fiscalAnalysis.heitelHashvacha.amount)} (${fmtPct(r.fiscalAnalysis.heitelHashvacha.ratePct)})`}
+          />
+          <Row
+            label="Coût total acquisition"
+            value={fmtShekel(r.fiscalAnalysis.acquisitionTotalCost)}
+          />
+          <Row
+            label="Produit net vendeur"
+            value={fmtShekel(r.fiscalAnalysis.sellerNetProceeds)}
+          />
+          {r.fiscalAnalysis.comment ? (
+            <Text style={s.note}>{sanitize(r.fiscalAnalysis.comment)}</Text>
+          ) : null}
+        </View>
+
+        {/* 8. Score urbanistique */}
+        <View style={s.section}>
+          <SecHead n={8} title="SCORE URBANISTIQUE" />
+          <Row
+            label="Score potentiel"
+            value={`${r.urbanScore.score ?? "—"} / 100`}
+          />
+          {r.urbanScore.criteria.map((c, i) => (
+            <Row
+              key={i}
+              label={sanitize(c.label)}
+              value={`${sanitize(c.status)}  ·  ${sanitize(c.valueImpact)}`}
+            />
+          ))}
+          {r.urbanScore.comment ? (
+            <Text style={s.note}>{sanitize(r.urbanScore.comment)}</Text>
+          ) : null}
+        </View>
+
+        {/* 9. Analyse des risques */}
+        <View style={s.section}>
+          <SecHead n={9} title="ANALYSE DES RISQUES" />
           {r.anomalies.length === 0 ? (
             <Text style={s.para}>Aucune anomalie détectée.</Text>
           ) : (
@@ -574,7 +658,7 @@ function ReportDoc({
 
         {/* 7. Investment score */}
         <View style={s.section} wrap={false}>
-          <SecHead n={7} title="INVESTMENT SCORE" />
+          <SecHead n={10} title="INVESTMENT SCORE" />
           <View
             style={[
               s.scoreBox,
@@ -598,7 +682,7 @@ function ReportDoc({
 
         {/* 8. Conclusion */}
         <View style={s.sectionPlain} wrap={false}>
-          <SecHead n={8} title="CONCLUSION" />
+          <SecHead n={11} title="CONCLUSION" />
           <Row label="Statut" value={status.label} />
           <Text style={[s.para, { marginTop: 4 }]}>
             {sanitize(r.recommendationText)}
@@ -607,7 +691,7 @@ function ReportDoc({
 
         {/* 9. Annexe — annonce analysée (on its own page) */}
         <View style={s.sectionPlain} break>
-          <SecHead n={9} title="ANNEXE — ANNONCE ANALYSÉE" />
+          <SecHead n={12} title="ANNEXE — ANNONCE ANALYSÉE" />
           <View style={s.sourceBox}>
             <Text style={s.annexText}>{sanitize(text)}</Text>
           </View>
@@ -622,12 +706,139 @@ export async function downloadAnalysisPdf(
   result: AnalyzePropertyResult,
 ): Promise<void> {
   const blob = await pdf(<ReportDoc text={text} r={result} />).toBlob();
+  triggerDownload(blob, `rapport-nadlanconnect-${Date.now()}.pdf`);
+}
+
+function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `rapport-nadlanconnect-${Date.now()}.pdf`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+function stripInline(line: string): string {
+  return sanitize(
+    line
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/__(.+?)__/g, "$1")
+      .replace(/`(.+?)`/g, "$1")
+      .replace(/\*(.+?)\*/g, "$1"),
+  );
+}
+
+type MdBlock =
+  | { kind: "h"; level: number; text: string }
+  | { kind: "p"; text: string }
+  | { kind: "li"; text: string }
+  | { kind: "tr"; cells: string[] }
+  | { kind: "hr" };
+
+function parseMarkdown(md: string): MdBlock[] {
+  const blocks: MdBlock[] = [];
+  for (const raw of md.split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line)) {
+      blocks.push({ kind: "hr" });
+      continue;
+    }
+    const h = /^(#{1,4})\s+(.*)$/.exec(line);
+    if (h) {
+      blocks.push({ kind: "h", level: h[1].length, text: stripInline(h[2]) });
+      continue;
+    }
+    if (line.startsWith("|") && line.includes("|")) {
+      const cells = line.split("|").map((c) => c.trim());
+      if (cells.length && cells[0] === "") cells.shift();
+      if (cells.length && cells[cells.length - 1] === "") cells.pop();
+      const isSeparator = cells.every((c) => /^:?-{2,}:?$/.test(c));
+      if (isSeparator) continue;
+      blocks.push({ kind: "tr", cells: cells.map(stripInline) });
+      continue;
+    }
+    if (/^([-*•])\s+/.test(line)) {
+      blocks.push({ kind: "li", text: stripInline(line.replace(/^([-*•])\s+/, "")) });
+      continue;
+    }
+    blocks.push({ kind: "p", text: stripInline(line) });
+  }
+  return blocks;
+}
+
+function ChatDoc({ markdown, title }: { markdown: string; title: string }) {
+  const date = new Date().toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  const blocks = parseMarkdown(markdown);
+  return (
+    <Document title="Conversation Agent Shamai — NadlanConnect" author="NadlanConnect">
+      <Page size="A4" style={s.page}>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>
+            NadlanConnect · Analyse indicative non contractuelle
+          </Text>
+          <Text
+            style={s.footerText}
+            render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+          />
+        </View>
+
+        <View style={s.masthead}>
+          <Text style={s.kicker}>AGENT SHAMAI IA · CONVERSATION</Text>
+          <Text style={s.mastTitle}>
+            {title ? sanitize(title.slice(0, 90)) : "Conversation Agent Shamai"}
+          </Text>
+          <Text style={s.mastSub}>Généré le {date} · Claude · Replit AI</Text>
+        </View>
+
+        <View style={s.section}>
+          {blocks.map((b, i) => {
+            if (b.kind === "hr") {
+              return <View key={i} style={s.leader} />;
+            }
+            if (b.kind === "h") {
+              return (
+                <Text key={i} style={s.bulletTitle}>
+                  {b.text}
+                </Text>
+              );
+            }
+            if (b.kind === "li") {
+              return (
+                <Text key={i} style={[s.para, { marginLeft: 10 }]}>
+                  • {b.text}
+                </Text>
+              );
+            }
+            if (b.kind === "tr") {
+              return (
+                <Text key={i} style={s.note}>
+                  {b.cells.join("   ·   ")}
+                </Text>
+              );
+            }
+            return (
+              <Text key={i} style={s.para}>
+                {b.text}
+              </Text>
+            );
+          })}
+        </View>
+      </Page>
+    </Document>
+  );
+}
+
+export async function downloadChatPdf(
+  markdown: string,
+  title: string,
+): Promise<void> {
+  const blob = await pdf(<ChatDoc markdown={markdown} title={title} />).toBlob();
+  triggerDownload(blob, `conversation-shamai-${Date.now()}.pdf`);
 }

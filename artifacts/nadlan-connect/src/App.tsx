@@ -15,6 +15,7 @@ import RegisterAgence from "@/pages/register-agence";
 import Listings from "@/pages/listings";
 import ListingDetail from "@/pages/listing-detail";
 import AnalyseIA from "@/pages/analyse-ia";
+import Reports from "@/pages/reports";
 import Dashboard from "@/pages/dashboard";
 import DashboardListingsNew from "@/pages/dashboard-listings-new";
 import DashboardListingsEdit from "@/pages/dashboard-listings-edit";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
+      <Route path="/outils/mes-rapports" component={Reports} />
       
       {/* Dashboard Routes */}
       <Route path="/dashboard" component={Dashboard} />

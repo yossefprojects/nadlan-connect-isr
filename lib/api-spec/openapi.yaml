@@ -1094,6 +1094,164 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
 
+  /anthropic/shamai-chat:
+    post:
+      tags: [AI]
+      operationId: shamaiChat
+      summary: Conversational Shamai (appraisal expert) chat
+      description: Multi-turn conversation with the Agent Shamai IA. Returns a Markdown reply.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShamaiChatInput'
+      responses:
+        '200':
+          description: Assistant reply.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShamaiChatResult'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '502':
+          description: AI chat failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /reports:
+    get:
+      tags: [Reports]
+      operationId: listMyReports
+      summary: List the current user's saved reports
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Saved reports.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavedReport'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [Reports]
+      operationId: createReport
+      summary: Save a report to the user's profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportInput'
+      responses:
+        '201':
+          description: Report saved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReport'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /reports/{reportId}:
+    get:
+      tags: [Reports]
+      operationId: getReport
+      summary: Get a saved report by id
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Saved report.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReport'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      tags: [Reports]
+      operationId: deleteReport
+      summary: Delete a saved report
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteReportResult'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -1266,16 +1424,119 @@ components:
           description: Whether a building permit is already granted (valued positively — ~3 years saved).
         comment:
           type: string
+    # ── Shamai (appraisal) extensions ──
+    CoefficientRow:
+      type: object
+      required: [factor, coefficient, impact]
+      properties:
+        factor:
+          type: string
+          description: Adjustment factor name (e.g. "État du bien", "Étage", "Âge").
+        coefficient:
+          type: [number, 'null']
+          description: Applied multiplier (e.g. 1.08).
+        impact:
+          type: string
+          description: Human-readable impact on price/m² (e.g. "+3 360 ₪/m²").
+    AppraisalBreakdown:
+      type: object
+      description: Shamai-style appraisal — value range and coefficient decomposition (comparative method).
+      required: [estimatedValue, valueLow, valueHigh, pricePerSqm, marketPricePerSqm, method, coefficients]
+      properties:
+        estimatedValue:
+          type: [number, 'null']
+          description: Central estimated market value (vénale) in ₪.
+        valueLow:
+          type: [number, 'null']
+          description: Low end of the value range in ₪.
+        valueHigh:
+          type: [number, 'null']
+          description: High end of the value range in ₪.
+        pricePerSqm:
+          type: [number, 'null']
+          description: Estimated price per m² for THIS property in ₪ (after coefficients).
+        marketPricePerSqm:
+          type: [number, 'null']
+          description: Median neighborhood market price per m² in ₪ (Nadlan Gov reference).
+        method:
+          type: string
+          description: Primary valuation method used (comparative / revenu / résiduelle / coût).
+        coefficients:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoefficientRow'
+    FiscalLine:
+      type: object
+      required: [amount, ratePct, note]
+      properties:
+        amount:
+          type: [number, 'null']
+          description: Tax amount in ₪.
+        ratePct:
+          type: [number, 'null']
+          description: Effective rate in %.
+        note:
+          type: string
+    FiscalAnalysis:
+      type: object
+      description: Israeli real-estate taxation (Mas Rechisha / Mas Shevach / Heitel Hashvacha).
+      required: [masRechisha, masShevach, heitelHashvacha, acquisitionTotalCost, sellerNetProceeds, comment]
+      properties:
+        masRechisha:
+          $ref: '#/components/schemas/FiscalLine'
+        masShevach:
+          $ref: '#/components/schemas/FiscalLine'
+        heitelHashvacha:
+          $ref: '#/components/schemas/FiscalLine'
+        acquisitionTotalCost:
+          type: [number, 'null']
+          description: Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.
+        sellerNetProceeds:
+          type: [number, 'null']
+          description: Estimated net proceeds for the seller after taxes in ₪.
+        comment:
+          type: string
+    UrbanCriterion:
+      type: object
+      required: [label, status, valueImpact]
+      properties:
+        label:
+          type: string
+        status:
+          type: string
+          description: Status text (e.g. "Oui", "Non", "À vérifier").
+        valueImpact:
+          type: string
+          description: Estimated value impact (e.g. "+15 à +25%").
+    UrbanScore:
+      type: object
+      description: Urban-renewal potential score (0-100) with criteria breakdown.
+      required: [score, criteria, comment]
+      properties:
+        score:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 100
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/UrbanCriterion'
+        comment:
+          type: string
+
     AnalyzePropertyResult:
       type: object
       required:
         - summary
         - features
         - anomalies
+        - appraisal
         - marketEstimate
+        - fiscalAnalysis
         - rentalYield
         - renovation
         - urbanPotential
+        - urbanScore
         - promoterRoi
         - overallScore
         - recommendation
@@ -1289,14 +1550,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PropertyAnomaly'
+        appraisal:
+          $ref: '#/components/schemas/AppraisalBreakdown'
         marketEstimate:
           $ref: '#/components/schemas/MarketEstimate'
+        fiscalAnalysis:
+          $ref: '#/components/schemas/FiscalAnalysis'
         rentalYield:
           $ref: '#/components/schemas/RentalYield'
         renovation:
           $ref: '#/components/schemas/RenovationEstimate'
         urbanPotential:
           $ref: '#/components/schemas/UrbanPotential'
+        urbanScore:
+          $ref: '#/components/schemas/UrbanScore'
         promoterRoi:
           $ref: '#/components/schemas/PromoterRoi'
         overallScore:
@@ -1308,6 +1575,89 @@ components:
           enum: [green, orange, red]
         recommendationText:
           type: string
+
+    # ── Shamai conversational chat ──
+    ShamaiChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+          minLength: 1
+          maxLength: 8000
+    ShamaiChatInput:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          minItems: 1
+          maxItems: 40
+          items:
+            $ref: '#/components/schemas/ShamaiChatMessage'
+        language:
+          type: string
+          enum: [fr, en, he]
+          default: fr
+    ShamaiChatResult:
+      type: object
+      required: [reply]
+      properties:
+        reply:
+          type: string
+          description: Assistant reply as Markdown (a Shamai-style report or conversational answer).
+
+    # ── Saved reports ──
+    SavedReport:
+      type: object
+      required: [id, kind, title, listingText, analysis, chatMarkdown, createdAt]
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+          enum: [analysis, chat]
+        title:
+          type: string
+        listingText:
+          type: [string, 'null']
+        analysis:
+          oneOf:
+            - $ref: '#/components/schemas/AnalyzePropertyResult'
+            - type: 'null'
+        chatMarkdown:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+    CreateReportInput:
+      type: object
+      required: [kind, title]
+      properties:
+        kind:
+          type: string
+          enum: [analysis, chat]
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        listingText:
+          type: [string, 'null']
+        analysis:
+          oneOf:
+            - $ref: '#/components/schemas/AnalyzePropertyResult'
+            - type: 'null'
+        chatMarkdown:
+          type: [string, 'null']
+    DeleteReportResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
 
     # ── Auth ──
     AuthUser:

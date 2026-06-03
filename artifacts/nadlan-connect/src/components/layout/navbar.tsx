@@ -25,6 +25,7 @@ export function Navbar() {
   ];
 
   if (isAuthenticated) {
+    navItems.push({ label: t("nav.myReports"), href: "/outils/mes-rapports" });
     if (role === "buyer") {
       navItems.push({ label: t("nav.favorites"), href: "/favorites" });
       navItems.push({ label: t("nav.myLeads"), href: "/leads" });

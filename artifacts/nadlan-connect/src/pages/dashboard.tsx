@@ -1,10 +1,11 @@
 import { useGetDashboardStats, useListListings } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Inbox, CheckCircle, TrendingUp, Plus, Edit, Handshake } from "lucide-react";
+import { Building, Inbox, CheckCircle, TrendingUp, Plus, Edit, Handshake, Scale } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useUserRole } from "@/hooks/use-user-role";
+import { useLanguage } from "@/components/layout/language-provider";
 import { ListingMandateRequests } from "./dashboard-mandates";
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -36,6 +37,7 @@ export default function Dashboard() {
   const { data: stats, isLoading: isStatsLoading } = useGetDashboardStats();
   const { data: listingsData, isLoading: isListingsLoading } = useListListings();
   const { role } = useUserRole();
+  const { t } = useLanguage();
 
   if (isStatsLoading) return <div className="p-8">Chargement...</div>;
 
@@ -44,6 +46,11 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="font-serif text-3xl font-bold text-primary">Tableau de Bord Professionnel</h1>
         <div className="flex gap-3">
+          <Link href="/outils/analyse-ia">
+            <Button variant="outline" className="gap-2 border-[#C9A84C]/40 text-[#1A3A5C] hover:bg-[#C9A84C]/10">
+              <Scale className="h-4 w-4" /> {t("dashboard.shamaiTool")}
+            </Button>
+          </Link>
           {role === "agent" && (
             <Link href="/dashboard/mandates">
               <Button variant="outline" className="gap-2">

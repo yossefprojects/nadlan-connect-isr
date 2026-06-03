@@ -207,6 +207,108 @@ export interface PromoterRoi {
   comment: string;
 }
 
+export interface CoefficientRow {
+  /** Adjustment factor name (e.g. "État du bien", "Étage", "Âge"). */
+  factor: string;
+  /**
+     * Applied multiplier (e.g. 1.08).
+     * @nullable
+     */
+  coefficient: number | null;
+  /** Human-readable impact on price/m² (e.g. "+3 360 ₪/m²"). */
+  impact: string;
+}
+
+/**
+ * Shamai-style appraisal — value range and coefficient decomposition (comparative method).
+ */
+export interface AppraisalBreakdown {
+  /**
+     * Central estimated market value (vénale) in ₪.
+     * @nullable
+     */
+  estimatedValue: number | null;
+  /**
+     * Low end of the value range in ₪.
+     * @nullable
+     */
+  valueLow: number | null;
+  /**
+     * High end of the value range in ₪.
+     * @nullable
+     */
+  valueHigh: number | null;
+  /**
+     * Estimated price per m² for THIS property in ₪ (after coefficients).
+     * @nullable
+     */
+  pricePerSqm: number | null;
+  /**
+     * Median neighborhood market price per m² in ₪ (Nadlan Gov reference).
+     * @nullable
+     */
+  marketPricePerSqm: number | null;
+  /** Primary valuation method used (comparative / revenu / résiduelle / coût). */
+  method: string;
+  coefficients: CoefficientRow[];
+}
+
+export interface FiscalLine {
+  /**
+     * Tax amount in ₪.
+     * @nullable
+     */
+  amount: number | null;
+  /**
+     * Effective rate in %.
+     * @nullable
+     */
+  ratePct: number | null;
+  note: string;
+}
+
+/**
+ * Israeli real-estate taxation (Mas Rechisha / Mas Shevach / Heitel Hashvacha).
+ */
+export interface FiscalAnalysis {
+  masRechisha: FiscalLine;
+  masShevach: FiscalLine;
+  heitelHashvacha: FiscalLine;
+  /**
+     * Total buyer acquisition cost (price + Mas Rechisha + ~1% fees) in ₪.
+     * @nullable
+     */
+  acquisitionTotalCost: number | null;
+  /**
+     * Estimated net proceeds for the seller after taxes in ₪.
+     * @nullable
+     */
+  sellerNetProceeds: number | null;
+  comment: string;
+}
+
+export interface UrbanCriterion {
+  label: string;
+  /** Status text (e.g. "Oui", "Non", "À vérifier"). */
+  status: string;
+  /** Estimated value impact (e.g. "+15 à +25%"). */
+  valueImpact: string;
+}
+
+/**
+ * Urban-renewal potential score (0-100) with criteria breakdown.
+ */
+export interface UrbanScore {
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  score: number | null;
+  criteria: UrbanCriterion[];
+  comment: string;
+}
+
 export type AnalyzePropertyResultRecommendation = typeof AnalyzePropertyResultRecommendation[keyof typeof AnalyzePropertyResultRecommendation];
 
 
@@ -220,10 +322,13 @@ export interface AnalyzePropertyResult {
   summary: string;
   features: PropertyFeatures;
   anomalies: PropertyAnomaly[];
+  appraisal: AppraisalBreakdown;
   marketEstimate: MarketEstimate;
+  fiscalAnalysis: FiscalAnalysis;
   rentalYield: RentalYield;
   renovation: RenovationEstimate;
   urbanPotential: UrbanPotential;
+  urbanScore: UrbanScore;
   promoterRoi: PromoterRoi;
   /**
      * @minimum 0
@@ -232,6 +337,92 @@ export interface AnalyzePropertyResult {
   overallScore: number;
   recommendation: AnalyzePropertyResultRecommendation;
   recommendationText: string;
+}
+
+export type ShamaiChatMessageRole = typeof ShamaiChatMessageRole[keyof typeof ShamaiChatMessageRole];
+
+
+export const ShamaiChatMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface ShamaiChatMessage {
+  role: ShamaiChatMessageRole;
+  /**
+     * @minLength 1
+     * @maxLength 8000
+     */
+  content: string;
+}
+
+export type ShamaiChatInputLanguage = typeof ShamaiChatInputLanguage[keyof typeof ShamaiChatInputLanguage];
+
+
+export const ShamaiChatInputLanguage = {
+  fr: 'fr',
+  en: 'en',
+  he: 'he',
+} as const;
+
+export interface ShamaiChatInput {
+  /**
+     * @minItems 1
+     * @maxItems 40
+     */
+  messages: ShamaiChatMessage[];
+  language?: ShamaiChatInputLanguage;
+}
+
+export interface ShamaiChatResult {
+  /** Assistant reply as Markdown (a Shamai-style report or conversational answer). */
+  reply: string;
+}
+
+export type SavedReportKind = typeof SavedReportKind[keyof typeof SavedReportKind];
+
+
+export const SavedReportKind = {
+  analysis: 'analysis',
+  chat: 'chat',
+} as const;
+
+export interface SavedReport {
+  id: number;
+  kind: SavedReportKind;
+  title: string;
+  /** @nullable */
+  listingText: string | null;
+  analysis: AnalyzePropertyResult | null;
+  /** @nullable */
+  chatMarkdown: string | null;
+  createdAt: string;
+}
+
+export type CreateReportInputKind = typeof CreateReportInputKind[keyof typeof CreateReportInputKind];
+
+
+export const CreateReportInputKind = {
+  analysis: 'analysis',
+  chat: 'chat',
+} as const;
+
+export interface CreateReportInput {
+  kind: CreateReportInputKind;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  /** @nullable */
+  listingText?: string | null;
+  analysis?: AnalyzePropertyResult | null;
+  /** @nullable */
+  chatMarkdown?: string | null;
+}
+
+export interface DeleteReportResult {
+  success: boolean;
 }
 
 export interface AuthUser {
