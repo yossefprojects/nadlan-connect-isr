@@ -104,19 +104,21 @@ const EMPTY_QF: QuickFields = {
 };
 
 function parseChatMarkdown(md: string): ShamaiChatMessage[] {
-  return md
-    .split("\n\n---\n\n")
-    .map((block) => {
-      const m = block.match(/^\*\*(Q|Shamai)\*\*\n\n([\s\S]*)$/);
-      if (!m) return null;
-      const content = m[2].trim();
-      if (!content) return null;
-      return {
+  const out: ShamaiChatMessage[] = [];
+  for (const block of md.split("\n\n---\n\n")) {
+    const m = block.match(/^\*\*(Q|Shamai)\*\*\n\n([\s\S]*)$/);
+    if (m) {
+      out.push({
         role: m[1] === "Q" ? "user" : "assistant",
-        content,
-      } as ShamaiChatMessage;
-    })
-    .filter((x): x is ShamaiChatMessage => x !== null);
+        content: m[2].trim(),
+      } as ShamaiChatMessage);
+    } else if (out.length > 0) {
+      // A block with no role prefix means the divider appeared inside the
+      // previous message's Markdown — re-attach it instead of dropping it.
+      out[out.length - 1].content += `\n\n---\n\n${block}`;
+    }
+  }
+  return out.filter((x) => x.content.trim().length > 0);
 }
 
 function composeFromFields(qf: QuickFields): string {

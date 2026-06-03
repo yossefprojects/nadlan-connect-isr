@@ -10,6 +10,7 @@ const router = Router();
 // ── Simple in-memory rate limiter (fixed window per IP) ──────────────────────
 const RATE_LIMIT = 15; // requests per window
 const RATE_WINDOW_MS = 60_000; // 1 minute
+const MAX_CHAT_TOTAL_CHARS = 24000; // aggregate cap across all chat messages (~3 full analyze inputs)
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 function allowRequest(key: string): boolean {
@@ -308,6 +309,14 @@ router.post("/anthropic/shamai-chat", async (req, res): Promise<void> => {
   const parsed = ShamaiChatBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const totalChars = parsed.data.messages.reduce((sum, m) => sum + m.content.length, 0);
+  if (totalChars > MAX_CHAT_TOTAL_CHARS) {
+    res.status(400).json({
+      error: "La conversation est trop longue. Démarrez une nouvelle évaluation.",
+    });
     return;
   }
 
