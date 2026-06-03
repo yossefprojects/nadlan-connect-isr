@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "xbZ_0YYTxYmghIAJ1RrMS"
+uri = "file://artifacts/nadlan-connect/public/hero-bg.png"
+type = "image"
+title = "Tel Aviv skyline luxury"

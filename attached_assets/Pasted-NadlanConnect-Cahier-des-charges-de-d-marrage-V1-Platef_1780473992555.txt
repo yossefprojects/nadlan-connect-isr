@@ -1,0 +1,138 @@
+NadlanConnect — Cahier des charges de démarrage (V1)
+Plateforme B2B2C immobilière (Israël) qui met en relation acheteurs/investisseurs, agents immobiliers et promoteurs/constructeurs, avec estimations de prix et score d'investissement intégrés (moteur partagé avec le simulateur).
+
+0. Comment démarrer (à faire par vous)
+Sur Replit, cliquez + Create → choisissez un App React + Vite + TypeScript (ou un template fullstack Node/Express + React).
+Donnez-lui le nom NadlanConnect.
+Copiez le fichier moteur exports/israelRealEstateEngine.js (déjà présent dans le simulateur) dans le nouveau projet, par ex. sous src/lib/israelRealEstateEngine.js.
+Collez le prompt de démarrage (section 7 ci-dessous) à l'Agent du nouveau projet.
+⚠️ Important : utilisez les services natifs Replit — PostgreSQL, Authentification et Object Storage. Pas de Supabase, Firebase ou Cloudinary.
+
+1. Stack technique
+Élément	Choix
+Frontend	React + Vite + TypeScript + Tailwind
+Backend	Node.js + Express (API REST)
+Base de données	PostgreSQL natif Replit (via Drizzle ORM)
+Authentification	Replit Auth (intégration native)
+Stockage fichiers	Replit Object Storage (photos d'annonces)
+Calculs	israelRealEstateEngine.js (moteur partagé)
+Charte graphique (identique au simulateur)
+
+Navy #1A3A5C · Or #C9A84C · Fond clair #F7F8FA
+Titres : DM Serif Display · Texte : Plus Jakarta Sans
+Trilingue FR / EN / HE avec support RTL pour l'hébreu.
+2. Rôles utilisateurs (4)
+Rôle	Peut faire
+Acheteur/Investisseur	Parcourir/rechercher les annonces, voir estimation + score, contacter un agent/promoteur, sauvegarder des favoris
+Agent immobilier	Créer/gérer ses annonces, recevoir et suivre les leads, voir ses statistiques
+Promoteur/Constructeur	Publier des programmes neufs, gérer les lots, recevoir des leads
+Administrateur	Modérer les annonces et utilisateurs, voir toutes les statistiques, gérer les rôles
+Chaque utilisateur a un seul rôle stocké en base ; l'admin peut le modifier.
+
+3. Modèle de données (PostgreSQL / Drizzle)
+users
+  id (pk)            – fourni par Replit Auth
+  email
+  fullName
+  role               – 'buyer' | 'agent' | 'developer' | 'admin'
+  phone
+  company            – pour agents/promoteurs
+  avatarUrl          – Object Storage
+  createdAt
+listings              -- annonces & programmes
+  id (pk)
+  ownerId (fk users) – agent ou promoteur
+  type               – 'resale' | 'new_development'
+  title
+  description
+  ville              – clé compatible moteur (ex: 'tlv')
+  quartier
+  surface            – m²
+  nbPieces
+  etage
+  price              – ₪ (prix demandé)
+  estimatedPrice     – ₪ (calculé par le moteur, en cache)
+  investmentScore    – 0–100 (calculé par le moteur, en cache)
+  status             – 'draft' | 'published' | 'sold' | 'archived'
+  createdAt
+listing_images
+  id (pk)
+  listingId (fk)
+  url                – Object Storage
+  position
+leads                 -- mise en relation acheteur ↔ pro
+  id (pk)
+  listingId (fk)
+  buyerId (fk users)
+  message
+  status             – 'new' | 'contacted' | 'closed'
+  createdAt
+favorites
+  id (pk)
+  userId (fk)
+  listingId (fk)
+  createdAt
+messages              -- messagerie simple liée à un lead
+  id (pk)
+  leadId (fk)
+  senderId (fk users)
+  body
+  createdAt
+
+4. Pages / écrans (V1)
+Public
+
+/ Accueil — recherche, annonces vedettes, pitch trilingue.
+/listings Recherche & filtres (ville, prix, surface, pièces, type).
+/listings/:id Détail annonce — galerie photos, estimation + score d'investissement (via le moteur), bouton « Contacter ».
+/auth Connexion / inscription (Replit Auth) + choix du rôle.
+Acheteur/Investisseur
+
+/favorites Mes favoris.
+/me/leads Mes demandes envoyées + messagerie.
+Agent / Promoteur
+
+/dashboard Tableau de bord (annonces, leads reçus, stats).
+/dashboard/listings/new Créer une annonce (upload photos → Object Storage).
+/dashboard/listings/:id/edit Modifier.
+/dashboard/leads Suivi des leads + messagerie.
+Admin
+
+/admin Modération annonces & utilisateurs, gestion des rôles, statistiques globales.
+5. Brancher le moteur de calcul
+Le fichier israelRealEstateEngine.js fournit tout :
+
+import {
+  calcEstimation, calcInvestmentScore, calcTravaux,
+  VILLES, fmt, fmtM,
+} from './lib/israelRealEstateEngine'
+// Estimation au moment de la publication d'une annonce :
+const est = calcEstimation({
+  ville: listing.ville, quartier: listing.quartier,
+  surface: listing.surface, etage: listing.etage,
+  nbPieces: listing.nbPieces,
+  distanceMer: 1, distanceTransp: 1, typeProjet: 1,
+  equipements: {}, typeBien: 'dira', etatBien: 'correct',
+})
+listing.estimatedPrice = est.prixTotal
+// Score d'investissement (pour terrains/programmes) :
+const score = calcInvestmentScore({ /* … */ })
+listing.investmentScore = score.score
+
+→ Stocker estimatedPrice et investmentScore en base (cache) et les recalculer à chaque modification d'annonce.
+
+6. Hors V1 (à prévoir plus tard)
+Paiements / abonnements pros (Stripe).
+Notifications email/SMS.
+Application mobile.
+Carte interactive des annonces.
+7. Prompt à coller dans l'Agent du nouveau projet
+Construis NadlanConnect, une plateforme B2B2C immobilière pour Israël, en React + Vite + TypeScript + Tailwind avec un backend Express et PostgreSQL, Auth et Object Storage natifs de Replit (surtout PAS Supabase/Firebase/Cloudinary). Reprends la charte du simulateur : navy #1A3A5C, or #C9A84C, polices DM Serif Display + Plus Jakarta Sans, trilingue FR/EN/HE avec RTL.
+
+4 rôles : acheteur/investisseur, agent immobilier, promoteur, administrateur. Fonctionnalités V1 : authentification + profils, annonces immobilières (création avec upload photos, recherche/filtres, page détail), mise en relation acheteur ↔ pro (leads + messagerie simple), tableaux de bord pro et admin.
+
+Utilise le fichier src/lib/israelRealEstateEngine.js (déjà ajouté) pour afficher l'estimation de prix et le score d'investissement sur chaque annonce. Implémente le schéma de base de données fourni (users, listings, listing_images, leads, favorites, messages) avec Drizzle ORM.
+
+Commence par : 1) la base de données + l'authentification + le choix de rôle, puis 2) le CRUD des annonces avec upload photo, puis 3) la recherche publique + page détail avec le moteur de calcul, puis 4) leads/messagerie, puis 5) l'admin.
+
+

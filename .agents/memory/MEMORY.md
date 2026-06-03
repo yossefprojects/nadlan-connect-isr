@@ -1,0 +1,1 @@
+- [NadlanConnect gotchas](nadlan-connect-gotchas.md) — esbuild/zod sub-path, SelectItem empty-value, CSS import order, DB FK seed order.

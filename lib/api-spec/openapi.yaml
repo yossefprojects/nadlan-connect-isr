@@ -1,22 +1,37 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: NadlanConnect API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: Storage
+    description: Object storage upload and serving endpoints.
+  - name: Users
+    description: User profile and role management.
+  - name: Listings
+    description: Real estate listings CRUD and search.
+  - name: Leads
+    description: Buyer-to-pro lead management.
+  - name: Favorites
+    description: Buyer favorites.
+  - name: Messages
+    description: In-lead messaging.
+  - name: Dashboard
+    description: Pro and admin dashboard stats.
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +39,761 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Auth ──────────────────────────────────────────────────────────────────
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iss
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect after login.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+
+  # ── Storage ───────────────────────────────────────────────────────────────
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object from storage
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ── Users ─────────────────────────────────────────────────────────────────
+  /users/me:
+    get:
+      tags: [Users]
+      operationId: getMyProfile
+      summary: Get the current user's profile
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Users]
+      operationId: updateMyProfile
+      summary: Update the current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /users/me/role:
+    patch:
+      tags: [Users]
+      operationId: setMyRole
+      summary: Set the current user's role (one-time selection)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleSelection'
+      responses:
+        '200':
+          description: Role set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Invalid role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      summary: List all users (admin only)
+      parameters:
+        - name: role
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+
+  /users/{userId}:
+    patch:
+      tags: [Users]
+      operationId: adminUpdateUser
+      summary: Admin update a user (role, status)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdate'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  # ── Listings ──────────────────────────────────────────────────────────────
+  /listings:
+    get:
+      tags: [Listings]
+      operationId: listListings
+      summary: Search and filter listings
+      parameters:
+        - name: ville
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: minSurface
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: maxSurface
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: nbPieces
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingsPage'
+    post:
+      tags: [Listings]
+      operationId: createListing
+      summary: Create a new listing (agent or developer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingInput'
+      responses:
+        '201':
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /listings/featured:
+    get:
+      tags: [Listings]
+      operationId: getFeaturedListings
+      summary: Get featured published listings for the homepage
+      responses:
+        '200':
+          description: Featured listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+
+  /listings/stats:
+    get:
+      tags: [Listings]
+      operationId: getListingsStats
+      summary: Aggregated stats - counts by city, type, avg price
+      responses:
+        '200':
+          description: Listings statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingsStats'
+
+  /listings/{listingId}:
+    get:
+      tags: [Listings]
+      operationId: getListing
+      summary: Get a single listing with images
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Listing detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingDetail'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Listings]
+      operationId: updateListing
+      summary: Update a listing (owner only)
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingUpdate'
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+    delete:
+      tags: [Listings]
+      operationId: deleteListing
+      summary: Delete a listing (owner or admin)
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSuccess'
+
+  /listings/{listingId}/images:
+    post:
+      tags: [Listings]
+      operationId: addListingImage
+      summary: Add an image to a listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingImageInput'
+      responses:
+        '201':
+          description: Image added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingImage'
+
+  /listings/{listingId}/images/{imageId}:
+    delete:
+      tags: [Listings]
+      operationId: deleteListingImage
+      summary: Remove an image from a listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSuccess'
+
+  /listings/{listingId}/publish:
+    post:
+      tags: [Listings]
+      operationId: publishListing
+      summary: Publish a draft listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Published listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
+  # ── Favorites ─────────────────────────────────────────────────────────────
+  /favorites:
+    get:
+      tags: [Favorites]
+      operationId: getMyFavorites
+      summary: Get the current user's favorite listings
+      responses:
+        '200':
+          description: Favorite listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+
+  /favorites/{listingId}:
+    post:
+      tags: [Favorites]
+      operationId: addFavorite
+      summary: Add a listing to favorites
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Added to favorites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favorite'
+    delete:
+      tags: [Favorites]
+      operationId: removeFavorite
+      summary: Remove a listing from favorites
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSuccess'
+
+  # ── Leads ─────────────────────────────────────────────────────────────────
+  /leads:
+    get:
+      tags: [Leads]
+      operationId: listLeads
+      summary: List leads (buyer sees own, pro sees received, admin sees all)
+      responses:
+        '200':
+          description: Leads list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lead'
+    post:
+      tags: [Leads]
+      operationId: createLead
+      summary: Send a contact request (buyer contacts a listing)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadInput'
+      responses:
+        '201':
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+
+  /leads/{leadId}:
+    get:
+      tags: [Leads]
+      operationId: getLead
+      summary: Get a single lead with messages
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lead detail with messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadDetail'
+    patch:
+      tags: [Leads]
+      operationId: updateLeadStatus
+      summary: Update lead status (pro only)
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadStatusUpdate'
+      responses:
+        '200':
+          description: Updated lead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+
+  # ── Messages ──────────────────────────────────────────────────────────────
+  /leads/{leadId}/messages:
+    get:
+      tags: [Messages]
+      operationId: getLeadMessages
+      summary: Get messages for a lead
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+    post:
+      tags: [Messages]
+      operationId: sendMessage
+      summary: Send a message in a lead thread
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageInput'
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  # ── Dashboard ─────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardStats
+      summary: Pro dashboard stats (my listings, leads, conversions)
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+
+  /admin/stats:
+    get:
+      tags: [Dashboard]
+      operationId: getAdminStats
+      summary: Global admin stats
+      responses:
+        '200':
+          description: Admin statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStats'
+
+  /admin/listings:
+    get:
+      tags: [Dashboard]
+      operationId: adminListListings
+      summary: Admin view of all listings (any status)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+
+  /admin/listings/{listingId}/status:
+    patch:
+      tags: [Dashboard]
+      operationId: adminUpdateListingStatus
+      summary: Admin moderate a listing status
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingStatusUpdate'
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
 components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — `Bearer <sid>`.
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +803,442 @@ components:
       required:
         - status
 
+    # ── Auth ──
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+          format: email
+        firstName:
+          type: [string, 'null']
+        lastName:
+          type: [string, 'null']
+        profileImageUrl:
+          type: [string, 'null']
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+
+    # ── Storage ──
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+          format: uri
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
+
+    # ── Users ──
+    UserProfile:
+      type: object
+      required: [id, email, fullName, role, createdAt]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+        fullName:
+          type: [string, 'null']
+        role:
+          type: [string, 'null']
+        phone:
+          type: [string, 'null']
+        company:
+          type: [string, 'null']
+        avatarUrl:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+    UserProfileUpdate:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        company:
+          type: string
+        avatarUrl:
+          type: string
+    RoleSelection:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [buyer, agent, developer, admin]
+    AdminUserUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [buyer, agent, developer, admin]
+
+    # ── Listings ──
+    Listing:
+      type: object
+      required: [id, ownerId, type, title, ville, surface, nbPieces, price, status, createdAt]
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: string
+        ownerName:
+          type: [string, 'null']
+        ownerAvatar:
+          type: [string, 'null']
+        type:
+          type: string
+          enum: [resale, new_development]
+        title:
+          type: string
+        description:
+          type: [string, 'null']
+        ville:
+          type: string
+        quartier:
+          type: [string, 'null']
+        surface:
+          type: integer
+        nbPieces:
+          type: integer
+        etage:
+          type: ['integer', 'null']
+        price:
+          type: integer
+        estimatedPrice:
+          type: ['integer', 'null']
+        investmentScore:
+          type: ['integer', 'null']
+        status:
+          type: string
+          enum: [draft, published, sold, archived]
+        coverImageUrl:
+          type: ['string', 'null']
+        createdAt:
+          type: string
+          format: date-time
+    ListingDetail:
+      type: object
+      required: [listing, images]
+      properties:
+        listing:
+          $ref: '#/components/schemas/Listing'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingImage'
+        isFavorited:
+          type: boolean
+    ListingInput:
+      type: object
+      required: [type, title, ville, surface, nbPieces, price]
+      properties:
+        type:
+          type: string
+          enum: [resale, new_development]
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        ville:
+          type: string
+          minLength: 1
+        quartier:
+          type: string
+        surface:
+          type: integer
+          minimum: 1
+        nbPieces:
+          type: integer
+          minimum: 1
+        etage:
+          type: integer
+        price:
+          type: integer
+          minimum: 1
+    ListingUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [resale, new_development]
+        title:
+          type: string
+        description:
+          type: string
+        ville:
+          type: string
+        quartier:
+          type: string
+        surface:
+          type: integer
+        nbPieces:
+          type: integer
+        etage:
+          type: integer
+        price:
+          type: integer
+        status:
+          type: string
+          enum: [draft, published, sold, archived]
+    ListingStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [draft, published, sold, archived]
+    ListingsPage:
+      type: object
+      required: [listings, total]
+      properties:
+        listings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Listing'
+        total:
+          type: integer
+    ListingsStats:
+      type: object
+      required: [totalListings, byCity, byType, avgPrice]
+      properties:
+        totalListings:
+          type: integer
+        byCity:
+          type: array
+          items:
+            $ref: '#/components/schemas/CityCount'
+        byType:
+          type: array
+          items:
+            $ref: '#/components/schemas/TypeCount'
+        avgPrice:
+          type: integer
+    CityCount:
+      type: object
+      required: [ville, count]
+      properties:
+        ville:
+          type: string
+        count:
+          type: integer
+    TypeCount:
+      type: object
+      required: [type, count]
+      properties:
+        type:
+          type: string
+        count:
+          type: integer
+    ListingImage:
+      type: object
+      required: [id, listingId, url, position]
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        url:
+          type: string
+        position:
+          type: integer
+    ListingImageInput:
+      type: object
+      required: [url, position]
+      properties:
+        url:
+          type: string
+        position:
+          type: integer
+
+    # ── Favorites ──
+    Favorite:
+      type: object
+      required: [id, userId, listingId, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        listingId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    # ── Leads ──
+    Lead:
+      type: object
+      required: [id, listingId, buyerId, message, status, createdAt]
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        listingTitle:
+          type: [string, 'null']
+        buyerId:
+          type: string
+        buyerName:
+          type: [string, 'null']
+        buyerEmail:
+          type: [string, 'null']
+        message:
+          type: string
+        status:
+          type: string
+          enum: [new, contacted, closed]
+        createdAt:
+          type: string
+          format: date-time
+    LeadDetail:
+      type: object
+      required: [lead, messages]
+      properties:
+        lead:
+          $ref: '#/components/schemas/Lead'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    LeadInput:
+      type: object
+      required: [listingId, message]
+      properties:
+        listingId:
+          type: integer
+        message:
+          type: string
+          minLength: 1
+    LeadStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [new, contacted, closed]
+
+    # ── Messages ──
+    Message:
+      type: object
+      required: [id, leadId, senderId, body, createdAt]
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        senderId:
+          type: string
+        senderName:
+          type: [string, 'null']
+        senderAvatar:
+          type: [string, 'null']
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    MessageInput:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+          minLength: 1
+
+    # ── Dashboard ──
+    DashboardStats:
+      type: object
+      required: [totalListings, publishedListings, draftListings, totalLeads, newLeads, contactedLeads, closedLeads]
+      properties:
+        totalListings:
+          type: integer
+        publishedListings:
+          type: integer
+        draftListings:
+          type: integer
+        totalLeads:
+          type: integer
+        newLeads:
+          type: integer
+        contactedLeads:
+          type: integer
+        closedLeads:
+          type: integer
+    AdminStats:
+      type: object
+      required: [totalUsers, totalListings, totalLeads, usersByRole, listingsByStatus]
+      properties:
+        totalUsers:
+          type: integer
+        totalListings:
+          type: integer
+        totalLeads:
+          type: integer
+        usersByRole:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleCount'
+        listingsByStatus:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusCount'
+    RoleCount:
+      type: object
+      required: [role, count]
+      properties:
+        role:
+          type: string
+        count:
+          type: integer
+    StatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+
+    # ── Shared ──
+    DeleteSuccess:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
