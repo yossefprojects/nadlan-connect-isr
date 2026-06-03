@@ -123,9 +123,29 @@ export default function ListingDetail() {
     );
   };
 
+  type ListingData = NonNullable<typeof detail>["listing"];
+  const buildSimulatorPrompt = (listing: ListingData) => {
+    const villeLabel = VILLE_LABELS[listing.ville] ?? listing.ville;
+    const typeLabel = listing.type === "new_development" ? "programme neuf" : "revente";
+    const loc = [villeLabel, listing.quartier].filter(Boolean).join(", ");
+    const etageStr = listing.etage != null ? `, étage ${listing.etage}` : "";
+    const prixStr = listing.price.toLocaleString("fr-FR");
+    const estimStr = listing.estimatedPrice
+      ? ` — estimation de marché : ${listing.estimatedPrice.toLocaleString("fr-FR")} ₪`
+      : "";
+    const scoreStr = listing.investmentScore != null
+      ? ` — score d'investissement NadlanConnect : ${listing.investmentScore}/100`
+      : "";
+    const descStr = listing.description ? ` Description : ${listing.description}` : "";
+
+    return `${listing.title} — ${loc}, ${listing.surface} m², ${listing.nbPieces} pièces${etageStr}, type ${typeLabel}. Prix d'acquisition : ${prixStr} ₪${estimStr}${scoreStr}.${descStr}`;
+  };
+
   const handleSendToSimulator = () => {
     if (!detail) return;
     const listing = detail.listing;
+
+    const prompt = buildSimulatorPrompt(listing);
 
     const params = new URLSearchParams({
       ville: listing.ville,
@@ -137,6 +157,7 @@ export default function ListingDetail() {
       titre: listing.title,
       ...(listing.quartier ? { quartier: listing.quartier } : {}),
       ...(listing.etage != null ? { etage: String(listing.etage) } : {}),
+      prompt,
       source: "nadlanconnect",
     });
 
@@ -146,6 +167,7 @@ export default function ListingDetail() {
     if (win) {
       const payload = {
         type: "NADLAN_LISTING",
+        prompt,
         listing: {
           ville: listing.ville,
           villeLabel: VILLE_LABELS[listing.ville] ?? listing.ville,
@@ -164,19 +186,19 @@ export default function ListingDetail() {
 
       let attempts = 0;
       const sendMessage = () => {
-        if (attempts >= 5 || win.closed) return;
+        if (attempts >= 8 || win.closed) return;
         try { win.postMessage(payload, SIMULATOR_URL); } catch { /* cross-origin */ }
         attempts++;
-        setTimeout(sendMessage, 1500);
+        setTimeout(sendMessage, 1000);
       };
-      setTimeout(sendMessage, 1000);
+      setTimeout(sendMessage, 800);
     }
 
     setAiSent(true);
     setShowAiModal(false);
     toast({
-      title: "Bien envoyé au simulateur",
-      description: "Le simulateur s'est ouvert dans un nouvel onglet avec les données du bien.",
+      title: "Bien envoyé au simulateur IA",
+      description: "Le simulateur s'est ouvert avec la description pré-remplie.",
     });
   };
 
@@ -294,7 +316,7 @@ export default function ListingDetail() {
               </p>
             </div>
             <Button
-              onClick={() => setShowAiModal(true)}
+              onClick={handleSendToSimulator}
               className="flex-shrink-0 gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
             >
               {aiSent ? <Check className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
