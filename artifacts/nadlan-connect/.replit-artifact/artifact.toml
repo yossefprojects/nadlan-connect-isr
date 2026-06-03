@@ -18,9 +18,16 @@ localPort = 24705
 run = "pnpm --filter @workspace/nadlan-connect run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/nadlan-connect", "run", "build" ]
-publicDir = "artifacts/nadlan-connect/dist/public"
 serve = "static"
+publicDir = "artifacts/nadlan-connect/dist/public"
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/nadlan-connect", "run", "build"]
+
+[services.production.build.env]
+PORT = "3000"
+BASE_PATH = "/"
+NODE_ENV = "production"
 
 [[services.production.rewrites]]
 from = "/*"
