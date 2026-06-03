@@ -78,83 +78,6 @@ function boolFr(b: boolean | null | undefined): string {
   return b ? "Oui" : "Non";
 }
 
-function buildReport(text: string, r: AnalyzePropertyResult): string {
-  const lines: string[] = [];
-  lines.push("RAPPORT D'ANALYSE — NadlanConnect");
-  lines.push("Généré le " + new Date().toLocaleString("fr-FR"));
-  lines.push("=".repeat(60));
-  lines.push("");
-  lines.push("SCORE D'INVESTISSEMENT : " + r.overallScore + "/100");
-  lines.push("RECOMMANDATION : " + (RECO[r.recommendation]?.label ?? r.recommendation));
-  lines.push(r.recommendationText);
-  lines.push("");
-  lines.push("RÉSUMÉ");
-  lines.push(r.summary);
-  lines.push("");
-  lines.push("CARACTÉRISTIQUES");
-  lines.push("- Surface : " + (r.features.surface ?? "—") + " m²");
-  lines.push("- Pièces : " + (r.features.rooms ?? "—"));
-  lines.push("- Étage : " + (r.features.floor ?? "—"));
-  lines.push("- Mamad : " + boolFr(r.features.hasMamad));
-  lines.push("- Ascenseur : " + boolFr(r.features.hasElevator));
-  lines.push("- Parking : " + boolFr(r.features.hasParking));
-  lines.push("- Ville : " + (r.features.city ?? "—"));
-  lines.push("- Quartier : " + (r.features.neighborhood ?? "—"));
-  lines.push("");
-  lines.push("ESTIMATION DE MARCHÉ — " + (VERDICT_FR[r.marketEstimate.verdict] ?? ""));
-  lines.push("- Prix au m² estimé : " + fmtShekel(r.marketEstimate.pricePerSqm));
-  lines.push("- Valeur estimée : " + fmtShekel(r.marketEstimate.estimatedValue));
-  lines.push("- Prix affiché : " + fmtShekel(r.marketEstimate.listedPrice));
-  lines.push(r.marketEstimate.comment);
-  lines.push("");
-  lines.push("RENTABILITÉ LOCATIVE");
-  lines.push("- Loyer mensuel estimé : " + fmtShekel(r.rentalYield.estimatedMonthlyRent));
-  lines.push("- Rendement brut : " + fmtPct(r.rentalYield.grossYieldPct));
-  lines.push("- Rendement net : " + fmtPct(r.rentalYield.netYieldPct));
-  lines.push(r.rentalYield.comment);
-  lines.push("");
-  lines.push("TRAVAUX — " + (LEVEL_FR[r.renovation.level] ?? ""));
-  lines.push("- Budget estimé : " + fmtShekel(r.renovation.estimatedBudget));
-  lines.push(r.renovation.comment);
-  lines.push("");
-  lines.push("POTENTIEL URBANISME");
-  lines.push("- TAMA 38 : " + (POTENTIAL_FR[r.urbanPotential.tama38] ?? ""));
-  lines.push("- Pinoui Binoui : " + (POTENTIAL_FR[r.urbanPotential.pinouiBinoui] ?? ""));
-  lines.push(r.urbanPotential.comment);
-  lines.push("");
-  lines.push("BILAN PROMOTEUR (ROI)");
-  if (r.promoterRoi.applicable) {
-    lines.push("- Surface existante : " + (r.promoterRoi.existingSurface ?? "—") + " m²");
-    lines.push("- Surface projetée : " + (r.promoterRoi.projectedSurface ?? "—") + " m²");
-    lines.push("- Prix d'acquisition : " + fmtShekel(r.promoterRoi.acquisitionPrice));
-    lines.push("- Coût construction au m² : " + fmtShekel(r.promoterRoi.constructionCostPerSqm));
-    lines.push("- Coûts de construction : " + fmtShekel(r.promoterRoi.estimatedConstructionCosts));
-    lines.push("- Chiffre d'affaires estimé : " + fmtShekel(r.promoterRoi.estimatedRevenue));
-    lines.push("- ROI brut : " + fmtPct(r.promoterRoi.grossRoiPct));
-    lines.push("- Permis de construire accordé : " + boolFr(r.promoterRoi.hasBuildingPermit));
-  } else {
-    lines.push("- Non applicable (ce bien n'est pas une opération de promotion).");
-  }
-  lines.push(r.promoterRoi.comment);
-  lines.push("");
-  lines.push("ANOMALIES DÉTECTÉES (" + r.anomalies.length + ")");
-  if (r.anomalies.length === 0) {
-    lines.push("- Aucune anomalie détectée.");
-  } else {
-    for (const a of r.anomalies) {
-      lines.push("- [" + (SEVERITY[a.severity]?.label ?? a.severity) + "] " + a.label);
-      lines.push("  " + a.detail);
-    }
-  }
-  lines.push("");
-  lines.push("=".repeat(60));
-  lines.push("ANNONCE ANALYSÉE");
-  lines.push(text);
-  lines.push("");
-  lines.push("Estimations indicatives, non contractuelles. © NadlanConnect");
-  return lines.join("\n");
-}
-
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-black/5 last:border-0">
@@ -168,6 +91,8 @@ export default function AnalyseIA() {
   const { toast } = useToast();
   const [text, setText] = useState("");
   const [result, setResult] = useState<AnalyzePropertyResult | null>(null);
+  const [analyzedText, setAnalyzedText] = useState("");
+  const [exporting, setExporting] = useState(false);
   const analyze = useAnalyzeProperty();
 
   const handleAnalyze = async () => {
@@ -176,8 +101,10 @@ export default function AnalyseIA() {
       return;
     }
     setResult(null);
+    const trimmed = text.trim();
     try {
-      const res = await analyze.mutateAsync({ data: { listingText: text.trim() } });
+      const res = await analyze.mutateAsync({ data: { listingText: trimmed } });
+      setAnalyzedText(trimmed);
       setResult(res);
     } catch {
       toast({
@@ -188,18 +115,21 @@ export default function AnalyseIA() {
     }
   };
 
-  const handleExport = () => {
-    if (!result) return;
-    const report = buildReport(text.trim(), result);
-    const blob = new Blob([report], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `analyse-nadlanconnect-${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleExport = async () => {
+    if (!result || exporting) return;
+    setExporting(true);
+    try {
+      const { downloadAnalysisPdf } = await import("@/lib/report-pdf");
+      await downloadAnalysisPdf(analyzedText, result);
+    } catch {
+      toast({
+        title: "Le téléchargement du PDF a échoué.",
+        description: "Réessayez dans un instant.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
   };
 
   const reco = result ? RECO[result.recommendation] ?? RECO.orange : null;
@@ -314,10 +244,20 @@ export default function AnalyseIA() {
                         variant="outline"
                         size="sm"
                         onClick={handleExport}
+                        disabled={exporting}
                         className="border-[#1A3A5C]/20 text-[#1A3A5C]"
                       >
-                        <Download className="mr-2 h-4 w-4" />
-                        Télécharger le rapport
+                        {exporting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Génération du PDF…
+                          </>
+                        ) : (
+                          <>
+                            <Download className="mr-2 h-4 w-4" />
+                            Télécharger le PDF
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>

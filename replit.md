@@ -35,6 +35,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 - `artifacts/api-server/src/routes/anthropic.ts` — AI property-analysis route (Anthropic Claude)
 - `lib/integrations-anthropic-ai/` — Replit-managed Anthropic client (billed to credits, no user key)
 - `artifacts/nadlan-connect/src/pages/analyse-ia.tsx` — "Dashboard Investisseur" AI analysis page (`/outils/analyse-ia`)
+- `artifacts/nadlan-connect/src/lib/report-pdf.tsx` — branded PDF report generator (`@react-pdf/renderer`, lazy-imported); DM Serif Display TTF bundled in `src/assets/fonts/`
 - `artifacts/nadlan-connect/src/pages/` — React page components
 - `artifacts/nadlan-connect/src/components/` — Shared UI components
 
