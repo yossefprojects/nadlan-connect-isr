@@ -499,6 +499,100 @@ export const RemoveFavoriteResponse = zod.object({
 
 
 /**
+ * @summary Agent applies to resell a developer listing
+ */
+export const ApplyForMandateParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ApplyForMandateBody = zod.object({
+  "exclusive": zod.boolean(),
+  "justificationUrl": zod.string().optional(),
+  "note": zod.string().optional()
+})
+
+
+/**
+ * @summary Developer views mandate applications for their listing
+ */
+export const ListMandatesForListingParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ListMandatesForListingResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "listingTitle": zod.string().nullable(),
+  "agentId": zod.string(),
+  "agentName": zod.string().nullable(),
+  "agentEmail": zod.string().nullish(),
+  "exclusive": zod.boolean(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "justificationUrl": zod.string().nullish(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListMandatesForListingResponse = zod.array(ListMandatesForListingResponseItem)
+
+
+/**
+ * @summary Developer approves or rejects a mandate application
+ */
+export const UpdateMandateStatusParams = zod.object({
+  "mandateId": zod.coerce.number()
+})
+
+export const UpdateMandateStatusBody = zod.object({
+  "status": zod.enum(['approved', 'rejected'])
+})
+
+export const UpdateMandateStatusResponse = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "listingTitle": zod.string().nullable(),
+  "agentId": zod.string(),
+  "agentName": zod.string().nullable(),
+  "agentEmail": zod.string().nullish(),
+  "exclusive": zod.boolean(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "justificationUrl": zod.string().nullish(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Agent withdraws their mandate application
+ */
+export const WithdrawMandateParams = zod.object({
+  "mandateId": zod.coerce.number()
+})
+
+export const WithdrawMandateResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
+ * @summary Agent views their own mandate applications
+ */
+export const GetMyMandatesResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "listingTitle": zod.string().nullable(),
+  "agentId": zod.string(),
+  "agentName": zod.string().nullable(),
+  "agentEmail": zod.string().nullish(),
+  "exclusive": zod.boolean(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "justificationUrl": zod.string().nullish(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const GetMyMandatesResponse = zod.array(GetMyMandatesResponseItem)
+
+
+/**
  * @summary List leads (buyer sees own, pro sees received, admin sees all)
  */
 export const ListLeadsResponseItem = zod.object({

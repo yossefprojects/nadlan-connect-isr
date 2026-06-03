@@ -14,6 +14,7 @@ import Dashboard from "@/pages/dashboard";
 import DashboardListingsNew from "@/pages/dashboard-listings-new";
 import DashboardListingsEdit from "@/pages/dashboard-listings-edit";
 import DashboardLeads from "@/pages/dashboard-leads";
+import DashboardMandates from "@/pages/dashboard-mandates";
 import Favorites from "@/pages/favorites";
 import Leads from "@/pages/leads";
 import LeadDetail from "@/pages/lead-detail";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/dashboard/listings/new" component={DashboardListingsNew} />
       <Route path="/dashboard/listings/:id/edit" component={DashboardListingsEdit} />
       <Route path="/dashboard/leads" component={DashboardLeads} />
+      <Route path="/dashboard/mandates" component={DashboardMandates} />
       
       {/* Buyer Routes */}
       <Route path="/favorites" component={Favorites} />

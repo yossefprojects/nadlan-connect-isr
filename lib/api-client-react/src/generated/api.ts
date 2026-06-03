@@ -46,6 +46,9 @@ import type {
   ListingUpdate,
   ListingsPage,
   ListingsStats,
+  Mandate,
+  MandateInput,
+  MandateStatusUpdate,
   Message,
   MessageInput,
   RoleSelection,
@@ -1947,6 +1950,374 @@ export const useRemoveFavorite = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getRemoveFavoriteMutationOptions(options));
     }
+
+export const getApplyForMandateUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/mandates`
+}
+
+/**
+ * @summary Agent applies to resell a developer listing
+ */
+export const applyForMandate = async (listingId: number,
+    mandateInput: MandateInput, options?: RequestInit): Promise<Mandate> => {
+
+  return customFetch<Mandate>(getApplyForMandateUrl(listingId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      mandateInput,)
+  }
+);}
+
+
+
+
+export const getApplyForMandateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof applyForMandate>>, TError,{listingId: number;data: BodyType<MandateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof applyForMandate>>, TError,{listingId: number;data: BodyType<MandateInput>}, TContext> => {
+
+const mutationKey = ['applyForMandate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof applyForMandate>>, {listingId: number;data: BodyType<MandateInput>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  applyForMandate(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApplyForMandateMutationResult = NonNullable<Awaited<ReturnType<typeof applyForMandate>>>
+    export type ApplyForMandateMutationBody = BodyType<MandateInput>
+    export type ApplyForMandateMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Agent applies to resell a developer listing
+ */
+export const useApplyForMandate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof applyForMandate>>, TError,{listingId: number;data: BodyType<MandateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof applyForMandate>>,
+        TError,
+        {listingId: number;data: BodyType<MandateInput>},
+        TContext
+      > => {
+      return useMutation(getApplyForMandateMutationOptions(options));
+    }
+
+export const getListMandatesForListingUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/mandates`
+}
+
+/**
+ * @summary Developer views mandate applications for their listing
+ */
+export const listMandatesForListing = async (listingId: number, options?: RequestInit): Promise<Mandate[]> => {
+
+  return customFetch<Mandate[]>(getListMandatesForListingUrl(listingId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMandatesForListingQueryKey = (listingId: number,) => {
+    return [
+    `/api/listings/${listingId}/mandates`
+    ] as const;
+    }
+
+
+export const getListMandatesForListingQueryOptions = <TData = Awaited<ReturnType<typeof listMandatesForListing>>, TError = ErrorType<unknown>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMandatesForListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMandatesForListingQueryKey(listingId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMandatesForListing>>> = ({ signal }) => listMandatesForListing(listingId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(listingId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMandatesForListing>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMandatesForListingQueryResult = NonNullable<Awaited<ReturnType<typeof listMandatesForListing>>>
+export type ListMandatesForListingQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Developer views mandate applications for their listing
+ */
+
+export function useListMandatesForListing<TData = Awaited<ReturnType<typeof listMandatesForListing>>, TError = ErrorType<unknown>>(
+ listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMandatesForListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMandatesForListingQueryOptions(listingId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateMandateStatusUrl = (mandateId: number,) => {
+
+
+
+
+  return `/api/mandates/${mandateId}`
+}
+
+/**
+ * @summary Developer approves or rejects a mandate application
+ */
+export const updateMandateStatus = async (mandateId: number,
+    mandateStatusUpdate: MandateStatusUpdate, options?: RequestInit): Promise<Mandate> => {
+
+  return customFetch<Mandate>(getUpdateMandateStatusUrl(mandateId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      mandateStatusUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateMandateStatusMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMandateStatus>>, TError,{mandateId: number;data: BodyType<MandateStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMandateStatus>>, TError,{mandateId: number;data: BodyType<MandateStatusUpdate>}, TContext> => {
+
+const mutationKey = ['updateMandateStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMandateStatus>>, {mandateId: number;data: BodyType<MandateStatusUpdate>}> = (props) => {
+          const {mandateId,data} = props ?? {};
+
+          return  updateMandateStatus(mandateId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMandateStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateMandateStatus>>>
+    export type UpdateMandateStatusMutationBody = BodyType<MandateStatusUpdate>
+    export type UpdateMandateStatusMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Developer approves or rejects a mandate application
+ */
+export const useUpdateMandateStatus = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMandateStatus>>, TError,{mandateId: number;data: BodyType<MandateStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMandateStatus>>,
+        TError,
+        {mandateId: number;data: BodyType<MandateStatusUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateMandateStatusMutationOptions(options));
+    }
+
+export const getWithdrawMandateUrl = (mandateId: number,) => {
+
+
+
+
+  return `/api/mandates/${mandateId}`
+}
+
+/**
+ * @summary Agent withdraws their mandate application
+ */
+export const withdrawMandate = async (mandateId: number, options?: RequestInit): Promise<DeleteSuccess> => {
+
+  return customFetch<DeleteSuccess>(getWithdrawMandateUrl(mandateId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getWithdrawMandateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof withdrawMandate>>, TError,{mandateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof withdrawMandate>>, TError,{mandateId: number}, TContext> => {
+
+const mutationKey = ['withdrawMandate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof withdrawMandate>>, {mandateId: number}> = (props) => {
+          const {mandateId} = props ?? {};
+
+          return  withdrawMandate(mandateId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type WithdrawMandateMutationResult = NonNullable<Awaited<ReturnType<typeof withdrawMandate>>>
+
+    export type WithdrawMandateMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Agent withdraws their mandate application
+ */
+export const useWithdrawMandate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof withdrawMandate>>, TError,{mandateId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof withdrawMandate>>,
+        TError,
+        {mandateId: number},
+        TContext
+      > => {
+      return useMutation(getWithdrawMandateMutationOptions(options));
+    }
+
+export const getGetMyMandatesUrl = () => {
+
+
+
+
+  return `/api/users/me/mandates`
+}
+
+/**
+ * @summary Agent views their own mandate applications
+ */
+export const getMyMandates = async ( options?: RequestInit): Promise<Mandate[]> => {
+
+  return customFetch<Mandate[]>(getGetMyMandatesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyMandatesQueryKey = () => {
+    return [
+    `/api/users/me/mandates`
+    ] as const;
+    }
+
+
+export const getGetMyMandatesQueryOptions = <TData = Awaited<ReturnType<typeof getMyMandates>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyMandates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyMandatesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyMandates>>> = ({ signal }) => getMyMandates({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyMandates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyMandatesQueryResult = NonNullable<Awaited<ReturnType<typeof getMyMandates>>>
+export type GetMyMandatesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Agent views their own mandate applications
+ */
+
+export function useGetMyMandates<TData = Awaited<ReturnType<typeof getMyMandates>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyMandates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyMandatesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListLeadsUrl = () => {
 

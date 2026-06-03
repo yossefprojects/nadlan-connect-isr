@@ -3,14 +3,18 @@ import {
   useGetListing, getGetListingQueryKey,
   useAddFavorite, useRemoveFavorite, getGetMyFavoritesQueryKey,
   useCreateLead,
-  useGetMyFavorites
+  useGetMyFavorites,
+  useApplyForMandate, getGetMyMandatesQueryKey,
+  useGetMyMandates,
 } from "@workspace/api-client-react";
 import { useAuth } from "@workspace/replit-auth-web";
+import { useUserRole } from "@/hooks/use-user-role";
 import { InvestmentScore } from "@/components/investment-score";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check } from "lucide-react";
+import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SIMULATOR_URL = "https://israel-simzip.replit.app/";
@@ -45,16 +49,27 @@ export default function ListingDetail() {
   const isFavorited = favorites?.some(f => f.listingId === listingId) || false;
   
   const { isAuthenticated } = useAuth();
+  const { role } = useUserRole();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
   const createLead = useCreateLead();
+  const applyForMandate = useApplyForMandate();
+
+  const { data: myMandates } = useGetMyMandates({ query: { enabled: isAuthenticated && role === "agent" } });
+  const existingMandate = myMandates?.find(m => m.listingId === listingId);
 
   const [message, setMessage] = useState("");
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiSent, setAiSent] = useState(false);
+
+  // Mandate form state
+  const [showMandateForm, setShowMandateForm] = useState(false);
+  const [exclusive, setExclusive] = useState(false);
+  const [mandateNote, setMandateNote] = useState("");
+  const [justificationUrl, setJustificationUrl] = useState("");
 
   const toggleFavorite = () => {
     if (!isAuthenticated) {
@@ -91,11 +106,27 @@ export default function ListingDetail() {
     });
   };
 
+  const handleApplyMandate = () => {
+    applyForMandate.mutate(
+      { listingId, data: { exclusive, note: mandateNote || undefined, justificationUrl: justificationUrl || undefined } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetMyMandatesQueryKey() });
+          setShowMandateForm(false);
+          toast({ title: "Candidature envoyée !", description: "Le promoteur examinera votre demande." });
+        },
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : "Erreur lors de l'envoi";
+          toast({ title: "Erreur", description: message, variant: "destructive" });
+        }
+      }
+    );
+  };
+
   const handleSendToSimulator = () => {
     if (!detail) return;
     const listing = detail.listing;
 
-    // Build URL with query params for pre-fill attempt
     const params = new URLSearchParams({
       ville: listing.ville,
       villeLabel: VILLE_LABELS[listing.ville] ?? listing.ville,
@@ -110,11 +141,8 @@ export default function ListingDetail() {
     });
 
     const simulatorUrl = `${SIMULATOR_URL}?${params.toString()}`;
-
-    // Open in new tab
     const win = window.open(simulatorUrl, "_blank", "noopener,noreferrer");
 
-    // After the page loads, send postMessage with full listing data
     if (win) {
       const payload = {
         type: "NADLAN_LISTING",
@@ -134,15 +162,10 @@ export default function ListingDetail() {
         },
       };
 
-      // Attempt postMessage after page load (3 retries with delay)
       let attempts = 0;
       const sendMessage = () => {
         if (attempts >= 5 || win.closed) return;
-        try {
-          win.postMessage(payload, SIMULATOR_URL);
-        } catch {
-          // cross-origin block — expected if simulator doesn't handle it
-        }
+        try { win.postMessage(payload, SIMULATOR_URL); } catch { /* cross-origin */ }
         attempts++;
         setTimeout(sendMessage, 1500);
       };
@@ -161,6 +184,17 @@ export default function ListingDetail() {
   if (!detail) return <div className="p-8 text-center">Propriété introuvable.</div>;
 
   const listing = detail.listing;
+
+  const mandateStatusColor: Record<string, string> = {
+    pending: "border-amber-200 text-amber-700 bg-amber-50",
+    approved: "border-emerald-200 text-emerald-700 bg-emerald-50",
+    rejected: "border-red-200 text-red-700 bg-red-50",
+  };
+  const mandateStatusLabel: Record<string, string> = {
+    pending: "En attente",
+    approved: "Approuvé",
+    rejected: "Refusé",
+  };
 
   return (
     <div className="container py-8 max-w-6xl">
@@ -211,6 +245,42 @@ export default function ListingDetail() {
               </div>
             </div>
           </div>
+
+          {/* Agent: Devenir mandataire */}
+          {isAuthenticated && role === "agent" && listing.type === "new_development" && (
+            <div className="rounded-xl border-2 border-[#1A3A5C]/20 bg-[#1A3A5C]/5 p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#1A3A5C]/10 flex items-center justify-center">
+                  <Handshake className="h-6 w-6 text-[#1A3A5C]" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-primary mb-1">Devenir mandataire sur ce projet</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Postulez auprès du promoteur pour commercialiser ce programme neuf — avec ou sans exclusivité.
+                  </p>
+
+                  {existingMandate ? (
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className={mandateStatusColor[existingMandate.status] ?? ""}>
+                        {mandateStatusLabel[existingMandate.status] ?? existingMandate.status}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {existingMandate.exclusive ? "Exclusivité demandée" : "Sans exclusivité"}
+                      </span>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => setShowMandateForm(true)}
+                      className="bg-[#1A3A5C] hover:bg-[#142d47] text-white"
+                    >
+                      <Handshake className="h-4 w-4 mr-2" />
+                      Postuler comme mandataire
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* AI Simulator CTA */}
           <div className="rounded-xl border-2 border-dashed border-[#C9A84C]/40 bg-[#C9A84C]/5 p-6 flex flex-col sm:flex-row items-center gap-4">
@@ -283,7 +353,83 @@ export default function ListingDetail() {
         </div>
       </div>
 
-      {/* Confirm Modal */}
+      {/* Mandate Application Modal */}
+      <Dialog open={showMandateForm} onOpenChange={setShowMandateForm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-serif text-primary">
+              <Handshake className="h-5 w-5 text-[#1A3A5C]" />
+              Candidature mandataire
+            </DialogTitle>
+            <DialogDescription>
+              Remplissez ce formulaire pour proposer vos services au promoteur de ce projet.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            {/* Exclusivity toggle */}
+            <div className="flex items-center justify-between p-4 bg-muted/40 rounded-lg">
+              <div>
+                <div className="font-medium flex items-center gap-2">
+                  <Star className="h-4 w-4 text-[#C9A84C]" />
+                  Mandat exclusif
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Vous seriez le seul agent autorisé à vendre ce projet
+                </p>
+              </div>
+              <Switch checked={exclusive} onCheckedChange={setExclusive} />
+            </div>
+
+            {/* Note / motivation */}
+            <div className="space-y-2">
+              <Label htmlFor="mandate-note">Présentation & motivation</Label>
+              <Textarea
+                id="mandate-note"
+                placeholder="Décrivez votre expérience, votre réseau d'acquéreurs, et pourquoi vous êtes le bon partenaire pour ce projet..."
+                rows={4}
+                value={mandateNote}
+                onChange={(e) => setMandateNote(e.target.value)}
+              />
+            </div>
+
+            {/* Justification document */}
+            <div className="space-y-2">
+              <Label htmlFor="justification-url" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Justificatif professionnel
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Lien vers votre carte professionnelle ou attestation FNAIM (hébergez le document et collez l'URL)
+              </p>
+              <input
+                id="justification-url"
+                type="url"
+                placeholder="https://..."
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={justificationUrl}
+                onChange={(e) => setJustificationUrl(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setShowMandateForm(false)}>
+              Annuler
+            </Button>
+            <Button
+              className="flex-1 gap-2 bg-[#1A3A5C] hover:bg-[#142d47] text-white"
+              onClick={handleApplyMandate}
+              disabled={applyForMandate.isPending}
+            >
+              <Send className="h-4 w-4" />
+              {applyForMandate.isPending ? "Envoi..." : "Envoyer ma candidature"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Simulator Modal */}
       <Dialog open={showAiModal} onOpenChange={setShowAiModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>

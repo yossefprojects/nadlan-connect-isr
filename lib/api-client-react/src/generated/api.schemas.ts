@@ -256,6 +256,52 @@ export interface Favorite {
   createdAt: string;
 }
 
+export type MandateStatus = typeof MandateStatus[keyof typeof MandateStatus];
+
+
+export const MandateStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface Mandate {
+  id: number;
+  listingId: number;
+  /** @nullable */
+  listingTitle: string | null;
+  agentId: string;
+  /** @nullable */
+  agentName: string | null;
+  /** @nullable */
+  agentEmail?: string | null;
+  exclusive: boolean;
+  status: MandateStatus;
+  /** @nullable */
+  justificationUrl?: string | null;
+  /** @nullable */
+  note?: string | null;
+  createdAt: string;
+}
+
+export interface MandateInput {
+  exclusive: boolean;
+  justificationUrl?: string;
+  note?: string;
+}
+
+export type MandateStatusUpdateStatus = typeof MandateStatusUpdateStatus[keyof typeof MandateStatusUpdateStatus];
+
+
+export const MandateStatusUpdateStatus = {
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface MandateStatusUpdate {
+  status: MandateStatusUpdateStatus;
+}
+
 export type LeadStatus = typeof LeadStatus[keyof typeof LeadStatus];
 
 

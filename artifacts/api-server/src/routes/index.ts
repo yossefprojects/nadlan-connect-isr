@@ -5,6 +5,7 @@ import storageRouter from "./storage";
 import usersRouter from "./users";
 import listingsRouter from "./listings";
 import leadsRouter from "./leads";
+import mandatesRouter from "./mandates";
 import dashboardRouter from "./dashboard";
 
 const router: IRouter = Router();
@@ -15,6 +16,7 @@ router.use(storageRouter);
 router.use(usersRouter);
 router.use(listingsRouter);
 router.use(leadsRouter);
+router.use(mandatesRouter);
 router.use(dashboardRouter);
 
 export default router;

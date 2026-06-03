@@ -17,6 +17,8 @@ tags:
     description: User profile and role management.
   - name: Listings
     description: Real estate listings CRUD and search.
+  - name: Mandates
+    description: Agent mandate applications on developer projects.
   - name: Leads
     description: Buyer-to-pro lead management.
   - name: Favorites
@@ -584,6 +586,108 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeleteSuccess'
 
+  # ── Mandates ──────────────────────────────────────────────────────────────
+  /listings/{listingId}/mandates:
+    post:
+      tags: [Mandates]
+      operationId: applyForMandate
+      summary: Agent applies to resell a developer listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandateInput'
+      responses:
+        '201':
+          description: Mandate application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mandate'
+    get:
+      tags: [Mandates]
+      operationId: listMandatesForListing
+      summary: Developer views mandate applications for their listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of mandate applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mandate'
+
+  /mandates/{mandateId}:
+    patch:
+      tags: [Mandates]
+      operationId: updateMandateStatus
+      summary: Developer approves or rejects a mandate application
+      parameters:
+        - name: mandateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandateStatusUpdate'
+      responses:
+        '200':
+          description: Updated mandate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mandate'
+    delete:
+      tags: [Mandates]
+      operationId: withdrawMandate
+      summary: Agent withdraws their mandate application
+      parameters:
+        - name: mandateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Withdrawn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSuccess'
+
+  /users/me/mandates:
+    get:
+      tags: [Mandates]
+      operationId: getMyMandates
+      summary: Agent views their own mandate applications
+      responses:
+        '200':
+          description: Agent's mandate applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mandate'
+
   # ── Leads ─────────────────────────────────────────────────────────────────
   /leads:
     get:
@@ -1094,6 +1198,53 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    # ── Mandates ──
+    Mandate:
+      type: object
+      required: [id, listingId, listingTitle, agentId, agentName, exclusive, status, createdAt]
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        listingTitle:
+          type: [string, 'null']
+        agentId:
+          type: string
+        agentName:
+          type: [string, 'null']
+        agentEmail:
+          type: [string, 'null']
+        exclusive:
+          type: boolean
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        justificationUrl:
+          type: [string, 'null']
+        note:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+    MandateInput:
+      type: object
+      required: [exclusive]
+      properties:
+        exclusive:
+          type: boolean
+        justificationUrl:
+          type: string
+        note:
+          type: string
+    MandateStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
 
     # ── Leads ──
     Lead:
