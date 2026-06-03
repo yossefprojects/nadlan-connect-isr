@@ -1,0 +1,25 @@
+Je souhaite améliorer le rendu visuel et la mise en page du PDF généré par l'application pour le rapport d'analyse immobilière. Actuellement, le texte brut contient des bugs de caractères et manque de clarté. 
+
+Modifie le composant de génération de PDF (ou le template HTML/CSS utilisé pour l'export) en appliquant STRICTEMENT les consignes de design et de formatage suivantes :
+
+1. CORRECTION DES SYMBOLES ET FORMATS DE NOMBRE :
+- Supprime définitivement le caractère 'ª' ou '/' au milieu des montants.
+- Force l'utilisation du texte "NIS" ou "₪" (uniquement si la police du PDF supporte l'hébreu/UTF-8, sinon utilise explicitement "NIS").
+- Formate tous les grands nombres avec des espaces pour les milliers (ex: "26 000 000 NIS" et NON "26/000/000 ª").
+
+2. RESTRUCTURATION DE LA SECTION "5. ANALYSE FINANCIÈRE" :
+- Ne génère plus le "Calcul détaillé" sous forme d'un gros paragraphe compact.
+- Découpe-le obligatoirement en une liste à puces claire et aérée avec des sous-titres en gras :
+  * **Coût de Construction Habitable :** [Insérer le calcul]
+  * **Coût des Sous-sols / Parkings :** [Insérer le calcul]
+  * **Chiffre d'Affaires Prévisionnel (Revente) :** [Insérer le calcul]
+  * **Note sur le Permis :** [Insérer le texte sur l'avantage du permis accordé]
+
+3. DESIGN ET LAYOUT DU PDF (Tailwind / CSS-to-PDF) :
+- Ajoute une feuille de style épurée et professionnelle (Style Executive).
+- Utilise une couleur primaire institutionnelle pour les titres de section (ex: Bleu nuit `#1e3a8a` ou Gris ardoise foncé).
+- Encadre l'INVESTMENT SCORE (Section 7) dans un grand encadré (Card) avec un fond de couleur léger (ex: Fond vert clair si Favorable, orange si Prudence) pour qu'il saute aux yeux dès l'ouverture du document.
+- Ajoute des lignes de séparation fines (`border-b`) entre chaque grande section pour éviter l'effet "bloc de texte brut".
+- Assure-toi que l'annonce analysée (Section 9) soit reléguée en annexe à la toute fin, dans un bloc à part avec une police légèrement plus petite.
+
+Applique ces corrections dans le code du template de génération et relance un test pour vérifier que le rendu soit digne d'un rapport de fonds d'investissement.

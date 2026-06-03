@@ -15,3 +15,13 @@ NadlanConnect generates downloadable branded PDFs **client-side** with `@react-p
 - **Download:** `pdf(<Doc/>).toBlob()` → object URL → anchor click. Defer `URL.revokeObjectURL` (`setTimeout … 10s`) so it doesn't race the download start in some browsers.
 
 **Why:** the first instinct (fontsource woff, or the variable Plus Jakarta TTF) silently fails to render or throws at `toBlob()`. Bundled static TTF + Helvetica fallback is the reliable path.
+
+## Glyph / number-formatting gotcha (built-in Helvetica = WinAnsi only)
+
+The built-in `Helvetica` can only render WinAnsi glyphs. Two silent corruptions to guard against:
+
+- **`Intl.NumberFormat('fr-FR')` thousands separator is U+202F** (narrow no-break space), which has no WinAnsi glyph → renders as **`/`** (e.g. `26 000 000` becomes `26/000/000`). Fix: group digits with a **plain ASCII space** yourself (`n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")`), don't rely on Intl.
+- **`₪` (U+20AA) has no WinAnsi glyph** → renders as **`ª`**. Use the literal text **`NIS`** instead (Helvetica can't do Hebrew/shekel).
+- Any **LLM- or user-supplied free text** can contain `₪`, `≈`, en/em dashes, smart quotes, and narrow/thin spaces. Run it through a `sanitize()` that maps these to ASCII (`₪→NIS`, `≈→~`, `−–—→-`, smart quotes→`'`/`"`, exotic spaces→` `) before putting it in a `<Text>`.
+
+**Why:** these failures are invisible in code review and only show up in the rendered PDF; they were a real user-reported bug. The `×` (U+00D7), `·` (U+00B7), `²` (U+00B2), `—` em dash, and accented Latin are all in WinAnsi and render fine — only the above need handling.

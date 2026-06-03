@@ -43,24 +43,56 @@ const SEVERITY_FR: Record<string, { label: string; color: string }> = {
   medium: { label: "Moyen", color: "#B45309" },
   high: { label: "Élevé", color: "#B91C1C" },
 };
-const STATUS: Record<string, { label: string; color: string }> = {
-  green: { label: "FAVORABLE", color: "#15803D" },
-  orange: { label: "À SURVEILLER", color: "#B45309" },
-  red: { label: "RISQUÉ", color: "#B91C1C" },
+const STATUS: Record<
+  string,
+  { label: string; color: string; bg: string; border: string }
+> = {
+  green: {
+    label: "FAVORABLE",
+    color: "#15803D",
+    bg: "#ECFDF5",
+    border: "#A7F3D0",
+  },
+  orange: {
+    label: "À SURVEILLER",
+    color: "#B45309",
+    bg: "#FFF7ED",
+    border: "#FED7AA",
+  },
+  red: { label: "RISQUÉ", color: "#B91C1C", bg: "#FEF2F2", border: "#FECACA" },
 };
 
 function num(n: number | null | undefined): number | null {
-  return typeof n === "number" && !Number.isNaN(n) ? n : null;
+  return typeof n === "number" && Number.isFinite(n) ? n : null;
+}
+// Group thousands with a regular ASCII space (Intl uses U+202F, which the
+// built-in Helvetica cannot render — it shows up as "/").
+function group(v: number): string {
+  return Math.round(v)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+// Helvetica (WinAnsi) has no glyph for ₪ (renders as "ª") or for several
+// typographic symbols an LLM may emit. Normalise everything to safe text.
+function sanitize(t: string | null | undefined): string {
+  if (!t) return "";
+  return t
+    .replace(/\u20AA/g, "NIS") // ₪
+    .replace(/\u2248/g, "~") // ≈
+    .replace(/[\u2212\u2013\u2014]/g, "-") // − – —
+    .replace(/[\u202F\u00A0\u2009\u2007]/g, " ") // narrow / no-break / thin spaces
+    .replace(/[\u2018\u2019\u201B]/g, "'") // ' ' ‛
+    .replace(/[\u201C\u201D]/g, '"'); // " "
 }
 function fmtShekel(n: number | null | undefined): string {
   const v = num(n);
   if (v === null) return "—";
-  return new Intl.NumberFormat("fr-FR").format(Math.round(v)) + " ₪";
+  return group(v) + " NIS";
 }
 function fmtSqm(n: number | null | undefined): string {
   const v = num(n);
   if (v === null) return "—";
-  return new Intl.NumberFormat("fr-FR").format(Math.round(v)) + " m²";
+  return group(v) + " m²";
 }
 function fmtPct(n: number | null | undefined): string {
   const v = num(n);
@@ -92,7 +124,7 @@ const s = StyleSheet.create({
   kicker: {
     color: GOLD,
     fontSize: 8,
-    letterSpacing: 2,
+    letterSpacing: 1.5,
     fontFamily: "Helvetica-Bold",
     marginBottom: 8,
   },
@@ -102,7 +134,13 @@ const s = StyleSheet.create({
     fontSize: 22,
   },
   mastSub: { color: "rgba(255,255,255,0.65)", fontSize: 9, marginTop: 8 },
-  section: { marginBottom: 18 },
+  section: {
+    marginBottom: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 0.5,
+    borderBottomColor: LINE,
+  },
+  sectionPlain: { marginBottom: 16 },
   secHead: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
   secNum: {
     backgroundColor: GOLD,
@@ -120,10 +158,23 @@ const s = StyleSheet.create({
     color: NAVY,
     fontFamily: "Helvetica-Bold",
     fontSize: 11,
-    letterSpacing: 1.2,
+    letterSpacing: 0.5,
   },
   para: { color: INK, fontSize: 10, lineHeight: 1.55 },
   note: { color: MUTED, fontSize: 9, lineHeight: 1.5, marginTop: 6 },
+  bullet: {
+    marginTop: 9,
+    paddingLeft: 10,
+    borderLeftWidth: 2,
+    borderLeftColor: GOLD,
+  },
+  bulletTitle: {
+    color: NAVY,
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9.5,
+    marginBottom: 3,
+  },
+  bulletBody: { color: INK, fontSize: 9.5, lineHeight: 1.5 },
   row: { flexDirection: "row", alignItems: "flex-end", marginBottom: 6 },
   rowLabel: { color: MUTED, fontSize: 9.5 },
   leader: {
@@ -139,19 +190,19 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: NAVY_DARK,
-    borderRadius: 6,
-    padding: 20,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    padding: 22,
     marginBottom: 8,
   },
-  scoreNum: { fontFamily: "DM Serif Display", fontSize: 44, color: GOLD },
+  scoreNum: { fontFamily: "DM Serif Display", fontSize: 46 },
   scoreCaption: {
-    color: "rgba(255,255,255,0.6)",
+    color: MUTED,
     fontSize: 8,
     letterSpacing: 1.5,
     marginTop: 2,
   },
-  statusWord: { fontFamily: "DM Serif Display", fontSize: 20 },
+  statusWord: { fontFamily: "DM Serif Display", fontSize: 22 },
   anomaly: {
     borderLeftWidth: 2,
     borderLeftColor: LINE,
@@ -171,6 +222,7 @@ const s = StyleSheet.create({
     padding: 12,
     marginTop: 4,
   },
+  annexText: { color: MUTED, fontSize: 8, lineHeight: 1.45 },
   footer: {
     position: "absolute",
     bottom: 28,
@@ -200,6 +252,15 @@ function Row({ label, value }: { label: string; value: string }) {
       <Text style={s.rowLabel}>{label}</Text>
       <View style={s.leader} />
       <Text style={s.rowValue}>{value}</Text>
+    </View>
+  );
+}
+
+function Bullet({ title, body }: { title: string; body: string }) {
+  return (
+    <View style={s.bullet} wrap={false}>
+      <Text style={s.bulletTitle}>{title}</Text>
+      <Text style={s.bulletBody}>{body}</Text>
     </View>
   );
 }
@@ -262,7 +323,7 @@ function ReportDoc({
         {/* 1. Résumé */}
         <View style={s.section}>
           <SecHead n={1} title="RÉSUMÉ DU PROJET" />
-          <Text style={s.para}>{r.summary}</Text>
+          <Text style={s.para}>{sanitize(r.summary)}</Text>
         </View>
 
         {/* 2. Données extraites */}
@@ -271,9 +332,11 @@ function ReportDoc({
           <Row
             label="Localisation"
             value={
-              [r.features.neighborhood, r.features.city]
-                .filter(Boolean)
-                .join(", ") || "—"
+              sanitize(
+                [r.features.neighborhood, r.features.city]
+                  .filter(Boolean)
+                  .join(", "),
+              ) || "—"
             }
           />
           <Row label="Surface" value={fmtSqm(r.features.surface)} />
@@ -373,7 +436,7 @@ function ReportDoc({
             </>
           )}
           {r.renovation.comment && !p.applicable ? (
-            <Text style={s.note}>{r.renovation.comment}</Text>
+            <Text style={s.note}>{sanitize(r.renovation.comment)}</Text>
           ) : null}
         </View>
 
@@ -410,9 +473,80 @@ function ReportDoc({
               <Row label="Marge brute" value={fmtShekel(margin)} />
               <Row label="ROI brut estimé" value={fmtPct(p.grossRoiPct)} />
               <Row label="Coût de revient / m²" value={fmtShekel(costPerSqm)} />
+
+              {(constr !== null ||
+                fees !== null ||
+                revenue !== null ||
+                totalCost !== null ||
+                margin !== null ||
+                typeof p.hasBuildingPermit === "boolean") && (
+              <View style={{ marginTop: 14 }}>
+                <Text style={s.bulletTitle}>Détail du calcul</Text>
+                {constr !== null && (
+                  <Bullet
+                    title="Coût de construction habitable"
+                    body={
+                      proj && p.constructionCostPerSqm != null
+                        ? `${group(proj)} m² × ${fmtShekel(p.constructionCostPerSqm)} /m² = ${fmtShekel(constr)}`
+                        : fmtShekel(constr)
+                    }
+                  />
+                )}
+                {fees !== null && subtotal !== null && (
+                  <Bullet
+                    title="Honoraires & imprévus (15 %)"
+                    body={`${fmtShekel(subtotal)} (acquisition + construction) × 15 % = ${fmtShekel(fees)}`}
+                  />
+                )}
+                {revenue !== null && (
+                  <Bullet
+                    title="Chiffre d'affaires prévisionnel (revente)"
+                    body={
+                      proj && resalePerSqm !== null
+                        ? `${group(proj)} m² × ${fmtShekel(resalePerSqm)} /m² = ${fmtShekel(revenue)}`
+                        : fmtShekel(revenue)
+                    }
+                  />
+                )}
+                {totalCost !== null && (
+                  <Bullet
+                    title="Coût de revient total"
+                    body={
+                      costPerSqm !== null
+                        ? `${fmtShekel(totalCost)} soit ${fmtShekel(costPerSqm)} /m²`
+                        : fmtShekel(totalCost)
+                    }
+                  />
+                )}
+                {margin !== null && (
+                  <Bullet
+                    title="Marge brute & rentabilité"
+                    body={`${fmtShekel(margin)}${
+                      p.grossRoiPct != null
+                        ? ` · ROI brut ${fmtPct(p.grossRoiPct)}`
+                        : ""
+                    }`}
+                  />
+                )}
+                {p.hasBuildingPermit === true && (
+                  <Bullet
+                    title="Note sur le permis"
+                    body="Le permis de construire déjà accordé constitue un avantage majeur : il élimine le risque de refus et fait gagner plusieurs années de procédures, ce qui sécurise l'opération et justifie une prime sur le prix d'acquisition."
+                  />
+                )}
+                {p.hasBuildingPermit === false && (
+                  <Bullet
+                    title="Note sur le permis"
+                    body="Aucun permis de construire n'est accordé à ce stade : prévoir un aléa réglementaire et un délai d'instruction dans le calendrier de l'opération."
+                  />
+                )}
+              </View>
+              )}
             </>
           )}
-          {p.comment ? <Text style={s.note}>{p.comment}</Text> : null}
+          {!p.applicable && p.comment ? (
+            <Text style={s.note}>{sanitize(p.comment)}</Text>
+          ) : null}
         </View>
 
         {/* 6. Analyse des risques */}
@@ -426,12 +560,12 @@ function ReportDoc({
               return (
                 <View key={i} style={s.anomaly} wrap={false}>
                   <View style={s.anomalyHead}>
-                    <Text style={s.anomalyLabel}>{a.label}</Text>
+                    <Text style={s.anomalyLabel}>{sanitize(a.label)}</Text>
                     <Text style={[s.anomalyTag, { color: sev.color }]}>
                       {sev.label.toUpperCase()}
                     </Text>
                   </View>
-                  <Text style={s.note}>{a.detail}</Text>
+                  <Text style={s.note}>{sanitize(a.detail)}</Text>
                 </View>
               );
             })
@@ -441,11 +575,18 @@ function ReportDoc({
         {/* 7. Investment score */}
         <View style={s.section} wrap={false}>
           <SecHead n={7} title="INVESTMENT SCORE" />
-          <View style={s.scoreBox}>
+          <View
+            style={[
+              s.scoreBox,
+              { backgroundColor: status.bg, borderColor: status.border },
+            ]}
+          >
             <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-              <Text style={s.scoreNum}>{r.overallScore}</Text>
-              <View style={{ marginLeft: 8, marginBottom: 6 }}>
-                <Text style={{ color: "#FFFFFF", fontSize: 11 }}>/ 100</Text>
+              <Text style={[s.scoreNum, { color: status.color }]}>
+                {r.overallScore}
+              </Text>
+              <View style={{ marginLeft: 8, marginBottom: 8 }}>
+                <Text style={{ color: INK, fontSize: 11 }}>/ 100</Text>
                 <Text style={s.scoreCaption}>INVESTMENT SCORE</Text>
               </View>
             </View>
@@ -456,17 +597,19 @@ function ReportDoc({
         </View>
 
         {/* 8. Conclusion */}
-        <View style={s.section} wrap={false}>
+        <View style={s.sectionPlain} wrap={false}>
           <SecHead n={8} title="CONCLUSION" />
           <Row label="Statut" value={status.label} />
-          <Text style={[s.para, { marginTop: 4 }]}>{r.recommendationText}</Text>
+          <Text style={[s.para, { marginTop: 4 }]}>
+            {sanitize(r.recommendationText)}
+          </Text>
         </View>
 
-        {/* Source */}
-        <View style={s.section} wrap={false}>
-          <SecHead n={9} title="ANNONCE ANALYSÉE" />
+        {/* 9. Annexe — annonce analysée (on its own page) */}
+        <View style={s.sectionPlain} break>
+          <SecHead n={9} title="ANNEXE — ANNONCE ANALYSÉE" />
           <View style={s.sourceBox}>
-            <Text style={[s.note, { marginTop: 0 }]}>{text}</Text>
+            <Text style={s.annexText}>{sanitize(text)}</Text>
           </View>
         </View>
       </Page>
