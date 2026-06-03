@@ -3,6 +3,8 @@ import {
   useAnalyzeProperty,
   useShamaiChat,
   useCreateReport,
+  useGetReport,
+  getGetReportQueryKey,
 } from "@workspace/api-client-react";
 import type {
   AnalyzePropertyResult,
@@ -101,6 +103,22 @@ const EMPTY_QF: QuickFields = {
   goal: "",
 };
 
+function parseChatMarkdown(md: string): ShamaiChatMessage[] {
+  return md
+    .split("\n\n---\n\n")
+    .map((block) => {
+      const m = block.match(/^\*\*(Q|Shamai)\*\*\n\n([\s\S]*)$/);
+      if (!m) return null;
+      const content = m[2].trim();
+      if (!content) return null;
+      return {
+        role: m[1] === "Q" ? "user" : "assistant",
+        content,
+      } as ShamaiChatMessage;
+    })
+    .filter((x): x is ShamaiChatMessage => x !== null);
+}
+
 function composeFromFields(qf: QuickFields): string {
   const parts: string[] = [];
   if (qf.type) parts.push(qf.type);
@@ -137,6 +155,30 @@ export default function AnalyseIA() {
   const threadRef = useRef<HTMLDivElement>(null);
 
   const createReport = useCreateReport();
+
+  // ---- Re-open a saved report (?reportId=) ----
+  const [reportId] = useState<number>(() => {
+    const id = Number(new URLSearchParams(window.location.search).get("reportId"));
+    return Number.isFinite(id) && id > 0 ? id : 0;
+  });
+  const savedReport = useGetReport(reportId, {
+    query: { enabled: reportId > 0, queryKey: getGetReportQueryKey(reportId) },
+  });
+  const [hydratedId, setHydratedId] = useState(0);
+  useEffect(() => {
+    const r = savedReport.data;
+    if (!r || hydratedId === r.id) return;
+    if (r.kind === "analysis" && r.analysis) {
+      setMode("analysis");
+      setResult(r.analysis);
+      setAnalyzedText(r.listingText ?? "");
+      setText(r.listingText ?? "");
+    } else if (r.kind === "chat" && r.chatMarkdown) {
+      setMode("chat");
+      setMessages(parseChatMarkdown(r.chatMarkdown));
+    }
+    setHydratedId(r.id);
+  }, [savedReport.data, hydratedId]);
 
   // ---- URL prefill ----
   useEffect(() => {

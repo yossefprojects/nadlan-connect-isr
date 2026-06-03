@@ -21,6 +21,7 @@ import {
   Loader2,
   Sparkles,
   ScrollText,
+  FolderOpen,
 } from "lucide-react";
 
 export default function Reports() {
@@ -132,19 +133,28 @@ export default function Reports() {
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <Link href={`/outils/analyse-ia?reportId=${r.id}`} className="flex-1">
+                      <Button
+                        size="sm"
+                        className="w-full bg-[#1A3A5C] hover:bg-[#0F2235] text-white border-0"
+                      >
+                        <FolderOpen className="h-4 w-4" />
+                        <span className="ml-1.5">{t("reports.view")}</span>
+                      </Button>
+                    </Link>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-[#1A3A5C]/20 text-[#1A3A5C]"
+                      className="border-[#1A3A5C]/20 text-[#1A3A5C]"
                       onClick={() => handleDownload(r)}
                       disabled={downloadingId === r.id}
+                      aria-label="PDF"
                     >
                       {downloadingId === r.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Download className="h-4 w-4" />
                       )}
-                      <span className="ml-1.5">PDF</span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -152,6 +162,7 @@ export default function Reports() {
                       className="text-destructive hover:bg-destructive/10"
                       onClick={() => handleDelete(r.id)}
                       disabled={deleteReport.isPending}
+                      aria-label={t("reports.delete")}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

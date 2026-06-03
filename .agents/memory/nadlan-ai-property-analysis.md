@@ -14,14 +14,22 @@ Feature: paste a real-estate listing → structured investment analysis (feature
 ## Contract-first
 - Single endpoint `POST /anthropic/analyze-property`, normal JSON (not SSE) because the output is one structured object → lets Orval generate a React Query hook + zod schema. Server validates the model's JSON against the generated zod `AnalyzePropertyResponse` and returns 502 if it doesn't conform.
 
-## "Agent Shamai" enrichment (certified appraiser)
-- The structured result was extended additively with appraiser fields: `appraisal` (value range + coefficient breakdown via comparative method), `fiscalAnalysis` (Mas Rechisha / Mas Shevach / Heitel Hashvacha), `urbanScore` (renewal score + criteria). All arithmetic is LLM-done → indicative, not audited.
-- A SECOND endpoint `POST /anthropic/shamai-chat` is **conversational** (messages[] + language → Markdown `reply`). It returns free-form Markdown (rendered with `react-markdown` + `remark-gfm`, styled via `.markdown-body` CSS), NOT a validated JSON contract — so it has no zod result schema. It still MUST keep the same public-LLM guards (input cap, rate limit, lazy client import).
-- **Both endpoints need an api-server restart to pick up newly added routes** — a 404 on a route that exists in code usually means the workflow hasn't reloaded.
+## Two LLM shapes coexist: structured contract vs. free Markdown chat
+- The analyze endpoint is contract-first (zod-validated JSON), but the Shamai chat endpoint deliberately returns **free-form Markdown with no result schema** — a conversational reply can't be forced into a fixed object.
+- **Both shapes still need the same public-LLM guards** (input cap, in-memory rate limit, lazy client import). The guard requirement attaches to "is this a public paid-LLM call", not to "does it have a zod schema".
+- **Why:** treating the chat route as "just a chat" tempted skipping the guards; it's the same cost-amplification DoS surface as analyze.
 
-## Saved reports
-- `/reports` CRUD (auth-gated, `requireAuth` + ownership filter by `userId`) persists analyses/chats to `saved_reports`. The frontend "Mes rapports" page (`/outils/mes-rapports`) lists/downloads/deletes them; chat is serialized to Markdown for save + PDF.
-- Deep-link prefill into `/outils/analyse-ia` supports `?mode=chat` — when chat mode is requested, prefill must target `chatInput`, not the analysis textarea.
+## Saved chat reports round-trip through Markdown — keep serializer/parser in lockstep
+- Chat history is persisted only as serialized Markdown (no structured message array stored), so re-opening a saved chat **parses that Markdown back into messages**. The save serializer and the re-open parser are inverse functions using a fixed role-prefix + `---` divider convention.
+- **Why:** if you change the save format (role labels, divider) without updating the parser, every re-opened chat silently renders blank or mis-attributed. Change them together.
+- **How to apply:** any edit to how chat is flattened for save/PDF must update the re-open parser in the same change, and vice-versa.
+
+## Deep links into the appraisal tool carry intent
+- The tool accepts deep-link params for both prefill (compose a listing string) and re-open (`reportId` → hydrate saved state). Prefill must respect the requested mode: a chat deep-link fills the chat composer, not the analysis textarea.
+- **Why:** a regression had chat deep-links dumping the prefill into the (hidden) analysis box, so chat mode opened empty.
+
+## Operational gotcha
+- Newly added Express routes 404 until the api-server workflow restarts — a route that exists in code but 404s almost always means the dev server hasn't reloaded, not a mounting bug.
 
 ## Dual analysis in one response (investor + promoter)
 - The single result carries BOTH an investor/buyer analysis (market price, rental yield, renovation, urban potential) AND a `promoterRoi` development appraisal — kept **additive** per the user's choice (don't replace the investor view).
