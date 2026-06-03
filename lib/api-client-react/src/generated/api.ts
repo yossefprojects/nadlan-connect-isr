@@ -1301,7 +1301,7 @@ export function useGetListingsStats<TData = Awaited<ReturnType<typeof getListing
 
 
 
-export const getGetListingUrl = (listingId: number,) => {
+export const getGetListingUrl = (listingId: string,) => {
 
 
 
@@ -1312,7 +1312,7 @@ export const getGetListingUrl = (listingId: number,) => {
 /**
  * @summary Get a single listing with images
  */
-export const getListing = async (listingId: number, options?: RequestInit): Promise<ListingDetail> => {
+export const getListing = async (listingId: string, options?: RequestInit): Promise<ListingDetail> => {
 
   return customFetch<ListingDetail>(getGetListingUrl(listingId),
   {
@@ -1327,14 +1327,14 @@ export const getListing = async (listingId: number, options?: RequestInit): Prom
 
 
 
-export const getGetListingQueryKey = (listingId: number,) => {
+export const getGetListingQueryKey = (listingId: string,) => {
     return [
     `/api/listings/${listingId}`
     ] as const;
     }
 
 
-export const getGetListingQueryOptions = <TData = Awaited<ReturnType<typeof getListing>>, TError = ErrorType<ErrorEnvelope>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetListingQueryOptions = <TData = Awaited<ReturnType<typeof getListing>>, TError = ErrorType<ErrorEnvelope>>(listingId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -1361,7 +1361,7 @@ export type GetListingQueryError = ErrorType<ErrorEnvelope>
  */
 
 export function useGetListing<TData = Awaited<ReturnType<typeof getListing>>, TError = ErrorType<ErrorEnvelope>>(
- listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ listingId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 

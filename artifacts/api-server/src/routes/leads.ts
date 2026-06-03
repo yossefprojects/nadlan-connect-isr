@@ -30,6 +30,7 @@ function serializeLead(
   return {
     id: lead.id,
     listingId: lead.listingId,
+    listingSlug: listing?.slug ?? null,
     listingTitle: listing?.title ?? null,
     buyerId: lead.buyerId,
     buyerName: buyer

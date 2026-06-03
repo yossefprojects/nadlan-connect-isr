@@ -11,6 +11,8 @@ export interface Mandate {
   id: number;
   listingId: number;
   /** @nullable */
+  listingSlug?: string | null;
+  /** @nullable */
   listingTitle: string | null;
   agentId: string;
   /** @nullable */

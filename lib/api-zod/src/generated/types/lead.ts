@@ -11,6 +11,8 @@ export interface Lead {
   id: number;
   listingId: number;
   /** @nullable */
+  listingSlug?: string | null;
+  /** @nullable */
   listingTitle?: string | null;
   buyerId: string;
   /** @nullable */

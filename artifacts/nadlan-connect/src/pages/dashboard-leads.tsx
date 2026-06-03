@@ -49,7 +49,7 @@ export default function DashboardLeads() {
                 <tr key={lead.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 font-medium">{lead.buyerName || "Client"}</td>
                   <td className="px-6 py-4">
-                    <Link href={`/listings/${lead.listingId}`} className="text-primary hover:underline">
+                    <Link href={`/listings/${lead.listingSlug ?? lead.listingId}`} className="text-primary hover:underline">
                       {lead.listingTitle || `Propriété #${lead.listingId}`}
                     </Link>
                   </td>

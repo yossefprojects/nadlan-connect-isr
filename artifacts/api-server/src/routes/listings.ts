@@ -23,8 +23,26 @@ import {
   AdminUpdateListingStatusBody,
 } from "@workspace/api-zod";
 import { calcEstimation, calcInvestmentScore } from "../lib/engine";
+import { buildListingSlug } from "../lib/slug";
 
 const router = Router();
+
+// Generate a slug that is unique across listings, appending -2, -3, ... on collision.
+async function uniqueSlug(base: string, excludeId?: number): Promise<string> {
+  const rows = await db
+    .select({ id: listingsTable.id, slug: listingsTable.slug })
+    .from(listingsTable)
+    .where(
+      sql`${listingsTable.slug} = ${base} OR ${listingsTable.slug} LIKE ${base + "-%"}`
+    );
+  const taken = new Set(
+    rows.filter((r) => r.id !== excludeId).map((r) => r.slug)
+  );
+  if (!taken.has(base)) return base;
+  let i = 2;
+  while (taken.has(`${base}-${i}`)) i++;
+  return `${base}-${i}`;
+}
 
 function serializeListing(
   l: typeof listingsTable.$inferSelect,
@@ -33,6 +51,7 @@ function serializeListing(
 ) {
   return {
     id: l.id,
+    slug: l.slug,
     ownerId: l.ownerId,
     ownerName: owner
       ? owner.fullName ?? (owner.firstName && owner.lastName ? `${owner.firstName} ${owner.lastName}` : owner.firstName ?? null)
@@ -189,15 +208,27 @@ router.get("/listings/stats", async (req, res): Promise<void> => {
 router.get("/listings/:listingId", async (req, res): Promise<void> => {
   const params = GetListingParams.safeParse(req.params);
   if (!params.success) {
-    res.status(400).json({ error: "Invalid listing ID" });
+    res.status(400).json({ error: "Invalid listing identifier" });
     return;
   }
 
-  const [listing] = await db
+  // Resolve by slug first (canonical), then fall back to a numeric id for
+  // legacy/back-compat links. Slug-first avoids ambiguity if a slug is numeric.
+  const idOrSlug = String(params.data.listingId);
+
+  let [listing] = await db
     .select()
     .from(listingsTable)
-    .where(eq(listingsTable.id, params.data.listingId))
+    .where(eq(listingsTable.slug, idOrSlug))
     .limit(1);
+
+  if (!listing && /^\d+$/.test(idOrSlug)) {
+    [listing] = await db
+      .select()
+      .from(listingsTable)
+      .where(eq(listingsTable.id, parseInt(idOrSlug, 10)))
+      .limit(1);
+  }
 
   if (!listing) {
     res.status(404).json({ error: "Listing not found" });
@@ -275,12 +306,15 @@ router.post("/listings", async (req, res): Promise<void> => {
     surface: data.surface,
   });
 
+  const slug = await uniqueSlug(buildListingSlug(data.title, data.ville));
+
   const [listing] = await db
     .insert(listingsTable)
     .values({
       ownerId: req.user!.id,
       type: data.type,
       title: data.title,
+      slug,
       description: data.description ?? null,
       ville: data.ville,
       quartier: data.quartier ?? null,
@@ -356,6 +390,13 @@ router.patch("/listings/:listingId", async (req, res): Promise<void> => {
     });
     updates.estimatedPrice = estimatedPrice;
     updates.investmentScore = investmentScore;
+  }
+
+  // Regenerate the slug when the title or city changes (old URLs still resolve via id).
+  if (parsed.data.title !== undefined || parsed.data.ville !== undefined) {
+    const title = parsed.data.title ?? existing.title;
+    const ville = parsed.data.ville ?? existing.ville;
+    updates.slug = await uniqueSlug(buildListingSlug(title, ville), existing.id);
   }
 
   const [updated] = await db

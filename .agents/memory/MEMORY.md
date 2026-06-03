@@ -1,3 +1,4 @@
 - [NadlanConnect gotchas](nadlan-connect-gotchas.md) — esbuild/zod sub-path, SelectItem empty-value, CSS import order, DB FK seed order.
 - [window.open noopener gotcha](window-open-noopener.md) — `noopener` in window.open() returns null, breaking postMessage to the opened window.
 - [NadlanConnect ↔ simzip design family](nadlan-simzip-design-family.md) — shared color/font/card tokens; both sites must stay one visual family.
+- [NadlanConnect listing slug URLs](nadlan-listing-slugs.md) — listings use stored unique SEO slugs; GET resolves slug-first then numeric-id fallback.

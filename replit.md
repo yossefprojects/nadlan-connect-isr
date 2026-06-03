@@ -41,6 +41,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 - **Inline engine**: Price estimation and investment score calculated server-side in `engine.ts`, attached to every listing on create/update.
 - **Session auth**: Replit Auth uses a PostgreSQL sessions table (not JWT) with HttpOnly cookies.
 - **Role system**: User roles (`buyer`, `agent`, `developer`, `admin`) stored in `users.role` column, set by user on first login via `/api/users/me/role`.
+- **Slug URLs**: Listings use a stored, unique SEO `slug` (generated from title + city). `GET /listings/:listingId` resolves slug-first, then falls back to a numeric id for legacy links. Link to listings via `slug`; read the numeric id from the loaded detail for mutations.
 - **Zod in api-server**: Use `import { z } from "zod"` (not `zod/v4`) in the api-server because esbuild bundles it and the v4 sub-path isn't resolved correctly.
 
 ## Product

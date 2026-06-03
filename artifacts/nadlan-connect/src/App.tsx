@@ -28,7 +28,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/auth" component={Auth} />
       <Route path="/listings" component={Listings} />
-      <Route path="/listings/:id" component={ListingDetail} />
+      <Route path="/listings/:slug" component={ListingDetail} />
       
       {/* Dashboard Routes */}
       <Route path="/dashboard" component={Dashboard} />

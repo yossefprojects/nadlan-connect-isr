@@ -24,6 +24,7 @@ function serializeMandate(
   return {
     id: mandate.id,
     listingId: mandate.listingId,
+    listingSlug: listing?.slug ?? null,
     listingTitle: listing?.title ?? null,
     agentId: mandate.agentId,
     agentName: agent

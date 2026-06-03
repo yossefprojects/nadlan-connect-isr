@@ -10,6 +10,7 @@ import type { ListingType } from './listingType';
 
 export interface Listing {
   id: number;
+  slug: string;
   ownerId: string;
   /** @nullable */
   ownerName?: string | null;

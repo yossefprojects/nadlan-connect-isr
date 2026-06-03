@@ -24,8 +24,8 @@ export default function DashboardListingsEdit() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { data: detail, isLoading } = useGetListing(listingId, {
-    query: { enabled: !!listingId, queryKey: getGetListingQueryKey(listingId) }
+  const { data: detail, isLoading } = useGetListing(String(listingId), {
+    query: { enabled: !!listingId, queryKey: getGetListingQueryKey(String(listingId)) }
   });
   
   const updateListing = useUpdateListing();

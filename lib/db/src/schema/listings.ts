@@ -16,6 +16,7 @@ export const listingsTable = pgTable("listings", {
     .references(() => usersTable.id, { onDelete: "cascade" }),
   type: text("type").notNull().default("resale"), // 'resale' | 'new_development'
   title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
   description: text("description"),
   ville: text("ville").notNull(),
   quartier: text("quartier"),
@@ -46,6 +47,7 @@ export const listingImagesTable = pgTable("listing_images", {
 
 export const insertListingSchema = createInsertSchema(listingsTable).omit({
   id: true,
+  slug: true,
   estimatedPrice: true,
   investmentScore: true,
   createdAt: true,

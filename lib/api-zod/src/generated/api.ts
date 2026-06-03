@@ -217,6 +217,7 @@ export const ListListingsQueryParams = zod.object({
 export const ListListingsResponse = zod.object({
   "listings": zod.array(zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -267,6 +268,7 @@ export const CreateListingBody = zod.object({
  */
 export const GetFeaturedListingsResponseItem = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -309,12 +311,13 @@ export const GetListingsStatsResponse = zod.object({
  * @summary Get a single listing with images
  */
 export const GetListingParams = zod.object({
-  "listingId": zod.coerce.number()
+  "listingId": zod.coerce.string().describe('Listing slug (preferred) or numeric id (legacy).')
 })
 
 export const GetListingResponse = zod.object({
   "listing": zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -365,6 +368,7 @@ export const UpdateListingBody = zod.object({
 
 export const UpdateListingResponse = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -432,6 +436,7 @@ export const PublishListingParams = zod.object({
 
 export const PublishListingResponse = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -457,6 +462,7 @@ export const PublishListingResponse = zod.object({
  */
 export const GetMyFavoritesResponseItem = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -522,6 +528,7 @@ export const ListMandatesForListingParams = zod.object({
 export const ListMandatesForListingResponseItem = zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullable(),
   "agentId": zod.string(),
   "agentName": zod.string().nullable(),
@@ -549,6 +556,7 @@ export const UpdateMandateStatusBody = zod.object({
 export const UpdateMandateStatusResponse = zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullable(),
   "agentId": zod.string(),
   "agentName": zod.string().nullable(),
@@ -579,6 +587,7 @@ export const WithdrawMandateResponse = zod.object({
 export const GetMyMandatesResponseItem = zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullable(),
   "agentId": zod.string(),
   "agentName": zod.string().nullable(),
@@ -598,6 +607,7 @@ export const GetMyMandatesResponse = zod.array(GetMyMandatesResponseItem)
 export const ListLeadsResponseItem = zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullish(),
   "buyerId": zod.string(),
   "buyerName": zod.string().nullish(),
@@ -632,6 +642,7 @@ export const GetLeadResponse = zod.object({
   "lead": zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullish(),
   "buyerId": zod.string(),
   "buyerName": zod.string().nullish(),
@@ -666,6 +677,7 @@ export const UpdateLeadStatusBody = zod.object({
 export const UpdateLeadStatusResponse = zod.object({
   "id": zod.number(),
   "listingId": zod.number(),
+  "listingSlug": zod.string().nullish(),
   "listingTitle": zod.string().nullish(),
   "buyerId": zod.string(),
   "buyerName": zod.string().nullish(),
@@ -751,6 +763,7 @@ export const AdminListListingsQueryParams = zod.object({
 
 export const AdminListListingsResponseItem = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
@@ -785,6 +798,7 @@ export const AdminUpdateListingStatusBody = zod.object({
 
 export const AdminUpdateListingStatusResponse = zod.object({
   "id": zod.number(),
+  "slug": zod.string(),
   "ownerId": zod.string(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),

@@ -39,12 +39,13 @@ const VILLE_LABELS: Record<string, string> = {
 };
 
 export default function ListingDetail() {
-  const [, params] = useRoute("/listings/:id");
-  const listingId = params?.id ? parseInt(params.id, 10) : 0;
-  
-  const { data: detail, isLoading } = useGetListing(listingId, {
-    query: { enabled: !!listingId, queryKey: getGetListingQueryKey(listingId) }
+  const [, params] = useRoute("/listings/:slug");
+  const slug = params?.slug ?? "";
+
+  const { data: detail, isLoading } = useGetListing(slug, {
+    query: { enabled: !!slug, queryKey: getGetListingQueryKey(slug) }
   });
+  const listingId = detail?.listing.id ?? 0;
   const { data: favorites } = useGetMyFavorites();
   const isFavorited = favorites?.some(f => f.listingId === listingId) || false;
   

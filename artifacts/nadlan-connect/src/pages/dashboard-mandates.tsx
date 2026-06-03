@@ -74,7 +74,7 @@ export default function DashboardMandates() {
                 <tr key={m.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-6 py-4">
                     <Link
-                      href={`/listings/${m.listingId}`}
+                      href={`/listings/${m.listingSlug ?? m.listingId}`}
                       className="font-medium hover:text-primary hover:underline flex items-center gap-1"
                     >
                       {m.listingTitle ?? `Projet #${m.listingId}`}

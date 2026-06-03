@@ -112,6 +112,7 @@ export const ListingStatus = {
 
 export interface Listing {
   id: number;
+  slug: string;
   ownerId: string;
   /** @nullable */
   ownerName?: string | null;
@@ -269,6 +270,8 @@ export interface Mandate {
   id: number;
   listingId: number;
   /** @nullable */
+  listingSlug?: string | null;
+  /** @nullable */
   listingTitle: string | null;
   agentId: string;
   /** @nullable */
@@ -314,6 +317,8 @@ export const LeadStatus = {
 export interface Lead {
   id: number;
   listingId: number;
+  /** @nullable */
+  listingSlug?: string | null;
   /** @nullable */
   listingTitle?: string | null;
   buyerId: string;

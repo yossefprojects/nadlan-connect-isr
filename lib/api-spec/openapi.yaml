@@ -410,8 +410,9 @@ paths:
         - name: listingId
           in: path
           required: true
+          description: Listing slug (preferred) or numeric id (legacy).
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: Listing detail
@@ -1008,10 +1009,12 @@ components:
     # ── Listings ──
     Listing:
       type: object
-      required: [id, ownerId, type, title, ville, surface, nbPieces, price, status, createdAt]
+      required: [id, slug, ownerId, type, title, ville, surface, nbPieces, price, status, createdAt]
       properties:
         id:
           type: integer
+        slug:
+          type: string
         ownerId:
           type: string
         ownerName:
@@ -1208,6 +1211,8 @@ components:
           type: integer
         listingId:
           type: integer
+        listingSlug:
+          type: [string, 'null']
         listingTitle:
           type: [string, 'null']
         agentId:
@@ -1255,6 +1260,8 @@ components:
           type: integer
         listingId:
           type: integer
+        listingSlug:
+          type: [string, 'null']
         listingTitle:
           type: [string, 'null']
         buyerId:
