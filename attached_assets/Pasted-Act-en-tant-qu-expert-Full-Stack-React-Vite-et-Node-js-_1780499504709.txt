@@ -1,0 +1,29 @@
+Act en tant qu'expert Full-Stack React (Vite) et Node.js. Je souhaite transformer mon application "nadlan-connect" pour intégrer un agent d'intelligence artificielle basé sur l'API d'Anthropic Claude (Claude 3.5 Sonnet). Cet agent servira d'outil d'estimation et d'analyse immobilière pour le marché israélien.
+
+L'objectif est d'automatiser le screening des biens pour réduire le travail manuel des analystes et optimiser les coûts de l'entreprise.
+
+Voici les spécifications techniques à implémenter :
+
+1. BACKEND (server/index.js ou dossier server/) :
+- Configure un serveur Express avec CORS et dotenv.
+- Installe et importe le SDK officiel d'Anthropic : `@anthropic-ai/sdk`.
+- Initialise le client Claude en utilisant la variable d'environnement `ANTHROPIC_API_KEY`.
+- Crée un endpoint POST `/api/analyze-property` qui accepte le texte d'une annonce immobilière ou des données de biens.
+- Configure l'appel à l'API Claude avec le modèle "claude-3-5-sonnet-20241022" (ou la dernière version de Claude 3.5 Sonnet).
+- Utilise le paramètre `system` pour définir le rôle de Claude (Expert immobilier en Israël) et force-le à répondre STRICTEMENT au format JSON. Le prompt doit lui demander d'analyser :
+  * Caractéristiques clés (surface, pièces, présence d'un Mamad, ascenseur, étage).
+  * Détection d'anomalies (incohérences de prix, alertes sur l'état du bien).
+  * Prix marché estimé au m² selon le quartier en Israël.
+  * Simulation de rentabilité locative (rendement brut/net).
+  * Estimation du budget travaux requis (rafraîchissement ou rénovation).
+  * Potentiel d'urbanisme (TAMA 38 / Pinoui Binoui).
+
+2. FRONTEND (src/components/ & src/pages/) :
+- Crée une interface "Dashboard Investisseur" moderne avec Tailwind CSS.
+- La stack doit rester STRICTEMENT React + Vite (pas de Next.js).
+- Ajoute un formulaire avec un grand champ texte pour coller l'annonce (Yad2, Madlan, etc.).
+- Implémente un état de chargement (Loader) pendant l'appel API à notre serveur.
+- Crée un affichage des résultats sous forme de cartes (Cards) et de badges de couleur (Vert, Orange, Rouge) basés sur le JSON renvoyé par Claude.
+- Ajoute un bouton pour exporter ces résultats sous forme de rapport propre.
+
+Génère l'architecture, installe le package `@anthropic-ai/sdk`, crée la route d'intégration de Claude et fournis le code complet pour connecter le frontend React à ce backend.
