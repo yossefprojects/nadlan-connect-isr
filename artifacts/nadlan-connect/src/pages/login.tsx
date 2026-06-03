@@ -181,20 +181,32 @@ export default function Login() {
             )}
           </div>
 
-          <div className="border-t pt-4 text-center text-sm text-muted-foreground space-y-1">
-            <p>{t("login.proPrompt")}</p>
-            <div className="flex justify-center gap-4">
+          <div
+            className="rounded-xl border p-4 space-y-3"
+            style={{ borderColor: GOLD, backgroundColor: "rgba(201,168,76,0.07)" }}
+          >
+            <p
+              className="text-center text-sm font-semibold"
+              style={{ color: NAVY }}
+            >
+              {t("login.proPrompt")}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/auth/register/agence"
-                className="font-medium hover:underline"
-                style={{ color: NAVY }}
+                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors hover:text-white"
+                style={{ borderColor: NAVY, color: NAVY }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = NAVY)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 {t("login.agency")}
               </Link>
               <Link
                 href="/auth/register/promoteur"
-                className="font-medium hover:underline"
-                style={{ color: NAVY }}
+                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors hover:text-white"
+                style={{ borderColor: NAVY, color: NAVY }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = NAVY)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 {t("login.developer")}
               </Link>
