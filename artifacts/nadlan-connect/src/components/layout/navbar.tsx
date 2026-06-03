@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "./language-provider";
@@ -8,10 +8,15 @@ import { Globe, LogOut, Menu, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Navbar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { isAuthenticated, logout } = useAuth();
   const { role, profile } = useUserRole();
   const { language, setLanguage } = useLanguage();
+
+  const handleLogout = async () => {
+    await logout();
+    setLocation("/");
+  };
 
   const navItems = [
     { label: "Accueil", href: "/" },
@@ -93,14 +98,14 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => logout()} className="text-destructive">
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
                     Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/auth">
+              <Link href="/auth/login">
                 <Button className="bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">
                   Connexion
                 </Button>
@@ -128,12 +133,12 @@ export function Navbar() {
                 </nav>
                 <div className="border-t border-white/10 pt-4">
                   {isAuthenticated ? (
-                    <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10" onClick={() => logout()}>
+                    <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10" onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Déconnexion
                     </Button>
                   ) : (
-                    <Link href="/auth" className="block w-full">
+                    <Link href="/auth/login" className="block w-full">
                       <Button className="w-full bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">Connexion</Button>
                     </Link>
                   )}

@@ -25,6 +25,25 @@ export interface AuthUserEnvelope {
   user: AuthUser | null;
 }
 
+export interface LoginInput {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface RegisterInput {
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  /** @minLength 1 */
+  fullName: string;
+  phone?: string;
+}
+
+export interface LogoutResult {
+  success: boolean;
+}
+
 export interface UploadUrlRequest {
   /** @minLength 1 */
   name: string;
@@ -554,16 +573,6 @@ export interface ErrorEnvelope {
  * Opaque session token — `Bearer <sid>`.
  */
 export type AuthorizationSessionHeaderParameter = string;
-
-export type BeginBrowserLoginParams = {
-returnTo?: string;
-};
-
-export type HandleBrowserLoginCallbackParams = {
-code?: string;
-state?: string;
-iss?: string;
-};
 
 export type ListUsersParams = {
 role?: string;

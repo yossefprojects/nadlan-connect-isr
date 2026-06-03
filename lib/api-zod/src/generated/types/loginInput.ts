@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type BeginBrowserLoginParams = {
-returnTo?: string;
-};
+export interface LoginInput {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}

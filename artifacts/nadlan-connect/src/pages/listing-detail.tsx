@@ -7,7 +7,7 @@ import {
   useApplyForMandate, getGetMyMandatesQueryKey,
   useGetMyMandates,
 } from "@workspace/api-client-react";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/hooks/use-auth";
 import { useUserRole } from "@/hooks/use-user-role";
 import { InvestmentScore } from "@/components/investment-score";
 import { Button } from "@/components/ui/button";

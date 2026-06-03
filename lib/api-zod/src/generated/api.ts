@@ -35,28 +35,52 @@ export const GetCurrentAuthUserResponse = zod.object({
 
 
 /**
- * @summary Start the browser OIDC login flow
+ * @summary Log in with email and password
  */
-export const BeginBrowserLoginQueryParams = zod.object({
-  "returnTo": zod.coerce.string().optional()
+
+
+
+export const LoginWithPasswordBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(1)
+})
+
+export const LoginWithPasswordResponse = zod.object({
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "email": zod.string().email().nullable(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "profileImageUrl": zod.string().nullable()
+}),zod.null()])
 })
 
 
 /**
- * @summary Complete the browser OIDC login flow
+ * @summary Create a buyer account with email and password
  */
-export const HandleBrowserLoginCallbackQueryParams = zod.object({
-  "code": zod.coerce.string().optional(),
-  "state": zod.coerce.string().optional(),
-  "iss": zod.coerce.string().url().optional()
+export const registerWithPasswordBodyPasswordMin = 8;
+
+
+
+
+export const RegisterWithPasswordBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(registerWithPasswordBodyPasswordMin),
+  "fullName": zod.string().min(1),
+  "phone": zod.string().optional()
 })
 
 
 /**
- * @summary Clear the session and begin OIDC logout
+ * @summary Clear the current session
  */
-export const LogoutBrowserSessionHeader = zod.object({
+export const LogoutSessionHeader = zod.object({
   "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const LogoutSessionResponse = zod.object({
+  "success": zod.boolean()
 })
 
 

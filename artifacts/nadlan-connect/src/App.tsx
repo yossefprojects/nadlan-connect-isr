@@ -6,8 +6,10 @@ import { LanguageProvider } from "@/components/layout/language-provider";
 import { AppLayout } from "@/components/layout/app-layout";
 import NotFound from "@/pages/not-found";
 
+import { AuthProvider } from "@/hooks/use-auth";
 import Home from "@/pages/home";
 import Auth from "@/pages/auth";
+import Login from "@/pages/login";
 import RegisterPromoteur from "@/pages/register-promoteur";
 import RegisterAgence from "@/pages/register-agence";
 import Listings from "@/pages/listings";
@@ -29,6 +31,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/auth" component={Auth} />
+      <Route path="/auth/login" component={Login} />
       <Route path="/auth/register/promoteur" component={RegisterPromoteur} />
       <Route path="/auth/register/agence" component={RegisterAgence} />
       <Route path="/listings" component={Listings} />
@@ -36,6 +39,9 @@ function Router() {
       
       {/* Dashboard Routes */}
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard/promoteur" component={Dashboard} />
+      <Route path="/dashboard/agence" component={Dashboard} />
+      <Route path="/dashboard/admin" component={Admin} />
       <Route path="/dashboard/listings/new" component={DashboardListingsNew} />
       <Route path="/dashboard/listings/:id/edit" component={DashboardListingsEdit} />
       <Route path="/dashboard/leads" component={DashboardLeads} />
@@ -57,16 +63,18 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <AppLayout>
-              <Router />
-            </AppLayout>
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <AppLayout>
+                <Router />
+              </AppLayout>
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </LanguageProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

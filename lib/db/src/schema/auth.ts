@@ -21,6 +21,8 @@ export const usersTable = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   // NadlanConnect extensions
   fullName: varchar("full_name"),
+  // Local email/password auth (bcrypt). Null for legacy accounts without a password.
+  passwordHash: varchar("password_hash"),
   role: varchar("role"), // 'buyer' | 'agent' | 'developer' | 'admin'
   phone: varchar("phone"),
   company: varchar("company"),

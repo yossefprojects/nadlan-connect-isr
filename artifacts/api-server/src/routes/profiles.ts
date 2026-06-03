@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { randomBytes, scrypt } from "node:crypto";
-import { promisify } from "node:util";
 import { db } from "@workspace/db";
 import { profilesTable, usersTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
@@ -10,6 +8,7 @@ import {
   AdminUpdateLicenceStatutBody,
   AdminListProfilesQueryParams,
 } from "@workspace/api-zod";
+import { hashPassword } from "../lib/auth";
 
 const router = Router();
 
@@ -45,18 +44,27 @@ function serializeProfile(p: typeof profilesTable.$inferSelect) {
   };
 }
 
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex");
-  const derived = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${salt}:${derived.toString("hex")}`;
-}
-
 // Postgres unique-violation error code (covers the race where two concurrent
 // requests pass the pre-check but only one insert can win).
 function isUniqueViolation(err: unknown): boolean {
   return (err as { code?: string })?.code === "23505";
+}
+
+// Email is the shared login identity, so it must be unique across both the
+// users (login) table and the profiles (B2B onboarding) table.
+async function emailTaken(email: string): Promise<boolean> {
+  const inUsers = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+  if (inUsers.length > 0) return true;
+  const inProfiles = await db
+    .select({ id: profilesTable.id })
+    .from(profilesTable)
+    .where(eq(profilesTable.email, email))
+    .limit(1);
+  return inProfiles.length > 0;
 }
 
 const SUCCESS_MESSAGE = "Compte créé — vérification sous 24h";
@@ -76,17 +84,24 @@ router.post("/profiles/promoteur", async (req, res): Promise<void> => {
 
   const email = data.email.trim().toLowerCase();
 
-  const existing = await db
-    .select({ id: profilesTable.id })
-    .from(profilesTable)
-    .where(eq(profilesTable.email, email))
-    .limit(1);
-  if (existing.length > 0) {
+  if (await emailTaken(email)) {
     res.status(409).json({ error: "Un compte existe déjà avec cet email." });
     return;
   }
 
   try {
+    const passwordHash = await hashPassword(data.password);
+    await db.insert(usersTable).values({
+      email,
+      passwordHash,
+      fullName: `${data.firstName} ${data.lastName}`.trim(),
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: "developer",
+      phone: data.phone ?? null,
+      company: data.companyName,
+    });
+
     const [profile] = await db
       .insert(profilesTable)
       .values({
@@ -98,7 +113,7 @@ router.post("/profiles/promoteur", async (req, res): Promise<void> => {
         companyName: data.companyName,
         ville: data.ville,
         plan: data.plan,
-        passwordHash: await hashPassword(data.password),
+        passwordHash,
         nbProgrammes: data.nbProgrammes,
         website: data.website ?? null,
         cguAccepted: data.cguAccepted,
@@ -137,17 +152,24 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
 
   const email = data.email.trim().toLowerCase();
 
-  const existing = await db
-    .select({ id: profilesTable.id })
-    .from(profilesTable)
-    .where(eq(profilesTable.email, email))
-    .limit(1);
-  if (existing.length > 0) {
+  if (await emailTaken(email)) {
     res.status(409).json({ error: "Un compte existe déjà avec cet email." });
     return;
   }
 
   try {
+    const passwordHash = await hashPassword(data.password);
+    await db.insert(usersTable).values({
+      email,
+      passwordHash,
+      fullName: `${data.firstName} ${data.lastName}`.trim(),
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: "agent",
+      phone: data.phone ?? null,
+      company: data.companyName,
+    });
+
     const [profile] = await db
       .insert(profilesTable)
       .values({
@@ -159,7 +181,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
         companyName: data.companyName,
         ville: data.ville,
         plan: data.plan,
-        passwordHash: await hashPassword(data.password),
+        passwordHash,
         licenseNumber: data.licenseNumber,
         nbAgents: data.nbAgents,
         specialties: data.specialties ?? [],
