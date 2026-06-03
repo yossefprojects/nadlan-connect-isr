@@ -53,7 +53,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center space-x-2.5">
             <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-            <span className="font-serif text-xl font-bold tracking-tight text-white">
+            <span className="text-xl font-extrabold tracking-tight text-white">
               NadlanConnect
             </span>
           </Link>
@@ -119,7 +119,7 @@ export function Navbar() {
               <div className="flex flex-col gap-6 py-6">
                 <Link href="/" className="flex items-center space-x-2.5">
                   <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-                  <span className="font-serif text-xl font-bold tracking-tight text-white">
+                  <span className="text-xl font-extrabold tracking-tight text-white">
                     NadlanConnect
                   </span>
                 </Link>

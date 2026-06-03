@@ -15,7 +15,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2.5 mb-4">
               <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-              <span className="font-serif text-xl font-bold text-white">NadlanConnect</span>
+              <span className="text-xl font-extrabold text-white">NadlanConnect</span>
             </div>
             <p className="text-sm max-w-sm text-white/50">
               La plateforme premium pour l'immobilier israélien.
