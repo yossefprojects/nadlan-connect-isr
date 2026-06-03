@@ -1,9 +1,14 @@
 import { useGetFeaturedListings, useGetListingsStats } from "@workspace/api-client-react";
 import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, ArrowRight, Building2, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Building2, TrendingUp, Users } from "lucide-react";
 import { Link } from "wouter";
+
+const HERO_STATS = [
+  { val: "50 000+", lbl: "transactions Nadlan" },
+  { val: "12 villes", lbl: "couvertes" },
+  { val: "3 outils", lbl: "de valorisation" },
+];
 
 export default function Home() {
   const { data: featuredListings, isLoading: isFeaturedLoading } = useGetFeaturedListings();
@@ -12,42 +17,82 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/hero-bg.png" 
-            alt="Tel Aviv Skyline" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/60 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-black/40" />
+      <section
+        className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center"
+        style={{
+          background: "linear-gradient(160deg, #0F2235 0%, #1A3A5C 60%, #0F2235 100%)",
+          minHeight: 460,
+        }}
+      >
+        {/* Skyline SVG */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.12]">
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 1200 200"
+            preserveAspectRatio="xMidYMax slice"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect x="0" y="80" width="80" height="120" fill="white" />
+            <rect x="90" y="40" width="120" height="160" fill="white" />
+            <rect x="220" y="60" width="80" height="140" fill="white" />
+            <rect x="310" y="20" width="100" height="180" fill="white" />
+            <rect x="420" y="50" width="90" height="150" fill="white" />
+            <rect x="520" y="30" width="130" height="170" fill="white" />
+            <rect x="660" y="55" width="85" height="145" fill="white" />
+            <rect x="755" y="15" width="110" height="185" fill="white" />
+            <rect x="875" y="65" width="90" height="135" fill="white" />
+            <rect x="975" y="35" width="120" height="165" fill="white" />
+            <rect x="1105" y="70" width="95" height="130" fill="white" />
+          </svg>
         </div>
-        
-        <div className="container relative z-10 text-center px-4">
-          <Badge className="mb-6 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-sm py-1.5 px-4 rounded-full">
-            La plateforme premium de l'immobilier israélien
-          </Badge>
-          <h1 className="font-serif text-5xl md:text-7xl font-bold text-white mb-6 leading-tight max-w-4xl mx-auto">
-            Trouvez l'investissement parfait en Israël
-          </h1>
-          <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto font-light">
-            Données précises, opportunités exclusives et connexion directe avec les meilleurs professionnels du marché.
-          </p>
-          
-          <div className="bg-background p-2 rounded-lg max-w-2xl mx-auto flex flex-col md:flex-row gap-2 shadow-xl">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Rechercher par ville (ex: Tel Aviv, Jérusalem)..." 
-                className="pl-10 h-12 border-0 bg-transparent shadow-none focus-visible:ring-0 text-base"
-              />
+
+        {/* Badge eyebrow */}
+        <div className="relative mb-5 inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/35 bg-[#C9A84C]/15 px-3.5 py-1.5">
+          <span className="text-sm">🇮🇱</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#C9A84C]">
+            Plateforme immobilière israélienne
+          </span>
+        </div>
+
+        {/* Title */}
+        <h1 className="relative mb-4 max-w-3xl font-serif font-normal leading-tight text-white" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>
+          Trouvez l'investissement parfait
+          <br />
+          <span className="text-[#C9A84C]">en Israël</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="relative mb-7 max-w-xl text-[15px] leading-relaxed text-[#85B7EB]">
+          Données précises, opportunités exclusives et connexion directe avec les
+          meilleurs professionnels du marché.
+        </p>
+
+        {/* CTAs */}
+        <div className="relative mb-8 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/listings">
+            <Button className="rounded-full bg-[#C9A84C] px-7 py-6 text-sm font-bold text-[#0F2235] hover:bg-[#b8963e]">
+              Explorer les biens <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="/auth">
+            <Button
+              variant="outline"
+              className="rounded-full border-white/30 bg-white/10 px-7 py-6 text-sm font-semibold text-white hover:bg-white/20 hover:text-white"
+            >
+              Devenir partenaire <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="relative flex justify-center gap-10">
+          {HERO_STATS.map((s) => (
+            <div key={s.lbl} className="text-center">
+              <div className="text-xl font-bold text-[#C9A84C]">{s.val}</div>
+              <div className="mt-0.5 text-[11px] text-[#9CABBF]">{s.lbl}</div>
             </div>
-            <Link href="/listings">
-              <Button size="lg" className="h-12 px-8 w-full md:w-auto text-base">
-                Rechercher
-              </Button>
-            </Link>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -118,9 +163,4 @@ export default function Home() {
       </section>
     </div>
   );
-}
-
-// Quick inline Badge since we didn't write it separately
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}>{children}</span>;
 }

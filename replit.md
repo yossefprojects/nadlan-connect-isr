@@ -52,7 +52,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 
 ## Brand
 
-- Navy `#1A3A5C`, Gold `#C9A84C`, Background `#F7F8FA`
+- Navy `#0F2235` (darkest), Blue `#1A3A5C`, Gold `#C9A84C`, Background `#F8F7F4` (matches sister site simzip)
 - Fonts: DM Serif Display (headings), Plus Jakarta Sans (body)
 - Trilingual shell: FR (default), EN, HE with RTL support planned
 

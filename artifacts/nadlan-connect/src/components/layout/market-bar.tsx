@@ -8,18 +8,20 @@ const MARKET_DATA = [
 
 export function MarketBar() {
   return (
-    <div className="w-full bg-[#111827] text-white/70 text-xs border-b border-white/5">
-      <div className="container flex items-center gap-6 h-8 overflow-x-auto scrollbar-none">
-        <span className="flex items-center gap-1.5 shrink-0 text-white/40">
+    <div className="w-full bg-[#0A1628] text-xs">
+      <div className="container flex items-center gap-5 h-8 overflow-x-auto scrollbar-none whitespace-nowrap">
+        <span className="flex items-center gap-1.5 shrink-0 text-[#9CABBF]">
           <TrendingUp className="h-3 w-3" />
-          Marché au {new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+          <span className="text-[#85B7EB]">
+            Marché au {new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+          </span>
         </span>
         {MARKET_DATA.map((item) => (
-          <span key={item.label} className="flex items-center gap-1.5 shrink-0">
-            <span className="text-white/40">{item.label} :</span>
-            <span className="text-white font-medium">{item.value}</span>
+          <span key={item.label} className="flex items-center gap-1.5 shrink-0 text-[#9CABBF]">
+            <span>{item.label}</span>
+            <span className="text-[#C9A84C] font-semibold">{item.value}</span>
             {item.trend && (
-              <span className="text-emerald-400">{item.trend}</span>
+              <span className="text-[#0F6E56] font-medium">{item.trend}</span>
             )}
           </span>
         ))}

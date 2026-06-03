@@ -32,7 +32,7 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
 
   return (
     <Link href={`/listings/${listing.id}`}>
-      <Card className="overflow-hidden cursor-pointer hover-elevate transition-all duration-300 group h-full flex flex-col border-border/50 hover:border-primary/20">
+      <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-[10px] border-[0.5px] border-[#E5E7EB] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:border-[#C9A84C] hover:shadow-[0_4px_16px_rgba(26,58,92,0.12)]">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {listing.coverImageUrl ? (
             <img
