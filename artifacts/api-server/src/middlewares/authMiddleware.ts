@@ -1,5 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import type { AuthUser } from "@workspace/api-zod";
+import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import { clearSession, getSessionId, getSession } from "../lib/auth";
 
 declare global {
@@ -41,5 +43,29 @@ export async function authMiddleware(
   }
 
   req.user = session.user;
+  next();
+}
+
+export async function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const rows = await db
+    .select({ role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user!.id))
+    .limit(1);
+
+  if (rows[0]?.role !== "admin") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
   next();
 }

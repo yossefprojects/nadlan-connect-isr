@@ -2,5 +2,6 @@
 - [window.open noopener gotcha](window-open-noopener.md) — `noopener` in window.open() returns null, breaking postMessage to the opened window.
 - [NadlanConnect ↔ simzip design family](nadlan-simzip-design-family.md) — shared color/font/card tokens; both sites must stay one visual family.
 - [NadlanConnect listing slug URLs](nadlan-listing-slugs.md) — listings use stored unique SEO slugs; GET resolves slug-first then numeric-id fallback.
+- [NadlanConnect admin authorization](nadlan-auth-admin-guard.md) — open self-registration makes every admin route need an explicit role guard; self-service role-set must never allow admin.
 - [NadlanConnect agency verification](nadlan-agency-verification.md) — manual Risha'yon licence_statut + VerifiedBadge; badge-on-listing/email deferred (no public profile page, no email, listings link via users not profiles).
 - [NadlanConnect B2B onboarding](nadlan-b2b-onboarding.md) — promoteur/agence forms write to a `profiles` table (status pending), NOT the Replit-Auth users flow.

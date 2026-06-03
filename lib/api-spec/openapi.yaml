@@ -1200,7 +1200,7 @@ components:
       properties:
         role:
           type: string
-          enum: [buyer, agent, developer, admin]
+          enum: [buyer, agent, developer]
     AdminUserUpdate:
       type: object
       properties:

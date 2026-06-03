@@ -163,7 +163,7 @@ export const UpdateMyProfileResponse = zod.object({
  * @summary Set the current user's role (one-time selection)
  */
 export const SetMyRoleBody = zod.object({
-  "role": zod.enum(['buyer', 'agent', 'developer', 'admin'])
+  "role": zod.enum(['buyer', 'agent', 'developer'])
 })
 
 export const SetMyRoleResponse = zod.object({

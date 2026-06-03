@@ -49,7 +49,6 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/api-client-react": "workspace:*",
-    "@workspace/replit-auth-web": "workspace:*",
     "@workspace/object-storage-web": "workspace:*",
     "@uppy/aws-s3": "^5.0.0",
     "@uppy/core": "^5.0.0",

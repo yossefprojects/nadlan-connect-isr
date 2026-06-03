@@ -23,6 +23,7 @@ import {
   AdminUpdateListingStatusBody,
 } from "@workspace/api-zod";
 import { calcEstimation, calcInvestmentScore } from "../lib/engine";
+import { requireAdmin } from "../middlewares/authMiddleware";
 import { buildListingSlug } from "../lib/slug";
 
 const router = Router();
@@ -524,11 +525,7 @@ router.post("/listings/:listingId/publish", async (req, res): Promise<void> => {
 });
 
 // GET /admin/listings
-router.get("/admin/listings", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+router.get("/admin/listings", requireAdmin, async (req, res): Promise<void> => {
   const params = AdminListListingsQueryParams.safeParse(req.query);
   let query = db.select().from(listingsTable).$dynamic();
   if (params.success && params.data.status) {
@@ -539,11 +536,7 @@ router.get("/admin/listings", async (req, res): Promise<void> => {
 });
 
 // PATCH /admin/listings/:listingId/status
-router.patch("/admin/listings/:listingId/status", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+router.patch("/admin/listings/:listingId/status", requireAdmin, async (req, res): Promise<void> => {
   const params = AdminUpdateListingStatusParams.safeParse(req.params);
   const parsed = AdminUpdateListingStatusBody.safeParse(req.body);
   if (!params.success || !parsed.success) {

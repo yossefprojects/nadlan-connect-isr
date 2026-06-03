@@ -9,6 +9,7 @@ import {
   AdminListProfilesQueryParams,
 } from "@workspace/api-zod";
 import { hashPassword } from "../lib/auth";
+import { requireAdmin } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -207,7 +208,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
 });
 
 // GET /admin/profiles — list B2B onboarding profiles (admin only)
-router.get("/admin/profiles", async (req, res): Promise<void> => {
+router.get("/admin/profiles", requireAdmin, async (req, res): Promise<void> => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Not authenticated" });
     return;
@@ -236,7 +237,7 @@ router.get("/admin/profiles", async (req, res): Promise<void> => {
 });
 
 // PATCH /admin/profiles/:profileId/licence — update Risha'yon verification (admin only)
-router.patch("/admin/profiles/:profileId/licence", async (req, res): Promise<void> => {
+router.patch("/admin/profiles/:profileId/licence", requireAdmin, async (req, res): Promise<void> => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Not authenticated" });
     return;

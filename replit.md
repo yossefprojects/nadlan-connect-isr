@@ -18,7 +18,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 - Frontend: React 19 + Vite + Tailwind CSS v4 + Radix UI + wouter
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
-- Auth: Replit Auth (OpenID Connect / PKCE)
+- Auth: Email + password (bcrypt via `bcryptjs`), PostgreSQL-backed session cookies (HttpOnly)
 - Storage: Replit Object Storage (Uppy + presigned S3 URLs)
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -39,14 +39,16 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 
 - **Contract-first API**: OpenAPI spec → Orval codegen → typed hooks + Zod schemas. Always update `openapi.yaml` first, then run codegen.
 - **Inline engine**: Price estimation and investment score calculated server-side in `engine.ts`, attached to every listing on create/update.
-- **Session auth**: Replit Auth uses a PostgreSQL sessions table (not JWT) with HttpOnly cookies.
-- **Role system**: User roles (`buyer`, `agent`, `developer`, `admin`) stored in `users.role` column, set by user on first login via `/api/users/me/role`.
+- **Email/password auth**: `POST /api/auth/register` (buyer), `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/user`. Passwords bcrypt-hashed in `users.passwordHash`. Pro onboarding (`/api/profiles/agence|promoteur`) also creates a login-capable `users` row. Sessions stored in a PostgreSQL sessions table (not JWT) with HttpOnly cookies.
+- **Role system**: User roles (`buyer`, `agent`, `developer`, `admin`) stored in `users.role`. Buyers self-select via `/api/users/me/role` (which **cannot** assign `admin`); pros get their role at registration. Admin is bootstrapped manually (register, then `UPDATE users SET role='admin'`).
+- **Admin authorization**: every `/admin/*` route and the admin user-management routes (`GET /users`, `PATCH /users/:userId`) are guarded by the `requireAdmin` middleware — `req.isAuthenticated()` alone is never sufficient.
+- **Post-login redirect** (client): developer→`/dashboard/promoteur`, agent→`/dashboard/agence`, admin→`/dashboard/admin`, buyer→`/`.
 - **Slug URLs**: Listings use a stored, unique SEO `slug` (generated from title + city). `GET /listings/:listingId` resolves slug-first, then falls back to a numeric id for legacy links. Link to listings via `slug`; read the numeric id from the loaded detail for mutations.
 - **Zod in api-server**: Use `import { z } from "zod"` (not `zod/v4`) in the api-server because esbuild bundles it and the v4 sub-path isn't resolved correctly.
 
 ## Product
 
-- **Public**: Browse/filter listings (city, type, price, surface), view listing detail with estimated price and investment score (0–100), sign in via Replit.
+- **Public**: Browse/filter listings (city, type, price, surface), view listing detail with estimated price and investment score (0–100), sign in with email + password.
 - **Buyer**: Save favorites, submit leads/contact agents, view messages.
 - **Agent/Developer**: Pro dashboard — manage own listings (draft/publish), view incoming leads and messages, upload listing photos.
 - **Admin**: Moderate all listings (approve/reject), view platform stats.

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { requireAdmin } from "../middlewares/authMiddleware";
 import {
   GetMyProfileResponse,
   UpdateMyProfileBody,
@@ -117,11 +118,7 @@ router.patch("/users/me/role", async (req, res): Promise<void> => {
 });
 
 // GET /users (admin)
-router.get("/users", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+router.get("/users", requireAdmin, async (req, res): Promise<void> => {
   const params = ListUsersQueryParams.safeParse(req.query);
   let query = db.select().from(usersTable).$dynamic();
   if (params.success && params.data.role) {
@@ -143,11 +140,7 @@ router.get("/users", async (req, res): Promise<void> => {
 });
 
 // PATCH /users/:userId (admin)
-router.patch("/users/:userId", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+router.patch("/users/:userId", requireAdmin, async (req, res): Promise<void> => {
   const params = AdminUpdateUserParams.safeParse(req.params);
   const parsed = AdminUpdateUserBody.safeParse(req.body);
   if (!params.success || !parsed.success) {

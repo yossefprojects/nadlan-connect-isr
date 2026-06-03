@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { listingsTable, leadsTable, usersTable } from "@workspace/db";
 import { eq, count, and, or, sql } from "drizzle-orm";
+import { requireAdmin } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -51,12 +52,7 @@ router.get("/dashboard/stats", async (req, res): Promise<void> => {
 });
 
 // GET /admin/stats
-router.get("/admin/stats", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
-
+router.get("/admin/stats", requireAdmin, async (req, res): Promise<void> => {
   const [
     totalUsersResult,
     totalListingsResult,

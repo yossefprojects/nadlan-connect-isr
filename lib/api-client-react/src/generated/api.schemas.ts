@@ -90,7 +90,6 @@ export const RoleSelectionRole = {
   buyer: 'buyer',
   agent: 'agent',
   developer: 'developer',
-  admin: 'admin',
 } as const;
 
 export interface RoleSelection {
