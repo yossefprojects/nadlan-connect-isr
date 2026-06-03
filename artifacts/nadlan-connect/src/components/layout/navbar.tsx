@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "./language-provider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Building2, Globe, LogOut, Menu, UserCircle } from "lucide-react";
+import { Globe, LogOut, Menu, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Navbar() {
@@ -48,7 +48,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
+            <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
             <span className="font-serif text-xl font-bold tracking-tight text-primary">
               NadlanConnect
             </span>
@@ -112,7 +112,7 @@ export function Navbar() {
             <SheetContent side="right" className="w-[80vw] sm:w-[350px]">
               <div className="flex flex-col gap-6 py-6">
                 <Link href="/" className="flex items-center space-x-2">
-                  <Building2 className="h-6 w-6 text-primary" />
+                  <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
                   <span className="font-serif text-xl font-bold tracking-tight text-primary">
                     NadlanConnect
                   </span>
