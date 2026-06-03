@@ -343,6 +343,89 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
 
+  /admin/profiles:
+    get:
+      tags: [Profiles]
+      operationId: adminListProfiles
+      summary: List B2B onboarding profiles (admin only)
+      parameters:
+        - in: query
+          name: role
+          required: false
+          schema:
+            type: string
+            enum: [developer, agent]
+      responses:
+        '200':
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProfileSummary'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden (not an admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /admin/profiles/{profileId}/licence:
+    patch:
+      tags: [Profiles]
+      operationId: adminUpdateLicenceStatut
+      summary: Update a profile's Risha'yon license verification status (admin only)
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicenceStatutInput'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSummary'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden (not an admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
   # ── Listings ──────────────────────────────────────────────────────────────
   /listings:
     get:
@@ -1159,6 +1242,58 @@ components:
           type: string
         message:
           type: string
+
+    ProfileSummary:
+      type: object
+      required: [id, role, firstName, lastName, email, companyName, ville, plan, status, licenceStatut, createdAt]
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [developer, agent]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: [string, 'null']
+        companyName:
+          type: string
+        ville:
+          type: string
+        plan:
+          type: string
+        status:
+          type: string
+        licenceStatut:
+          type: string
+          enum: [en_attente, verifie, rejete]
+        licenseNumber:
+          type: [string, 'null']
+        nbAgents:
+          type: [integer, 'null']
+        nbProgrammes:
+          type: [integer, 'null']
+        website:
+          type: [string, 'null']
+        specialties:
+          type: [array, 'null']
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateLicenceStatutInput:
+      type: object
+      required: [licenceStatut]
+      properties:
+        licenceStatut:
+          type: string
+          enum: [en_attente, verifie, rejete]
 
     # ── Listings ──
     Listing:

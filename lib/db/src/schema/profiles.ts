@@ -23,6 +23,8 @@ export const profilesTable = pgTable("profiles", {
   plan: text("plan").notNull(), // 'starter' | 'pro'
   passwordHash: text("password_hash").notNull(),
   status: text("status").notNull().default("pending"), // 'pending' | 'verified' | 'rejected'
+  // Risha'yon license verification (agence). Manually reviewed by an admin.
+  licenceStatut: text("licence_statut").notNull().default("en_attente"), // 'en_attente' | 'verifie' | 'rejete'
   // Promoteur-specific
   nbProgrammes: integer("nb_programmes"),
   website: text("website"),

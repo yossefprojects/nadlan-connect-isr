@@ -7,6 +7,8 @@
  */
 
 export * from './adminListListingsParams';
+export * from './adminListProfilesParams';
+export * from './adminListProfilesRole';
 export * from './adminStats';
 export * from './adminUserUpdate';
 export * from './adminUserUpdateRole';
@@ -56,6 +58,9 @@ export * from './message';
 export * from './messageInput';
 export * from './profileRegistrationResult';
 export * from './profileRegistrationResultRole';
+export * from './profileSummary';
+export * from './profileSummaryLicenceStatut';
+export * from './profileSummaryRole';
 export * from './promoteurRegistrationInput';
 export * from './promoteurRegistrationInputPlan';
 export * from './roleCount';
@@ -63,6 +68,8 @@ export * from './roleSelection';
 export * from './roleSelectionRole';
 export * from './statusCount';
 export * from './typeCount';
+export * from './updateLicenceStatutInput';
+export * from './updateLicenceStatutInputLicenceStatut';
 export * from './uploadUrlRequest';
 export * from './uploadUrlResponse';
 export * from './userProfile';

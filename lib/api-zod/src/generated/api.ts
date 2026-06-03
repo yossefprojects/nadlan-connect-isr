@@ -256,6 +256,67 @@ export const RegisterAgenceBody = zod.object({
 
 
 /**
+ * @summary List B2B onboarding profiles (admin only)
+ */
+export const AdminListProfilesQueryParams = zod.object({
+  "role": zod.enum(['developer', 'agent']).optional()
+})
+
+export const AdminListProfilesResponseItem = zod.object({
+  "id": zod.number(),
+  "role": zod.enum(['developer', 'agent']),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "companyName": zod.string(),
+  "ville": zod.string(),
+  "plan": zod.string(),
+  "status": zod.string(),
+  "licenceStatut": zod.enum(['en_attente', 'verifie', 'rejete']),
+  "licenseNumber": zod.string().nullish(),
+  "nbAgents": zod.number().nullish(),
+  "nbProgrammes": zod.number().nullish(),
+  "website": zod.string().nullish(),
+  "specialties": zod.array(zod.string()).nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const AdminListProfilesResponse = zod.array(AdminListProfilesResponseItem)
+
+
+/**
+ * @summary Update a profile's Risha'yon license verification status (admin only)
+ */
+export const AdminUpdateLicenceStatutParams = zod.object({
+  "profileId": zod.coerce.number()
+})
+
+export const AdminUpdateLicenceStatutBody = zod.object({
+  "licenceStatut": zod.enum(['en_attente', 'verifie', 'rejete'])
+})
+
+export const AdminUpdateLicenceStatutResponse = zod.object({
+  "id": zod.number(),
+  "role": zod.enum(['developer', 'agent']),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "companyName": zod.string(),
+  "ville": zod.string(),
+  "plan": zod.string(),
+  "status": zod.string(),
+  "licenceStatut": zod.enum(['en_attente', 'verifie', 'rejete']),
+  "licenseNumber": zod.string().nullish(),
+  "nbAgents": zod.number().nullish(),
+  "nbProgrammes": zod.number().nullish(),
+  "website": zod.string().nullish(),
+  "specialties": zod.array(zod.string()).nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Search and filter listings
  */
 export const ListListingsQueryParams = zod.object({

@@ -178,6 +178,62 @@ export interface ProfileRegistrationResult {
   message: string;
 }
 
+export type ProfileSummaryRole = typeof ProfileSummaryRole[keyof typeof ProfileSummaryRole];
+
+
+export const ProfileSummaryRole = {
+  developer: 'developer',
+  agent: 'agent',
+} as const;
+
+export type ProfileSummaryLicenceStatut = typeof ProfileSummaryLicenceStatut[keyof typeof ProfileSummaryLicenceStatut];
+
+
+export const ProfileSummaryLicenceStatut = {
+  en_attente: 'en_attente',
+  verifie: 'verifie',
+  rejete: 'rejete',
+} as const;
+
+export interface ProfileSummary {
+  id: number;
+  role: ProfileSummaryRole;
+  firstName: string;
+  lastName: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  companyName: string;
+  ville: string;
+  plan: string;
+  status: string;
+  licenceStatut: ProfileSummaryLicenceStatut;
+  /** @nullable */
+  licenseNumber?: string | null;
+  /** @nullable */
+  nbAgents?: number | null;
+  /** @nullable */
+  nbProgrammes?: number | null;
+  /** @nullable */
+  website?: string | null;
+  /** @nullable */
+  specialties?: string[] | null;
+  createdAt: string;
+}
+
+export type UpdateLicenceStatutInputLicenceStatut = typeof UpdateLicenceStatutInputLicenceStatut[keyof typeof UpdateLicenceStatutInputLicenceStatut];
+
+
+export const UpdateLicenceStatutInputLicenceStatut = {
+  en_attente: 'en_attente',
+  verifie: 'verifie',
+  rejete: 'rejete',
+} as const;
+
+export interface UpdateLicenceStatutInput {
+  licenceStatut: UpdateLicenceStatutInputLicenceStatut;
+}
+
 export type ListingType = typeof ListingType[keyof typeof ListingType];
 
 
@@ -512,6 +568,18 @@ iss?: string;
 export type ListUsersParams = {
 role?: string;
 };
+
+export type AdminListProfilesParams = {
+role?: AdminListProfilesRole;
+};
+
+export type AdminListProfilesRole = typeof AdminListProfilesRole[keyof typeof AdminListProfilesRole];
+
+
+export const AdminListProfilesRole = {
+  developer: 'developer',
+  agent: 'agent',
+} as const;
 
 export type ListListingsParams = {
 ville?: string;

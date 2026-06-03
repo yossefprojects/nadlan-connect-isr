@@ -21,6 +21,7 @@ import type {
 
 import type {
   AdminListListingsParams,
+  AdminListProfilesParams,
   AdminStats,
   AdminUserUpdate,
   AgenceRegistrationInput,
@@ -53,8 +54,10 @@ import type {
   Message,
   MessageInput,
   ProfileRegistrationResult,
+  ProfileSummary,
   PromoteurRegistrationInput,
   RoleSelection,
+  UpdateLicenceStatutInput,
   UploadUrlRequest,
   UploadUrlResponse,
   UserProfile,
@@ -1135,6 +1138,162 @@ export const useRegisterAgence = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getRegisterAgenceMutationOptions(options));
+    }
+
+export const getAdminListProfilesUrl = (params?: AdminListProfilesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/profiles?${stringifiedParams}` : `/api/admin/profiles`
+}
+
+/**
+ * @summary List B2B onboarding profiles (admin only)
+ */
+export const adminListProfiles = async (params?: AdminListProfilesParams, options?: RequestInit): Promise<ProfileSummary[]> => {
+
+  return customFetch<ProfileSummary[]>(getAdminListProfilesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListProfilesQueryKey = (params?: AdminListProfilesParams,) => {
+    return [
+    `/api/admin/profiles`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListProfilesQueryOptions = <TData = Awaited<ReturnType<typeof adminListProfiles>>, TError = ErrorType<ErrorEnvelope>>(params?: AdminListProfilesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListProfiles>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListProfilesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListProfiles>>> = ({ signal }) => adminListProfiles(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListProfiles>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListProfilesQueryResult = NonNullable<Awaited<ReturnType<typeof adminListProfiles>>>
+export type AdminListProfilesQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List B2B onboarding profiles (admin only)
+ */
+
+export function useAdminListProfiles<TData = Awaited<ReturnType<typeof adminListProfiles>>, TError = ErrorType<ErrorEnvelope>>(
+ params?: AdminListProfilesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListProfiles>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListProfilesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAdminUpdateLicenceStatutUrl = (profileId: number,) => {
+
+
+
+
+  return `/api/admin/profiles/${profileId}/licence`
+}
+
+/**
+ * @summary Update a profile's Risha'yon license verification status (admin only)
+ */
+export const adminUpdateLicenceStatut = async (profileId: number,
+    updateLicenceStatutInput: UpdateLicenceStatutInput, options?: RequestInit): Promise<ProfileSummary> => {
+
+  return customFetch<ProfileSummary>(getAdminUpdateLicenceStatutUrl(profileId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateLicenceStatutInput,)
+  }
+);}
+
+
+
+
+export const getAdminUpdateLicenceStatutMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateLicenceStatut>>, TError,{profileId: number;data: BodyType<UpdateLicenceStatutInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateLicenceStatut>>, TError,{profileId: number;data: BodyType<UpdateLicenceStatutInput>}, TContext> => {
+
+const mutationKey = ['adminUpdateLicenceStatut'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateLicenceStatut>>, {profileId: number;data: BodyType<UpdateLicenceStatutInput>}> = (props) => {
+          const {profileId,data} = props ?? {};
+
+          return  adminUpdateLicenceStatut(profileId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateLicenceStatutMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateLicenceStatut>>>
+    export type AdminUpdateLicenceStatutMutationBody = BodyType<UpdateLicenceStatutInput>
+    export type AdminUpdateLicenceStatutMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Update a profile's Risha'yon license verification status (admin only)
+ */
+export const useAdminUpdateLicenceStatut = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateLicenceStatut>>, TError,{profileId: number;data: BodyType<UpdateLicenceStatutInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateLicenceStatut>>,
+        TError,
+        {profileId: number;data: BodyType<UpdateLicenceStatutInput>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdateLicenceStatutMutationOptions(options));
     }
 
 export const getListListingsUrl = (params?: ListListingsParams,) => {

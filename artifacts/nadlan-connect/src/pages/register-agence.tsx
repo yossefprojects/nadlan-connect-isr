@@ -173,7 +173,10 @@ export default function RegisterAgence() {
                   value={form.licenseNumber}
                   onChange={(e) => setForm({ ...form, licenseNumber: e.target.value })}
                 />
-                <p className="text-xs text-muted-foreground">Vérifié sous 24h.</p>
+                <p className="text-xs text-muted-foreground">
+                  Ce numéro est obligatoire pour exercer en Israël (loi 5756-1996). Il sera vérifié
+                  manuellement avant l'activation de votre compte.
+                </p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Ville *</label>

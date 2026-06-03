@@ -2,11 +2,48 @@ import { Router } from "express";
 import { randomBytes, scrypt } from "node:crypto";
 import { promisify } from "node:util";
 import { db } from "@workspace/db";
-import { profilesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
-import { RegisterPromoteurBody, RegisterAgenceBody } from "@workspace/api-zod";
+import { profilesTable, usersTable } from "@workspace/db";
+import { eq, desc } from "drizzle-orm";
+import {
+  RegisterPromoteurBody,
+  RegisterAgenceBody,
+  AdminUpdateLicenceStatutBody,
+  AdminListProfilesQueryParams,
+} from "@workspace/api-zod";
 
 const router = Router();
+
+async function isAdmin(userId: string): Promise<boolean> {
+  const u = await db
+    .select({ role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+  return u[0]?.role === "admin";
+}
+
+// Public-safe projection of a profile (never expose passwordHash).
+function serializeProfile(p: typeof profilesTable.$inferSelect) {
+  return {
+    id: p.id,
+    role: p.role,
+    firstName: p.firstName,
+    lastName: p.lastName,
+    email: p.email,
+    phone: p.phone,
+    companyName: p.companyName,
+    ville: p.ville,
+    plan: p.plan,
+    status: p.status,
+    licenceStatut: p.licenceStatut,
+    licenseNumber: p.licenseNumber,
+    nbAgents: p.nbAgents,
+    nbProgrammes: p.nbProgrammes,
+    website: p.website,
+    specialties: p.specialties,
+    createdAt: p.createdAt.toISOString(),
+  };
+}
 
 const scryptAsync = promisify(scrypt);
 
@@ -145,6 +182,72 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
     }
     throw err;
   }
+});
+
+// GET /admin/profiles — list B2B onboarding profiles (admin only)
+router.get("/admin/profiles", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  if (!(await isAdmin(req.user!.id))) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const parsedQuery = AdminListProfilesQueryParams.safeParse(req.query);
+  if (!parsedQuery.success) {
+    res.status(400).json({ error: parsedQuery.error.message });
+    return;
+  }
+  const role = parsedQuery.data.role;
+
+  const rows = role
+    ? await db
+        .select()
+        .from(profilesTable)
+        .where(eq(profilesTable.role, role))
+        .orderBy(desc(profilesTable.createdAt))
+    : await db.select().from(profilesTable).orderBy(desc(profilesTable.createdAt));
+
+  res.json(rows.map(serializeProfile));
+});
+
+// PATCH /admin/profiles/:profileId/licence — update Risha'yon verification (admin only)
+router.patch("/admin/profiles/:profileId/licence", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  if (!(await isAdmin(req.user!.id))) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const profileId = Number(req.params.profileId);
+  if (!Number.isInteger(profileId)) {
+    res.status(400).json({ error: "Invalid profile id" });
+    return;
+  }
+
+  const parsed = AdminUpdateLicenceStatutBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [updated] = await db
+    .update(profilesTable)
+    .set({ licenceStatut: parsed.data.licenceStatut })
+    .where(eq(profilesTable.id, profileId))
+    .returning();
+
+  if (!updated) {
+    res.status(404).json({ error: "Profile not found" });
+    return;
+  }
+
+  res.json(serializeProfile(updated));
 });
 
 export default router;
