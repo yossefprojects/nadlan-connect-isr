@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { VerifiedBadge } from "@/components/verified-badge";
 import { useQueryClient } from "@tanstack/react-query";
 import { Users, Building, ShieldCheck, FileText } from "lucide-react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export default function Admin() {
   const { data: stats, isLoading: isStatsLoading } = useGetAdminStats();
@@ -15,6 +16,7 @@ export default function Admin() {
   const updateStatus = useAdminUpdateListingStatus();
   const updateLicence = useAdminUpdateLicenceStatut();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const handleStatusChange = (id: number, status: "draft" | "published" | "sold" | "archived") => {
     updateStatus.mutate({ listingId: id, data: { status } }, {
@@ -33,17 +35,17 @@ export default function Admin() {
     });
   };
 
-  if (isStatsLoading) return <div className="p-8">Chargement...</div>;
+  if (isStatsLoading) return <div className="p-8">{t("common.loading")}</div>;
 
   return (
     <div className="container py-8 max-w-6xl">
-      <h1 className="font-serif text-3xl font-bold text-primary mb-8">Administration Globale</h1>
+      <h1 className="font-serif text-3xl font-bold text-primary mb-8">{t("admin.title")}</h1>
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Utilisateurs Inscrits</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.registeredUsers")}</CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -53,7 +55,7 @@ export default function Admin() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Propriétés Totales</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.totalProperties")}</CardTitle>
             <Building className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -63,7 +65,7 @@ export default function Admin() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Leads Échangés</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.exchangedLeads")}</CardTitle>
             <FileText className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -73,30 +75,30 @@ export default function Admin() {
       </div>
 
       <div className="mb-8">
-        <h2 className="font-serif text-2xl font-bold text-primary mb-6">Modération des Annonces</h2>
+        <h2 className="font-serif text-2xl font-bold text-primary mb-6">{t("admin.moderationTitle")}</h2>
         
         <div className="bg-card border rounded-xl overflow-hidden">
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 border-b">
               <tr>
-                <th className="px-6 py-4 font-medium text-muted-foreground">ID</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Titre</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Propriétaire</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Type</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Statut</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colTitle")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colOwner")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colType")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("admin.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {isListingsLoading ? (
-                <tr><td colSpan={6} className="text-center py-8">Chargement...</td></tr>
+                <tr><td colSpan={6} className="text-center py-8">{t("common.loading")}</td></tr>
               ) : listings?.map((listing) => (
                 <tr key={listing.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs">{listing.id}</td>
                   <td className="px-6 py-4 font-medium">{listing.title}</td>
                   <td className="px-6 py-4 text-muted-foreground">{listing.ownerName || listing.ownerId}</td>
                   <td className="px-6 py-4">
-                    <Badge variant="outline">{listing.type}</Badge>
+                    <Badge variant="outline">{t(`listingType.${listing.type}`)}</Badge>
                   </td>
                   <td className="px-6 py-4">
                     <Badge className={
@@ -104,7 +106,7 @@ export default function Admin() {
                       listing.status === "draft" ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
                       "bg-muted text-muted-foreground hover:bg-muted"
                     } variant="secondary">
-                      {listing.status}
+                      {t(`status.${listing.status}`)}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -116,10 +118,10 @@ export default function Admin() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="draft">Brouillon</SelectItem>
-                        <SelectItem value="published">Publié</SelectItem>
-                        <SelectItem value="sold">Vendu</SelectItem>
-                        <SelectItem value="archived">Archivé</SelectItem>
+                        <SelectItem value="draft">{t("status.draft")}</SelectItem>
+                        <SelectItem value="published">{t("status.published")}</SelectItem>
+                        <SelectItem value="sold">{t("status.sold")}</SelectItem>
+                        <SelectItem value="archived">{t("status.archived")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -133,25 +135,25 @@ export default function Admin() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-6">
           <ShieldCheck className="h-6 w-6 text-primary" />
-          <h2 className="font-serif text-2xl font-bold text-primary">Vérification des agences (Risha'yon)</h2>
+          <h2 className="font-serif text-2xl font-bold text-primary">{t("admin.agencyVerification")}</h2>
         </div>
 
         <div className="bg-card border rounded-xl overflow-hidden">
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 border-b">
               <tr>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Agence</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Contact</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">N° licence</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Statut</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colAgency")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colContact")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colLicense")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("admin.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {isAgencesLoading ? (
-                <tr><td colSpan={5} className="text-center py-8">Chargement...</td></tr>
+                <tr><td colSpan={5} className="text-center py-8">{t("common.loading")}</td></tr>
               ) : !agences || agences.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Aucune demande d'agence pour le moment.</td></tr>
+                <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">{t("admin.noAgencyRequests")}</td></tr>
               ) : agences.map((agence) => (
                 <tr key={agence.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 font-medium">
@@ -167,9 +169,9 @@ export default function Admin() {
                     {agence.licenceStatut === "verifie" ? (
                       <VerifiedBadge size="sm" />
                     ) : agence.licenceStatut === "rejete" ? (
-                      <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">Rejetée</Badge>
+                      <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">{t("admin.rejected")}</Badge>
                     ) : (
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">En attente</Badge>
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">{t("admin.pending")}</Badge>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -181,7 +183,7 @@ export default function Admin() {
                           disabled={updateLicence.isPending}
                           onClick={() => handleLicenceChange(agence.id, "verifie")}
                         >
-                          Vérifier
+                          {t("admin.verify")}
                         </Button>
                       )}
                       {agence.licenceStatut !== "rejete" && (
@@ -192,7 +194,7 @@ export default function Admin() {
                           disabled={updateLicence.isPending}
                           onClick={() => handleLicenceChange(agence.id, "rejete")}
                         >
-                          Rejeter
+                          {t("admin.reject")}
                         </Button>
                       )}
                     </div>

@@ -1,5 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/layout/language-provider";
 
 interface VerifiedBadgeProps {
   className?: string;
@@ -9,7 +10,8 @@ interface VerifiedBadgeProps {
 
 // "Agence vérifiée" trust signal — shown once an admin validates the agency's
 // Risha'yon license (licenceStatut === "verifie").
-export function VerifiedBadge({ className, size = "md", label = "Agence vérifiée" }: VerifiedBadgeProps) {
+export function VerifiedBadge({ className, size = "md", label }: VerifiedBadgeProps) {
+  const { t } = useLanguage();
   return (
     <span
       className={cn(
@@ -17,10 +19,10 @@ export function VerifiedBadge({ className, size = "md", label = "Agence vérifi�
         size === "sm" ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm",
         className,
       )}
-      title="Licence Risha'yon vérifiée"
+      title={t("verifiedBadge.tooltip")}
     >
       <BadgeCheck className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
-      {label}
+      {label ?? t("verifiedBadge.label")}
     </span>
   );
 }

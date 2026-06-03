@@ -62,7 +62,7 @@ A B2B2C Israeli real estate platform connecting buyers, agents, and developers. 
 
 - Navy `#0F2235` (darkest), Blue `#1A3A5C`, Gold `#C9A84C`, Background `#F8F7F4` (matches sister site simzip)
 - Fonts: DM Serif Display (headings), Plus Jakarta Sans (body)
-- Trilingual: FR (default), EN, HE — **functional** on public pages + localized AI analysis output. Switcher in navbar; choice persisted to `localStorage["nadlan-lang"]`; `dir`/`lang` set on `<html>`; RTL via Tailwind `rtl:` variant. Dashboards/admin not yet localized. Translations live in `src/lib/i18n.ts` (3 blocks, dotted keys); every new public string needs a key in all 3.
+- Trilingual: FR (default), EN, HE — **functional** on public pages, Pro dashboards (agent/developer), admin panel, and localized AI analysis output. Switcher in navbar; choice persisted to `localStorage["nadlan-lang"]`; `dir`/`lang` set on `<html>`; RTL via Tailwind `rtl:` variant. Translations live in `src/lib/i18n.ts` (3 blocks, dotted keys); every new string needs a key in all 3.
 
 ## User preferences
 

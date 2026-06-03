@@ -13,16 +13,12 @@ import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { FileText, Star, X, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/components/layout/language-provider";
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "border-amber-200 text-amber-700 bg-amber-50",
   approved: "border-emerald-200 text-emerald-700 bg-emerald-50",
   rejected: "border-red-200 text-red-700 bg-red-50",
-};
-const STATUS_LABEL: Record<string, string> = {
-  pending: "En attente",
-  approved: "Approuvé ✓",
-  rejected: "Refusé",
 };
 
 /** Agent view: shows all mandate applications they've sent */
@@ -31,30 +27,31 @@ export default function DashboardMandates() {
   const withdrawMandate = useWithdrawMandate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleWithdraw = (mandateId: number) => {
     withdrawMandate.mutate({ mandateId }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetMyMandatesQueryKey() });
-        toast({ title: "Candidature retirée" });
+        toast({ title: t("mandates.withdrawn") });
       },
     });
   };
 
-  if (isLoading) return <div className="py-12 text-center text-muted-foreground">Chargement...</div>;
+  if (isLoading) return <div className="py-12 text-center text-muted-foreground">{t("common.loading")}</div>;
 
   return (
     <div className="space-y-4">
       {(!mandates || mandates.length === 0) ? (
         <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed">
           <FileText className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground mb-2">Aucune candidature envoyée.</p>
+          <p className="text-muted-foreground mb-2">{t("mandates.noneSent")}</p>
           <p className="text-sm text-muted-foreground">
-            Consultez les{" "}
+            {t("mandates.consultPrefix")}{" "}
             <Link href="/listings" className="underline hover:text-primary">
-              programmes neufs
+              {t("mandates.newProgramsLink")}
             </Link>{" "}
-            pour postuler comme mandataire.
+            {t("mandates.applySuffix")}
           </p>
         </div>
       ) : (
@@ -62,11 +59,11 @@ export default function DashboardMandates() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 border-b">
               <tr>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Projet</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Type</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Statut</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground">Date</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colProject")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colType")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colDate")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("mandates.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -77,26 +74,26 @@ export default function DashboardMandates() {
                       href={`/listings/${m.listingSlug ?? m.listingId}`}
                       className="font-medium hover:text-primary hover:underline flex items-center gap-1"
                     >
-                      {m.listingTitle ?? `Projet #${m.listingId}`}
+                      {m.listingTitle ?? `${t("mandates.projectNum")}${m.listingId}`}
                       <ExternalLink className="h-3 w-3 opacity-40" />
                     </Link>
                   </td>
                   <td className="px-6 py-4">
                     {m.exclusive ? (
                       <span className="flex items-center gap-1 text-[#C9A84C] font-medium">
-                        <Star className="h-3.5 w-3.5 fill-[#C9A84C]" /> Exclusif
+                        <Star className="h-3.5 w-3.5 fill-[#C9A84C]" /> {t("mandates.exclusive")}
                       </span>
                     ) : (
-                      <span className="text-muted-foreground">Non-exclusif</span>
+                      <span className="text-muted-foreground">{t("mandates.nonExclusive")}</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <Badge variant="outline" className={STATUS_STYLE[m.status] ?? ""}>
-                      {STATUS_LABEL[m.status] ?? m.status}
+                      {t(`mandateStatus.${m.status}`)}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
-                    {new Date(m.createdAt).toLocaleDateString("fr-FR")}
+                    {new Date(m.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-right">
                     {m.status === "pending" && (
@@ -107,7 +104,7 @@ export default function DashboardMandates() {
                         onClick={() => handleWithdraw(m.id)}
                         disabled={withdrawMandate.isPending}
                       >
-                        <X className="h-4 w-4 mr-1" /> Retirer
+                        <X className="h-4 w-4 mr-1" /> {t("mandates.withdraw")}
                       </Button>
                     )}
                   </td>
@@ -127,6 +124,7 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
   const updateStatus = useUpdateMandateStatus();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleDecision = (mandateId: number, status: "approved" | "rejected") => {
     updateStatus.mutate({ mandateId, data: { status } }, {
@@ -135,16 +133,16 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
           queryKey: getListMandatesForListingQueryKey(listingId),
         });
         toast({
-          title: status === "approved" ? "Candidature approuvée ✓" : "Candidature refusée",
+          title: status === "approved" ? t("mandates.approvedToast") : t("mandates.rejectedToast"),
         });
       },
     });
   };
 
   if (isLoading)
-    return <div className="py-4 text-center text-sm text-muted-foreground">Chargement...</div>;
+    return <div className="py-4 text-center text-sm text-muted-foreground">{t("common.loading")}</div>;
   if (!mandates || mandates.length === 0)
-    return <p className="text-sm text-muted-foreground py-2">Aucune candidature reçue.</p>;
+    return <p className="text-sm text-muted-foreground py-2">{t("mandates.noneReceived")}</p>;
 
   return (
     <div className="space-y-3">
@@ -161,11 +159,11 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
                   variant="outline"
                   className="border-[#C9A84C]/30 text-[#C9A84C] bg-[#C9A84C]/5 text-xs"
                 >
-                  <Star className="h-3 w-3 mr-1 fill-[#C9A84C]" /> Exclusivité demandée
+                  <Star className="h-3 w-3 mr-1 fill-[#C9A84C]" /> {t("mandates.exclusivityRequested")}
                 </Badge>
               )}
               <Badge variant="outline" className={`text-xs ${STATUS_STYLE[m.status] ?? ""}`}>
-                {STATUS_LABEL[m.status] ?? m.status}
+                {t(`mandateStatus.${m.status}`)}
               </Badge>
             </div>
             {m.note && (
@@ -180,7 +178,7 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
                 rel="noopener noreferrer"
                 className="text-xs text-primary underline flex items-center gap-1 mt-1"
               >
-                <FileText className="h-3 w-3" /> Voir justificatif
+                <FileText className="h-3 w-3" /> {t("mandates.viewJustification")}
               </a>
             )}
           </div>
@@ -193,7 +191,7 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
                 onClick={() => handleDecision(m.id, "rejected")}
                 disabled={updateStatus.isPending}
               >
-                Refuser
+                {t("mandates.reject")}
               </Button>
               <Button
                 size="sm"
@@ -201,7 +199,7 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
                 onClick={() => handleDecision(m.id, "approved")}
                 disabled={updateStatus.isPending}
               >
-                Approuver
+                {t("mandates.approve")}
               </Button>
             </div>
           )}

@@ -3,18 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { MessageCircle } from "lucide-react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export default function Leads() {
   const { data: leads, isLoading } = useListLeads();
+  const { t } = useLanguage();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "new":
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-700">Nouveau</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-700">{t("leadStatus.new")}</Badge>;
       case "contacted":
-        return <Badge variant="secondary" className="bg-amber-100 text-amber-700">En cours</Badge>;
+        return <Badge variant="secondary" className="bg-amber-100 text-amber-700">{t("leadStatus.contacted")}</Badge>;
       case "closed":
-        return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Conclu</Badge>;
+        return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">{t("leadStatus.closed")}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -22,8 +24,8 @@ export default function Leads() {
 
   return (
     <div className="container py-8 max-w-4xl">
-      <h1 className="font-serif text-3xl font-bold text-primary mb-2">Mes Demandes</h1>
-      <p className="text-muted-foreground mb-8">Suivez vos échanges avec les agents et promoteurs.</p>
+      <h1 className="font-serif text-3xl font-bold text-primary mb-2">{t("leadsPage.title")}</h1>
+      <p className="text-muted-foreground mb-8">{t("leadsPage.subtitle")}</p>
 
       {isLoading ? (
         <div className="space-y-4">
@@ -31,8 +33,8 @@ export default function Leads() {
         </div>
       ) : leads?.length === 0 ? (
         <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
-          <h3 className="text-xl font-medium mb-2">Aucune demande</h3>
-          <p className="text-muted-foreground">Vous n'avez pas encore contacté de professionnel.</p>
+          <h3 className="text-xl font-medium mb-2">{t("leadsPage.emptyTitle")}</h3>
+          <p className="text-muted-foreground">{t("leadsPage.emptyDesc")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -41,13 +43,13 @@ export default function Leads() {
               <Card className="hover:border-primary transition-colors cursor-pointer hover-elevate">
                 <CardContent className="p-6 flex items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-lg mb-1">{lead.listingTitle || `Propriété #${lead.listingId}`}</h3>
+                    <h3 className="font-bold text-lg mb-1">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h3>
                     <p className="text-sm text-muted-foreground truncate max-w-lg">{lead.message}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     {getStatusBadge(lead.status)}
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MessageCircle className="h-3 w-3" /> Ouvrir la discussion
+                      <MessageCircle className="h-3 w-3" /> {t("leadsPage.openDiscussion")}
                     </span>
                   </div>
                 </CardContent>

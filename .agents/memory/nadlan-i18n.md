@@ -5,7 +5,7 @@ description: How trilingual translation and RTL work on the public site, and wha
 
 # NadlanConnect i18n
 
-FR/EN/HE is **functional** on public surfaces (no longer just scaffolded). Pattern:
+FR/EN/HE is **functional** on public surfaces AND the Pro dashboards (agent/developer) + admin panel (no longer just scaffolded). Pattern:
 
 - A flat-namespaced dictionary in `src/lib/i18n.ts` holds three blocks (FR/EN/HE). Keys are dotted strings like `detail.*`, `listings.*`, `card.*`. `translate(lang, key)` looks up the block.
 - `LanguageProvider` exposes `t()/language/dir/setLanguage`, persists choice to `localStorage["nadlan-lang"]`, and sets `document.documentElement.dir` + `lang` in an effect. Default language is **fr**.

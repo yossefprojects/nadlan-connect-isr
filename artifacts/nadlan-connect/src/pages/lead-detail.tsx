@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Send } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export default function LeadDetail() {
   const [, params] = useRoute("/leads/:id");
@@ -30,6 +31,7 @@ export default function LeadDetail() {
   const sendMessage = useSendMessage();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const [newMsg, setNewMsg] = useState("");
 
@@ -42,13 +44,13 @@ export default function LeadDetail() {
         queryClient.invalidateQueries({ queryKey: getGetLeadMessagesQueryKey(leadId) });
       },
       onError: () => {
-        toast({ title: "Erreur d'envoi", variant: "destructive" });
+        toast({ title: t("leadDetail.sendError"), variant: "destructive" });
       }
     });
   };
 
-  if (isLeadLoading || isMessagesLoading) return <div className="p-8 text-center">Chargement...</div>;
-  if (!leadDetail) return <div className="p-8 text-center">Demande introuvable.</div>;
+  if (isLeadLoading || isMessagesLoading) return <div className="p-8 text-center">{t("common.loading")}</div>;
+  if (!leadDetail) return <div className="p-8 text-center">{t("leadDetail.notFound")}</div>;
 
   const { lead } = leadDetail;
 
@@ -56,11 +58,11 @@ export default function LeadDetail() {
     <div className="container py-8 max-w-4xl flex flex-col h-[calc(100vh-64px)]">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-primary">{lead.listingTitle || `Propriété #${lead.listingId}`}</h1>
-          <p className="text-muted-foreground text-sm">Demande initiée le {new Date(lead.createdAt).toLocaleDateString()}</p>
+          <h1 className="font-serif text-2xl font-bold text-primary">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h1>
+          <p className="text-muted-foreground text-sm">{t("leadDetail.initiatedOn")} {new Date(lead.createdAt).toLocaleDateString()}</p>
         </div>
         <Badge variant="outline" className="text-sm px-3 py-1 bg-background">
-          Status: {lead.status}
+          {t("leadDetail.statusLabel")}: {t(`leadStatus.${lead.status}`)}
         </Badge>
       </div>
 
@@ -70,7 +72,7 @@ export default function LeadDetail() {
           <div className="bg-primary text-primary-foreground p-4 rounded-2xl rounded-tr-sm max-w-[80%] shadow-sm">
             <p className="whitespace-pre-wrap">{lead.message}</p>
           </div>
-          <span className="text-xs text-muted-foreground mt-1">Vous - {new Date(lead.createdAt).toLocaleTimeString()}</span>
+          <span className="text-xs text-muted-foreground mt-1">{t("leadDetail.you")} - {new Date(lead.createdAt).toLocaleTimeString()}</span>
         </div>
 
         {/* Thread Messages */}
@@ -86,7 +88,7 @@ export default function LeadDetail() {
                 <p className="whitespace-pre-wrap">{msg.body}</p>
               </div>
               <span className="text-xs text-muted-foreground mt-1">
-                {isMe ? "Vous" : msg.senderName || "Correspondant"} - {new Date(msg.createdAt).toLocaleTimeString()}
+                {isMe ? t("leadDetail.you") : msg.senderName || t("leadDetail.correspondent")} - {new Date(msg.createdAt).toLocaleTimeString()}
               </span>
             </div>
           );
@@ -97,7 +99,7 @@ export default function LeadDetail() {
         <Textarea 
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
-          placeholder="Écrivez votre message..."
+          placeholder={t("leadDetail.messagePlaceholder")}
           className="resize-none border-0 shadow-none focus-visible:ring-0 min-h-[60px]"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

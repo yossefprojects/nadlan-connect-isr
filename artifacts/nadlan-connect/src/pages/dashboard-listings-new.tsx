@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/components/layout/language-provider";
 
 export default function DashboardListingsNew() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const createListing = useCreateListing();
   const addListingImage = useAddListingImage();
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState({
     title: "",
@@ -34,14 +36,14 @@ export default function DashboardListingsNew() {
       console.log("Uploaded successfully", res);
     },
     onError: () => {
-      toast({ title: "Erreur lors du téléchargement de l'image", variant: "destructive" });
+      toast({ title: t("listingForm.uploadError"), variant: "destructive" });
     }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.ville || !formData.surface || !formData.nbPieces || !formData.price) {
-      toast({ title: "Veuillez remplir tous les champs obligatoires", variant: "destructive" });
+      toast({ title: t("listingForm.fillRequired"), variant: "destructive" });
       return;
     }
 
@@ -73,58 +75,58 @@ export default function DashboardListingsNew() {
         }
       }
 
-      toast({ title: "Propriété créée avec succès" });
+      toast({ title: t("listingForm.created") });
       setLocation("/dashboard");
     } catch (err) {
-      toast({ title: "Erreur lors de la création", variant: "destructive" });
+      toast({ title: t("listingForm.createError"), variant: "destructive" });
     }
   };
 
   return (
     <div className="container py-8 max-w-3xl">
-      <h1 className="font-serif text-3xl font-bold text-primary mb-8">Nouvelle Propriété</h1>
+      <h1 className="font-serif text-3xl font-bold text-primary mb-8">{t("listingForm.newTitle")}</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6 bg-card border rounded-xl p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Titre *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldTitle")}</label>
             <Input 
               value={formData.title} 
               onChange={e => setFormData({...formData, title: e.target.value})} 
-              placeholder="Ex: Superbe appartement vue mer"
+              placeholder={t("listingForm.titlePlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Type *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldType")}</label>
             <Select value={formData.type} onValueChange={(val: any) => setFormData({...formData, type: val})}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="resale">Revente</SelectItem>
-                <SelectItem value="new_development">Neuf</SelectItem>
+                <SelectItem value="resale">{t("listingType.resale")}</SelectItem>
+                <SelectItem value="new_development">{t("listingType.new_development")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Ville *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldCity")}</label>
             <Select value={formData.ville} onValueChange={(val) => setFormData({...formData, ville: val})}>
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez une ville" />
+                <SelectValue placeholder={t("listingForm.cityPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tlv">Tel Aviv</SelectItem>
-                <SelectItem value="jer">Jérusalem</SelectItem>
-                <SelectItem value="hfa">Haïfa</SelectItem>
-                <SelectItem value="bs">Beer-Sheva</SelectItem>
-                <SelectItem value="nat">Netanya</SelectItem>
-                <SelectItem value="ash">Ashdod</SelectItem>
+                <SelectItem value="tlv">{t("city.tlv")}</SelectItem>
+                <SelectItem value="jer">{t("city.jer")}</SelectItem>
+                <SelectItem value="hfa">{t("city.hfa")}</SelectItem>
+                <SelectItem value="bs">{t("city.bs")}</SelectItem>
+                <SelectItem value="nat">{t("city.nat")}</SelectItem>
+                <SelectItem value="ash">{t("city.ash")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Quartier</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldQuartier")}</label>
             <Input 
               value={formData.quartier} 
               onChange={e => setFormData({...formData, quartier: e.target.value})} 
@@ -132,7 +134,7 @@ export default function DashboardListingsNew() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Surface (m²) *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldSurface")}</label>
             <Input 
               type="number"
               value={formData.surface} 
@@ -140,7 +142,7 @@ export default function DashboardListingsNew() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nombre de pièces *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldRooms")}</label>
             <Input 
               type="number" step="0.5"
               value={formData.nbPieces} 
@@ -149,7 +151,7 @@ export default function DashboardListingsNew() {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Étage</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldFloor")}</label>
             <Input 
               type="number"
               value={formData.etage} 
@@ -157,7 +159,7 @@ export default function DashboardListingsNew() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Prix (₪) *</label>
+            <label className="text-sm font-medium">{t("listingForm.fieldPrice")}</label>
             <Input 
               type="number"
               value={formData.price} 
@@ -167,7 +169,7 @@ export default function DashboardListingsNew() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Description</label>
+          <label className="text-sm font-medium">{t("listingForm.fieldDescription")}</label>
           <Textarea 
             value={formData.description} 
             onChange={e => setFormData({...formData, description: e.target.value})} 
@@ -176,7 +178,7 @@ export default function DashboardListingsNew() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Photo principale</label>
+          <label className="text-sm font-medium">{t("listingForm.fieldCover")}</label>
           <Input 
             type="file" 
             accept="image/*"
@@ -185,10 +187,10 @@ export default function DashboardListingsNew() {
         </div>
 
         <div className="pt-4 border-t flex justify-end gap-4">
-          <Button variant="outline" type="button" onClick={() => setLocation("/dashboard")}>Annuler</Button>
+          <Button variant="outline" type="button" onClick={() => setLocation("/dashboard")}>{t("listingForm.cancel")}</Button>
           <Button type="submit" disabled={createListing.isPending || isUploading}>
             {(createListing.isPending || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Créer la propriété
+            {t("listingForm.create")}
           </Button>
         </div>
       </form>

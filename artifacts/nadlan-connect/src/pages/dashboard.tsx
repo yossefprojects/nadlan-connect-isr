@@ -12,6 +12,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 function ListingMandateSection({ listingId, title }: { listingId: number; title: string }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
   return (
     <div className="border rounded-xl overflow-hidden">
       <button
@@ -20,7 +21,7 @@ function ListingMandateSection({ listingId, title }: { listingId: number; title:
       >
         <span className="truncate max-w-[70%]">{title}</span>
         <span className="flex items-center gap-2 text-muted-foreground shrink-0">
-          Mandataires
+          {t("dashboard.mandataires")}
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </span>
       </button>
@@ -39,12 +40,12 @@ export default function Dashboard() {
   const { role } = useUserRole();
   const { t } = useLanguage();
 
-  if (isStatsLoading) return <div className="p-8">Chargement...</div>;
+  if (isStatsLoading) return <div className="p-8">{t("common.loading")}</div>;
 
   return (
     <div className="container py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="font-serif text-3xl font-bold text-primary">Tableau de Bord Professionnel</h1>
+        <h1 className="font-serif text-3xl font-bold text-primary">{t("dashboard.title")}</h1>
         <div className="flex gap-3">
           <Link href="/outils/analyse-ia">
             <Button variant="outline" className="gap-2 border-[#C9A84C]/40 text-[#1A3A5C] hover:bg-[#C9A84C]/10">
@@ -54,21 +55,21 @@ export default function Dashboard() {
           {role === "agent" && (
             <Link href="/dashboard/mandates">
               <Button variant="outline" className="gap-2">
-                <Handshake className="h-4 w-4" /> Mes Mandats
+                <Handshake className="h-4 w-4" /> {t("dashboard.myMandates")}
               </Button>
             </Link>
           )}
           {role === "developer" && (
             <Link href="/dashboard/listings/new">
               <Button className="gap-2">
-                <Plus className="h-4 w-4" /> Nouveau Projet
+                <Plus className="h-4 w-4" /> {t("dashboard.newProject")}
               </Button>
             </Link>
           )}
           {role !== "developer" && role !== "agent" && (
             <Link href="/dashboard/listings/new">
               <Button className="gap-2">
-                <Plus className="h-4 w-4" /> Nouvelle Propriété
+                <Plus className="h-4 w-4" /> {t("dashboard.newProperty")}
               </Button>
             </Link>
           )}
@@ -79,48 +80,48 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {role === "developer" ? "Mes Projets" : "Total Propriétés"}
+              {role === "developer" ? t("dashboard.myProjects") : t("dashboard.totalProperties")}
             </CardTitle>
             <Building className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{stats?.totalListings || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">{stats?.publishedListings || 0} publiés</p>
+            <p className="text-xs text-muted-foreground mt-1">{stats?.publishedListings || 0} {t("dashboard.publishedCount")}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.totalLeads")}</CardTitle>
             <Inbox className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{stats?.totalLeads || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              <Link href="/dashboard/leads" className="hover:underline">Voir les demandes</Link>
+              <Link href="/dashboard/leads" className="hover:underline">{t("dashboard.viewRequests")}</Link>
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Nouveaux Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.newLeads")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-secondary">{stats?.newLeads || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">À traiter</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("dashboard.toProcess")}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Leads Conclus</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.closedLeads")}</CardTitle>
             <CheckCircle className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">{stats?.closedLeads || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Affaires terminées</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("dashboard.dealsCompleted")}</p>
           </CardContent>
         </Card>
       </div>
@@ -131,11 +132,11 @@ export default function Dashboard() {
           <div className="flex justify-between items-center mb-5">
             <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2">
               <Handshake className="h-6 w-6" />
-              Demandes de mandataires
+              {t("dashboard.mandateRequests")}
             </h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            Gérez les agents immobiliers qui souhaitent commercialiser vos projets.
+            {t("dashboard.mandateRequestsDesc")}
           </p>
           <div className="space-y-3">
             {listingsData.listings
@@ -149,7 +150,7 @@ export default function Dashboard() {
               ))}
             {listingsData.listings.filter(l => l.type === "new_development").length === 0 && (
               <p className="text-sm text-muted-foreground py-4 text-center bg-muted/30 rounded-xl border border-dashed">
-                Vous n'avez aucun programme neuf publié. Les mandataires peuvent postuler sur vos programmes neufs.
+                {t("dashboard.noNewDevPublished")}
               </p>
             )}
           </div>
@@ -159,12 +160,12 @@ export default function Dashboard() {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-serif text-2xl font-bold text-primary">
-            {role === "developer" ? "Mes Programmes" : "Mes Propriétés"}
+            {role === "developer" ? t("dashboard.myPrograms") : t("dashboard.myProperties")}
           </h2>
           {role === "developer" && (
             <Link href="/dashboard/listings/new">
               <Button variant="outline" size="sm" className="gap-2">
-                <Plus className="h-4 w-4" /> Nouveau
+                <Plus className="h-4 w-4" /> {t("dashboard.newShort")}
               </Button>
             </Link>
           )}
@@ -176,12 +177,12 @@ export default function Dashboard() {
           <div className="text-center py-12 bg-muted/30 rounded-xl border border-dashed">
             <p className="text-muted-foreground mb-4">
               {role === "developer"
-                ? "Vous n'avez aucun programme."
-                : "Vous n'avez aucune propriété."}
+                ? t("dashboard.noPrograms")
+                : t("dashboard.noProperties")}
             </p>
             <Link href="/dashboard/listings/new">
               <Button variant="outline">
-                {role === "developer" ? "Créer votre premier programme" : "Créer votre première annonce"}
+                {role === "developer" ? t("dashboard.createFirstProgram") : t("dashboard.createFirstListing")}
               </Button>
             </Link>
           </div>
@@ -190,11 +191,11 @@ export default function Dashboard() {
             <table className="w-full text-sm text-left">
               <thead className="bg-muted/50 border-b">
                 <tr>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">Titre</th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">Ville</th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">Prix</th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground">Statut</th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground text-right">Actions</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colTitle")}</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colCity")}</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colPrice")}</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colStatus")}</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("dashboard.colActions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -203,7 +204,7 @@ export default function Dashboard() {
                     <td className="px-6 py-4 font-medium">
                       <div>{listing.title}</div>
                       {listing.type === "new_development" && (
-                        <span className="text-xs text-[#C9A84C] font-medium">Programme neuf</span>
+                        <span className="text-xs text-[#C9A84C] font-medium">{t("dashboard.newDevBadge")}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{listing.ville}</td>
@@ -212,13 +213,13 @@ export default function Dashboard() {
                       <Badge variant="outline" className={
                         listing.status === "published" ? "border-emerald-200 text-emerald-700 bg-emerald-50" : ""
                       }>
-                        {listing.status}
+                        {t(`status.${listing.status}`)}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link href={`/dashboard/listings/${listing.id}/edit`}>
                         <Button variant="ghost" size="sm" className="h-8">
-                          <Edit className="h-4 w-4 mr-2" /> Modifier
+                          <Edit className="h-4 w-4 mr-2" /> {t("dashboard.edit")}
                         </Button>
                       </Link>
                     </td>
