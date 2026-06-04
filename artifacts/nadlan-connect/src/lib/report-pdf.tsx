@@ -56,39 +56,63 @@ const STATUS_COLOR: Record<
 function num(n: number | null | undefined): number | null {
   return typeof n === "number" && Number.isFinite(n) ? n : null;
 }
-// Group thousands with a regular ASCII space (Intl uses U+202F, which the
-// built-in Helvetica cannot render — it shows up as "/").
-function group(v: number): string {
-  return Math.round(v)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
 // Helvetica (WinAnsi) has no glyph for ₪ (renders as "ª") or for several
 // typographic symbols an LLM may emit. Normalise everything to safe text.
-function sanitize(t: string | null | undefined): string {
+// `keepShekel` is set for Hebrew reports, whose Heebo font can render ₪.
+function sanitizeText(
+  t: string | null | undefined,
+  keepShekel = false,
+): string {
   if (!t) return "";
-  return t
-    .replace(/\u20AA/g, "NIS") // ₪
+  let s = t;
+  if (!keepShekel) s = s.replace(/\u20AA/g, "NIS"); // ₪ → NIS (Helvetica path)
+  return s
     .replace(/\u2248/g, "~") // ≈
     .replace(/[\u2212\u2013\u2014]/g, "-") // − – —
     .replace(/[\u202F\u00A0\u2009\u2007]/g, " ") // narrow / no-break / thin spaces
     .replace(/[\u2018\u2019\u201B]/g, "'") // ' ' ‛
     .replace(/[\u201C\u201D]/g, '"'); // " "
 }
-function fmtShekel(n: number | null | undefined): string {
-  const v = num(n);
-  if (v === null) return "—";
-  return group(v) + " NIS";
-}
-function fmtSqm(n: number | null | undefined): string {
-  const v = num(n);
-  if (v === null) return "—";
-  return group(v) + " m²";
-}
-function fmtPct(n: number | null | undefined): string {
-  const v = num(n);
-  if (v === null) return "—";
-  return v.toFixed(1).replace(".", ",") + " %";
+
+// Number/currency formatting adapts to the reader's language:
+// - FR: ASCII-space thousands, decimal comma, "8,5 %", "NIS"
+//       (Intl's fr-FR U+202F separator has no Helvetica glyph → renders as "/")
+// - EN: comma thousands (WinAnsi-safe), decimal point, "8.5%", "NIS"
+// - HE: comma thousands, decimal point, "8.5%", ₪ (Heebo can render it)
+function makeFmt(lang: Language) {
+  const isFr = lang === "fr";
+  const groupSep = isFr ? " " : ",";
+  const decSep = isFr ? "," : ".";
+  const pctSep = isFr ? " " : ""; // FR puts a space before "%"
+  const currency = lang === "he" ? "\u20AA" : "NIS";
+
+  function group(v: number): string {
+    return Math.round(v)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, groupSep);
+  }
+  function dec(n: number, digits: number): string {
+    return n.toFixed(digits).replace(".", decSep);
+  }
+  function fmtShekel(n: number | null | undefined): string {
+    const v = num(n);
+    if (v === null) return "—";
+    return group(v) + " " + currency;
+  }
+  function fmtSqm(n: number | null | undefined): string {
+    const v = num(n);
+    if (v === null) return "—";
+    return group(v) + " m²";
+  }
+  function fmtPct(n: number | null | undefined): string {
+    const v = num(n);
+    if (v === null) return "—";
+    return dec(v, 1) + pctSep + "%";
+  }
+  function fmtPctWhole(n: number): string {
+    return String(n) + pctSep + "%";
+  }
+  return { group, dec, fmtShekel, fmtSqm, fmtPct, fmtPctWhole };
 }
 function boolT(b: boolean | null | undefined, t: T): string {
   if (b === null || b === undefined) return "—";
@@ -290,6 +314,11 @@ function ReportDoc({
   const locale = localeForLanguage(language);
   const rtl = language === "he";
   const st = makeStyles(fontsFor(language), rtl);
+  const { group, dec, fmtShekel, fmtSqm, fmtPct, fmtPctWhole } =
+    makeFmt(language);
+  const keepShekel = language === "he";
+  const sanitize = (x: string | null | undefined) =>
+    sanitizeText(x, keepShekel);
   const date = new Date().toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
@@ -383,7 +412,7 @@ function ReportDoc({
                 <Row
                   key={i}
                   label={sanitize(c.factor)}
-                  value={`${c.coefficient != null ? c.coefficient.toFixed(2) : "—"}  ·  ${sanitize(c.impact)}`}
+                  value={`${c.coefficient != null ? dec(c.coefficient, 2) : "—"}  ·  ${sanitize(c.impact)}`}
                   st={st}
                 />
               ))}
@@ -467,7 +496,11 @@ function ReportDoc({
                 value={fmtShekel(p.constructionCostPerSqm)}
                 st={st}
               />
-              <Row label={t("report.row.feesContingency")} value="15 %" st={st} />
+              <Row
+                label={t("report.row.feesContingency")}
+                value={fmtPctWhole(15)}
+                st={st}
+              />
               <Row
                 label={t("report.row.resalePricePerSqm")}
                 value={fmtShekel(resalePerSqm)}
@@ -623,7 +656,7 @@ function ReportDoc({
                   {fees !== null && subtotal !== null && (
                     <Bullet
                       title={t("report.bullet.feesContingency")}
-                      body={`${fmtShekel(subtotal)} ${t("report.calc.acqPlusConstruction")} × 15 % = ${fmtShekel(fees)}`}
+                      body={`${fmtShekel(subtotal)} ${t("report.calc.acqPlusConstruction")} × ${fmtPctWhole(15)} = ${fmtShekel(fees)}`}
                       st={st}
                     />
                   )}
@@ -831,13 +864,14 @@ function triggerDownload(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-function stripInline(line: string): string {
-  return sanitize(
+function stripInline(line: string, keepShekel = false): string {
+  return sanitizeText(
     line
       .replace(/\*\*(.+?)\*\*/g, "$1")
       .replace(/__(.+?)__/g, "$1")
       .replace(/`(.+?)`/g, "$1")
       .replace(/\*(.+?)\*/g, "$1"),
+    keepShekel,
   );
 }
 
@@ -848,7 +882,7 @@ type MdBlock =
   | { kind: "tr"; cells: string[] }
   | { kind: "hr" };
 
-function parseMarkdown(md: string): MdBlock[] {
+function parseMarkdown(md: string, keepShekel = false): MdBlock[] {
   const blocks: MdBlock[] = [];
   for (const raw of md.split("\n")) {
     const line = raw.trim();
@@ -859,7 +893,11 @@ function parseMarkdown(md: string): MdBlock[] {
     }
     const h = /^(#{1,4})\s+(.*)$/.exec(line);
     if (h) {
-      blocks.push({ kind: "h", level: h[1].length, text: stripInline(h[2]) });
+      blocks.push({
+        kind: "h",
+        level: h[1].length,
+        text: stripInline(h[2], keepShekel),
+      });
       continue;
     }
     if (line.startsWith("|") && line.includes("|")) {
@@ -868,14 +906,20 @@ function parseMarkdown(md: string): MdBlock[] {
       if (cells.length && cells[cells.length - 1] === "") cells.pop();
       const isSeparator = cells.every((c) => /^:?-{2,}:?$/.test(c));
       if (isSeparator) continue;
-      blocks.push({ kind: "tr", cells: cells.map(stripInline) });
+      blocks.push({
+        kind: "tr",
+        cells: cells.map((c) => stripInline(c, keepShekel)),
+      });
       continue;
     }
     if (/^([-*•])\s+/.test(line)) {
-      blocks.push({ kind: "li", text: stripInline(line.replace(/^([-*•])\s+/, "")) });
+      blocks.push({
+        kind: "li",
+        text: stripInline(line.replace(/^([-*•])\s+/, ""), keepShekel),
+      });
       continue;
     }
-    blocks.push({ kind: "p", text: stripInline(line) });
+    blocks.push({ kind: "p", text: stripInline(line, keepShekel) });
   }
   return blocks;
 }
@@ -893,12 +937,13 @@ function ChatDoc({
   const locale = localeForLanguage(language);
   const rtl = language === "he";
   const st = makeStyles(fontsFor(language), rtl);
+  const keepShekel = language === "he";
   const date = new Date().toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
-  const blocks = parseMarkdown(markdown);
+  const blocks = parseMarkdown(markdown, keepShekel);
   return (
     <Document title={t("report.chat.docTitle")} author="NadlanConnect">
       <Page size="A4" style={st.page}>
@@ -915,7 +960,9 @@ function ChatDoc({
         <View style={st.masthead}>
           <Text style={st.kicker}>{t("report.chat.kicker")}</Text>
           <Text style={st.mastTitle}>
-            {title ? sanitize(title.slice(0, 90)) : t("report.chat.defaultTitle")}
+            {title
+              ? sanitizeText(title.slice(0, 90), keepShekel)
+              : t("report.chat.defaultTitle")}
           </Text>
           <Text style={st.mastSub}>
             {t("report.generatedOn")} {date} · Claude · Replit AI
