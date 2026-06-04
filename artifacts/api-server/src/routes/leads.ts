@@ -6,8 +6,9 @@ import {
   listingsTable,
   usersTable,
   favoritesTable,
+  listingImagesTable,
 } from "@workspace/db";
-import { eq, and, or, desc } from "drizzle-orm";
+import { eq, and, or, desc, sql } from "drizzle-orm";
 import {
   CreateLeadBody,
   GetLeadParams,
@@ -301,6 +302,17 @@ router.get("/favorites", async (req, res): Promise<void> => {
     .from(listingsTable)
     .where(or(...listingIds.map((id) => eq(listingsTable.id, id))));
 
+  const coverImages = await db
+    .select({ listingId: listingImagesTable.listingId, url: listingImagesTable.url })
+    .from(listingImagesTable)
+    .where(
+      and(
+        sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`,
+        eq(listingImagesTable.position, 0)
+      )
+    );
+  const coverMap = new Map(coverImages.map((c) => [c.listingId, c.url]));
+
   res.json(
     listings.map((l) => ({
       id: l.id,
@@ -319,7 +331,7 @@ router.get("/favorites", async (req, res): Promise<void> => {
       estimatedPrice: l.estimatedPrice ?? null,
       investmentScore: l.investmentScore ?? null,
       status: l.status,
-      coverImageUrl: null,
+      coverImageUrl: coverMap.get(l.id) ?? null,
       createdAt: l.createdAt.toISOString(),
     }))
   );
