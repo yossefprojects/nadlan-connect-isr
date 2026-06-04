@@ -5,10 +5,12 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { ArrowRight, Building2, TrendingUp, Users, Search, Brain, Handshake, CheckCircle2 } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import heroVideo from "@/assets/hero-video.mp4";
 import abstractAi from "@/assets/ai-abstract.png";
+import abstractAiWebp from "@/assets/ai-abstract.webp";
 import proNetwork from "@/assets/pro-network.png";
+import proNetworkWebp from "@/assets/pro-network.webp";
 import luxuryInterior from "@/assets/interior-luxury.png";
+import luxuryInteriorWebp from "@/assets/interior-luxury.webp";
 import { usePageMeta } from "@/hooks/use-page-meta";
 
 const fadeInUp = {
@@ -47,18 +49,18 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-[#F8F7F4] font-sans">
       {/* Hero Section */}
       <section className="relative h-[100svh] min-h-[700px] flex items-center justify-center overflow-hidden">
-        {/* Background Video */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0 bg-[#0A1628]">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-screen"
-            poster={luxuryInterior}
-          >
-            <source src={heroVideo} type="video/mp4" />
-          </video>
+          <picture>
+            <source srcSet={luxuryInteriorWebp} type="image/webp" />
+            <img
+              src={luxuryInterior}
+              alt=""
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-screen"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/40 via-[#0A1628]/70 to-[#0A1628]/95" />
           
           {/* Subtle animated noise overlay */}
@@ -242,7 +244,10 @@ export default function Home() {
       <section className="py-24 md:py-32 bg-[#0A1628] text-white relative overflow-hidden">
         {/* Background image half */}
         <div className="absolute inset-0 md:w-1/2 w-full h-1/2 md:h-full rtl:right-0 rtl:left-auto">
-          <img src={abstractAi} alt={t("home.aiImageAlt")} className="w-full h-full object-cover opacity-30 md:opacity-50" />
+          <picture>
+            <source srcSet={abstractAiWebp} type="image/webp" />
+            <img src={abstractAi} alt={t("home.aiImageAlt")} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-30 md:opacity-50" />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-[#0A1628] via-[#0A1628]/80 to-transparent" />
         </div>
         
@@ -383,7 +388,10 @@ export default function Home() {
                 </div>
               </div>
               <div className="lg:w-1/2 h-[400px] lg:h-auto relative">
-                <img src={proNetwork} alt={t("home.proImageAlt")} className="absolute inset-0 w-full h-full object-cover" />
+                <picture>
+                  <source srcSet={proNetworkWebp} type="image/webp" />
+                  <img src={proNetwork} alt={t("home.proImageAlt")} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+                </picture>
               </div>
            </div>
          </div>
