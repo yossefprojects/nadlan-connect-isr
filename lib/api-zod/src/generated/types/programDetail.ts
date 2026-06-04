@@ -7,11 +7,10 @@
  */
 import type { Document } from './document';
 import type { Listing } from './listing';
-import type { ListingImage } from './listingImage';
+import type { Program } from './program';
 
-export interface ListingDetail {
-  listing: Listing;
-  images: ListingImage[];
-  documents?: Document[];
-  isFavorited?: boolean;
+export interface ProgramDetail {
+  program: Program;
+  projets: Listing[];
+  documents: Document[];
 }

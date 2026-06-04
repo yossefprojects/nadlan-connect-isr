@@ -9,6 +9,8 @@ import type { ListingUpdateStatus } from './listingUpdateStatus';
 import type { ListingUpdateType } from './listingUpdateType';
 
 export interface ListingUpdate {
+  /** @nullable */
+  programId?: number | null;
   type?: ListingUpdateType;
   title?: string;
   description?: string;

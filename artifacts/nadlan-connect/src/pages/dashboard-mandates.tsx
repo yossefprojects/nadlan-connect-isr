@@ -27,7 +27,7 @@ export default function DashboardMandates() {
   const withdrawMandate = useWithdrawMandate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const handleWithdraw = (mandateId: number) => {
     withdrawMandate.mutate({ mandateId }, {
@@ -93,7 +93,7 @@ export default function DashboardMandates() {
                     </Badge>
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
-                    {new Date(m.createdAt).toLocaleDateString()}
+                    {new Date(m.createdAt).toLocaleDateString(locale)}
                   </td>
                   <td className="px-6 py-4 text-end">
                     {m.status === "pending" && (

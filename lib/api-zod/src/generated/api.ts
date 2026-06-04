@@ -366,6 +366,7 @@ export const ListListingsResponse = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -398,6 +399,7 @@ export const ListListingsResponse = zod.object({
 
 
 export const CreateListingBody = zod.object({
+  "programId": zod.number().optional(),
   "type": zod.enum(['resale', 'new_development']),
   "title": zod.string().min(1),
   "description": zod.string().optional(),
@@ -417,6 +419,7 @@ export const GetFeaturedListingsResponseItem = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -466,6 +469,7 @@ export const GetListingResponse = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -489,6 +493,17 @@ export const GetListingResponse = zod.object({
   "url": zod.string(),
   "position": zod.number()
 })),
+  "documents": zod.array(zod.object({
+  "id": zod.number(),
+  "programId": zod.number().nullish(),
+  "listingId": zod.number().nullish(),
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "visibility": zod.enum(['public', 'private']),
+  "url": zod.string().describe('Download URL for the document (access-controlled server-side).'),
+  "fileName": zod.string().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})).optional(),
   "isFavorited": zod.boolean().optional()
 })
 
@@ -501,6 +516,7 @@ export const UpdateListingParams = zod.object({
 })
 
 export const UpdateListingBody = zod.object({
+  "programId": zod.number().nullish(),
   "type": zod.enum(['resale', 'new_development']).optional(),
   "title": zod.string().optional(),
   "description": zod.string().optional(),
@@ -517,6 +533,7 @@ export const UpdateListingResponse = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -585,6 +602,7 @@ export const PublishListingResponse = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -605,12 +623,267 @@ export const PublishListingResponse = zod.object({
 
 
 /**
+ * @summary List programmes (published, or filtered by owner)
+ */
+export const ListProgramsQueryParams = zod.object({
+  "ownerId": zod.coerce.string().optional(),
+  "status": zod.coerce.string().optional()
+})
+
+export const ListProgramsResponseItem = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string().nullish(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "status": zod.enum(['draft', 'published']),
+  "coverImageUrl": zod.string().nullish(),
+  "projetsCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const ListProgramsResponse = zod.array(ListProgramsResponseItem)
+
+
+/**
+ * @summary Create a new programme (developer)
+ */
+
+
+
+
+export const CreateProgramBody = zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "ville": zod.string().min(1),
+  "quartier": zod.string().optional()
+})
+
+
+/**
+ * @summary Get a programme with its projets and documents
+ */
+export const GetProgramParams = zod.object({
+  "programId": zod.coerce.string().describe('Programme slug (preferred) or numeric id (legacy).')
+})
+
+export const GetProgramResponse = zod.object({
+  "program": zod.object({
+  "id": zod.number(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string().nullish(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "status": zod.enum(['draft', 'published']),
+  "coverImageUrl": zod.string().nullish(),
+  "projetsCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+}),
+  "projets": zod.array(zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
+  "ownerName": zod.string().nullish(),
+  "ownerAvatar": zod.string().nullish(),
+  "type": zod.enum(['resale', 'new_development']),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "surface": zod.number(),
+  "nbPieces": zod.number(),
+  "etage": zod.number().nullish(),
+  "price": zod.number(),
+  "estimatedPrice": zod.number().nullish(),
+  "investmentScore": zod.number().nullish(),
+  "status": zod.enum(['draft', 'published', 'sold', 'archived']),
+  "coverImageUrl": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})),
+  "documents": zod.array(zod.object({
+  "id": zod.number(),
+  "programId": zod.number().nullish(),
+  "listingId": zod.number().nullish(),
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "visibility": zod.enum(['public', 'private']),
+  "url": zod.string().describe('Download URL for the document (access-controlled server-side).'),
+  "fileName": zod.string().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+/**
+ * @summary Update a programme (owner or admin)
+ */
+export const UpdateProgramParams = zod.object({
+  "programId": zod.coerce.number()
+})
+
+export const UpdateProgramBody = zod.object({
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "ville": zod.string().optional(),
+  "quartier": zod.string().optional(),
+  "status": zod.enum(['draft', 'published']).optional()
+})
+
+export const UpdateProgramResponse = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string().nullish(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "status": zod.enum(['draft', 'published']),
+  "coverImageUrl": zod.string().nullish(),
+  "projetsCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a programme (owner or admin)
+ */
+export const DeleteProgramParams = zod.object({
+  "programId": zod.coerce.number()
+})
+
+export const DeleteProgramResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
+ * @summary Publish a draft programme
+ */
+export const PublishProgramParams = zod.object({
+  "programId": zod.coerce.number()
+})
+
+export const PublishProgramResponse = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.string(),
+  "ownerName": zod.string().nullish(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "status": zod.enum(['draft', 'published']),
+  "coverImageUrl": zod.string().nullish(),
+  "projetsCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List documents attached to a programme (private ones owner/admin only)
+ */
+export const ListProgramDocumentsParams = zod.object({
+  "programId": zod.coerce.number()
+})
+
+export const ListProgramDocumentsResponseItem = zod.object({
+  "id": zod.number(),
+  "programId": zod.number().nullish(),
+  "listingId": zod.number().nullish(),
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "visibility": zod.enum(['public', 'private']),
+  "url": zod.string().describe('Download URL for the document (access-controlled server-side).'),
+  "fileName": zod.string().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListProgramDocumentsResponse = zod.array(ListProgramDocumentsResponseItem)
+
+
+/**
+ * @summary Attach a document (photo/plan/authorization) to a programme
+ */
+export const AddProgramDocumentParams = zod.object({
+  "programId": zod.coerce.number()
+})
+
+
+
+
+export const AddProgramDocumentBody = zod.object({
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "objectPath": zod.string().min(1),
+  "fileName": zod.string().optional(),
+  "mimeType": zod.string().optional()
+})
+
+
+/**
+ * @summary List documents attached to a projet (private ones owner/admin only)
+ */
+export const ListListingDocumentsParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ListListingDocumentsResponseItem = zod.object({
+  "id": zod.number(),
+  "programId": zod.number().nullish(),
+  "listingId": zod.number().nullish(),
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "visibility": zod.enum(['public', 'private']),
+  "url": zod.string().describe('Download URL for the document (access-controlled server-side).'),
+  "fileName": zod.string().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListListingDocumentsResponse = zod.array(ListListingDocumentsResponseItem)
+
+
+/**
+ * @summary Attach a document (photo/plan/authorization) to a projet
+ */
+export const AddListingDocumentParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+
+
+
+export const AddListingDocumentBody = zod.object({
+  "category": zod.enum(['photo', 'plan', 'authorization']),
+  "objectPath": zod.string().min(1),
+  "fileName": zod.string().optional(),
+  "mimeType": zod.string().optional()
+})
+
+
+/**
+ * @summary Delete a document (owner or admin)
+ */
+export const DeleteDocumentParams = zod.object({
+  "documentId": zod.coerce.number()
+})
+
+export const DeleteDocumentResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
  * @summary Get the current user's favorite listings
  */
 export const GetMyFavoritesResponseItem = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -912,6 +1185,7 @@ export const AdminListListingsResponseItem = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),
@@ -947,6 +1221,7 @@ export const AdminUpdateListingStatusResponse = zod.object({
   "id": zod.number(),
   "slug": zod.string(),
   "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
   "ownerName": zod.string().nullish(),
   "ownerAvatar": zod.string().nullish(),
   "type": zod.enum(['resale', 'new_development']),

@@ -32,6 +32,8 @@ import type {
   DashboardStats,
   DeleteReportResult,
   DeleteSuccess,
+  Document,
+  DocumentInput,
   ErrorEnvelope,
   Favorite,
   HealthStatus,
@@ -40,6 +42,7 @@ import type {
   LeadInput,
   LeadStatusUpdate,
   ListListingsParams,
+  ListProgramsParams,
   ListUsersParams,
   Listing,
   ListingDetail,
@@ -59,6 +62,10 @@ import type {
   MessageInput,
   ProfileRegistrationResult,
   ProfileSummary,
+  Program,
+  ProgramDetail,
+  ProgramInput,
+  ProgramUpdate,
   PromoteurRegistrationInput,
   RegisterInput,
   RoleSelection,
@@ -2011,6 +2018,818 @@ export const usePublishListing = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getPublishListingMutationOptions(options));
+    }
+
+export const getListProgramsUrl = (params?: ListProgramsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/programs?${stringifiedParams}` : `/api/programs`
+}
+
+/**
+ * @summary List programmes (published, or filtered by owner)
+ */
+export const listPrograms = async (params?: ListProgramsParams, options?: RequestInit): Promise<Program[]> => {
+
+  return customFetch<Program[]>(getListProgramsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProgramsQueryKey = (params?: ListProgramsParams,) => {
+    return [
+    `/api/programs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListProgramsQueryOptions = <TData = Awaited<ReturnType<typeof listPrograms>>, TError = ErrorType<unknown>>(params?: ListProgramsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPrograms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProgramsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPrograms>>> = ({ signal }) => listPrograms(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPrograms>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListProgramsQueryResult = NonNullable<Awaited<ReturnType<typeof listPrograms>>>
+export type ListProgramsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List programmes (published, or filtered by owner)
+ */
+
+export function useListPrograms<TData = Awaited<ReturnType<typeof listPrograms>>, TError = ErrorType<unknown>>(
+ params?: ListProgramsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPrograms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListProgramsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateProgramUrl = () => {
+
+
+
+
+  return `/api/programs`
+}
+
+/**
+ * @summary Create a new programme (developer)
+ */
+export const createProgram = async (programInput: ProgramInput, options?: RequestInit): Promise<Program> => {
+
+  return customFetch<Program>(getCreateProgramUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      programInput,)
+  }
+);}
+
+
+
+
+export const getCreateProgramMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext> => {
+
+const mutationKey = ['createProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProgram>>, {data: BodyType<ProgramInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createProgram(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateProgramMutationResult = NonNullable<Awaited<ReturnType<typeof createProgram>>>
+    export type CreateProgramMutationBody = BodyType<ProgramInput>
+    export type CreateProgramMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Create a new programme (developer)
+ */
+export const useCreateProgram = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createProgram>>,
+        TError,
+        {data: BodyType<ProgramInput>},
+        TContext
+      > => {
+      return useMutation(getCreateProgramMutationOptions(options));
+    }
+
+export const getGetProgramUrl = (programId: string,) => {
+
+
+
+
+  return `/api/programs/${programId}`
+}
+
+/**
+ * @summary Get a programme with its projets and documents
+ */
+export const getProgram = async (programId: string, options?: RequestInit): Promise<ProgramDetail> => {
+
+  return customFetch<ProgramDetail>(getGetProgramUrl(programId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProgramQueryKey = (programId: string,) => {
+    return [
+    `/api/programs/${programId}`
+    ] as const;
+    }
+
+
+export const getGetProgramQueryOptions = <TData = Awaited<ReturnType<typeof getProgram>>, TError = ErrorType<ErrorEnvelope>>(programId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProgram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProgramQueryKey(programId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProgram>>> = ({ signal }) => getProgram(programId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(programId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProgram>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProgramQueryResult = NonNullable<Awaited<ReturnType<typeof getProgram>>>
+export type GetProgramQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a programme with its projets and documents
+ */
+
+export function useGetProgram<TData = Awaited<ReturnType<typeof getProgram>>, TError = ErrorType<ErrorEnvelope>>(
+ programId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProgram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProgramQueryOptions(programId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateProgramUrl = (programId: number,) => {
+
+
+
+
+  return `/api/programs/${programId}`
+}
+
+/**
+ * @summary Update a programme (owner or admin)
+ */
+export const updateProgram = async (programId: number,
+    programUpdate: ProgramUpdate, options?: RequestInit): Promise<Program> => {
+
+  return customFetch<Program>(getUpdateProgramUrl(programId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      programUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateProgramMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: number;data: BodyType<ProgramUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: number;data: BodyType<ProgramUpdate>}, TContext> => {
+
+const mutationKey = ['updateProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProgram>>, {programId: number;data: BodyType<ProgramUpdate>}> = (props) => {
+          const {programId,data} = props ?? {};
+
+          return  updateProgram(programId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateProgramMutationResult = NonNullable<Awaited<ReturnType<typeof updateProgram>>>
+    export type UpdateProgramMutationBody = BodyType<ProgramUpdate>
+    export type UpdateProgramMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a programme (owner or admin)
+ */
+export const useUpdateProgram = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: number;data: BodyType<ProgramUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateProgram>>,
+        TError,
+        {programId: number;data: BodyType<ProgramUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateProgramMutationOptions(options));
+    }
+
+export const getDeleteProgramUrl = (programId: number,) => {
+
+
+
+
+  return `/api/programs/${programId}`
+}
+
+/**
+ * @summary Delete a programme (owner or admin)
+ */
+export const deleteProgram = async (programId: number, options?: RequestInit): Promise<DeleteSuccess> => {
+
+  return customFetch<DeleteSuccess>(getDeleteProgramUrl(programId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteProgramMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProgram>>, TError,{programId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteProgram>>, TError,{programId: number}, TContext> => {
+
+const mutationKey = ['deleteProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProgram>>, {programId: number}> = (props) => {
+          const {programId} = props ?? {};
+
+          return  deleteProgram(programId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteProgramMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProgram>>>
+
+    export type DeleteProgramMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a programme (owner or admin)
+ */
+export const useDeleteProgram = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProgram>>, TError,{programId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteProgram>>,
+        TError,
+        {programId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteProgramMutationOptions(options));
+    }
+
+export const getPublishProgramUrl = (programId: number,) => {
+
+
+
+
+  return `/api/programs/${programId}/publish`
+}
+
+/**
+ * @summary Publish a draft programme
+ */
+export const publishProgram = async (programId: number, options?: RequestInit): Promise<Program> => {
+
+  return customFetch<Program>(getPublishProgramUrl(programId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPublishProgramMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishProgram>>, TError,{programId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof publishProgram>>, TError,{programId: number}, TContext> => {
+
+const mutationKey = ['publishProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof publishProgram>>, {programId: number}> = (props) => {
+          const {programId} = props ?? {};
+
+          return  publishProgram(programId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PublishProgramMutationResult = NonNullable<Awaited<ReturnType<typeof publishProgram>>>
+
+    export type PublishProgramMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Publish a draft programme
+ */
+export const usePublishProgram = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishProgram>>, TError,{programId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof publishProgram>>,
+        TError,
+        {programId: number},
+        TContext
+      > => {
+      return useMutation(getPublishProgramMutationOptions(options));
+    }
+
+export const getListProgramDocumentsUrl = (programId: number,) => {
+
+
+
+
+  return `/api/programs/${programId}/documents`
+}
+
+/**
+ * @summary List documents attached to a programme (private ones owner/admin only)
+ */
+export const listProgramDocuments = async (programId: number, options?: RequestInit): Promise<Document[]> => {
+
+  return customFetch<Document[]>(getListProgramDocumentsUrl(programId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProgramDocumentsQueryKey = (programId: number,) => {
+    return [
+    `/api/programs/${programId}/documents`
+    ] as const;
+    }
+
+
+export const getListProgramDocumentsQueryOptions = <TData = Awaited<ReturnType<typeof listProgramDocuments>>, TError = ErrorType<unknown>>(programId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProgramDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProgramDocumentsQueryKey(programId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProgramDocuments>>> = ({ signal }) => listProgramDocuments(programId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(programId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProgramDocuments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListProgramDocumentsQueryResult = NonNullable<Awaited<ReturnType<typeof listProgramDocuments>>>
+export type ListProgramDocumentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List documents attached to a programme (private ones owner/admin only)
+ */
+
+export function useListProgramDocuments<TData = Awaited<ReturnType<typeof listProgramDocuments>>, TError = ErrorType<unknown>>(
+ programId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProgramDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListProgramDocumentsQueryOptions(programId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAddProgramDocumentUrl = (programId: number,) => {
+
+
+
+
+  return `/api/programs/${programId}/documents`
+}
+
+/**
+ * @summary Attach a document (photo/plan/authorization) to a programme
+ */
+export const addProgramDocument = async (programId: number,
+    documentInput: DocumentInput, options?: RequestInit): Promise<Document> => {
+
+  return customFetch<Document>(getAddProgramDocumentUrl(programId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      documentInput,)
+  }
+);}
+
+
+
+
+export const getAddProgramDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addProgramDocument>>, TError,{programId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addProgramDocument>>, TError,{programId: number;data: BodyType<DocumentInput>}, TContext> => {
+
+const mutationKey = ['addProgramDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addProgramDocument>>, {programId: number;data: BodyType<DocumentInput>}> = (props) => {
+          const {programId,data} = props ?? {};
+
+          return  addProgramDocument(programId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddProgramDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof addProgramDocument>>>
+    export type AddProgramDocumentMutationBody = BodyType<DocumentInput>
+    export type AddProgramDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Attach a document (photo/plan/authorization) to a programme
+ */
+export const useAddProgramDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addProgramDocument>>, TError,{programId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addProgramDocument>>,
+        TError,
+        {programId: number;data: BodyType<DocumentInput>},
+        TContext
+      > => {
+      return useMutation(getAddProgramDocumentMutationOptions(options));
+    }
+
+export const getListListingDocumentsUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/documents`
+}
+
+/**
+ * @summary List documents attached to a projet (private ones owner/admin only)
+ */
+export const listListingDocuments = async (listingId: number, options?: RequestInit): Promise<Document[]> => {
+
+  return customFetch<Document[]>(getListListingDocumentsUrl(listingId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListListingDocumentsQueryKey = (listingId: number,) => {
+    return [
+    `/api/listings/${listingId}/documents`
+    ] as const;
+    }
+
+
+export const getListListingDocumentsQueryOptions = <TData = Awaited<ReturnType<typeof listListingDocuments>>, TError = ErrorType<unknown>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listListingDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListListingDocumentsQueryKey(listingId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listListingDocuments>>> = ({ signal }) => listListingDocuments(listingId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(listingId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listListingDocuments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListListingDocumentsQueryResult = NonNullable<Awaited<ReturnType<typeof listListingDocuments>>>
+export type ListListingDocumentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List documents attached to a projet (private ones owner/admin only)
+ */
+
+export function useListListingDocuments<TData = Awaited<ReturnType<typeof listListingDocuments>>, TError = ErrorType<unknown>>(
+ listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listListingDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListListingDocumentsQueryOptions(listingId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAddListingDocumentUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/documents`
+}
+
+/**
+ * @summary Attach a document (photo/plan/authorization) to a projet
+ */
+export const addListingDocument = async (listingId: number,
+    documentInput: DocumentInput, options?: RequestInit): Promise<Document> => {
+
+  return customFetch<Document>(getAddListingDocumentUrl(listingId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      documentInput,)
+  }
+);}
+
+
+
+
+export const getAddListingDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addListingDocument>>, TError,{listingId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addListingDocument>>, TError,{listingId: number;data: BodyType<DocumentInput>}, TContext> => {
+
+const mutationKey = ['addListingDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addListingDocument>>, {listingId: number;data: BodyType<DocumentInput>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  addListingDocument(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddListingDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof addListingDocument>>>
+    export type AddListingDocumentMutationBody = BodyType<DocumentInput>
+    export type AddListingDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Attach a document (photo/plan/authorization) to a projet
+ */
+export const useAddListingDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addListingDocument>>, TError,{listingId: number;data: BodyType<DocumentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addListingDocument>>,
+        TError,
+        {listingId: number;data: BodyType<DocumentInput>},
+        TContext
+      > => {
+      return useMutation(getAddListingDocumentMutationOptions(options));
+    }
+
+export const getDeleteDocumentUrl = (documentId: number,) => {
+
+
+
+
+  return `/api/documents/${documentId}`
+}
+
+/**
+ * @summary Delete a document (owner or admin)
+ */
+export const deleteDocument = async (documentId: number, options?: RequestInit): Promise<DeleteSuccess> => {
+
+  return customFetch<DeleteSuccess>(getDeleteDocumentUrl(documentId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{documentId: number}, TContext> => {
+
+const mutationKey = ['deleteDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocument>>, {documentId: number}> = (props) => {
+          const {documentId} = props ?? {};
+
+          return  deleteDocument(documentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDocument>>>
+
+    export type DeleteDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a document (owner or admin)
+ */
+export const useDeleteDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{documentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDocument>>,
+        TError,
+        {documentId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteDocumentMutationOptions(options));
     }
 
 export const getGetMyFavoritesUrl = () => {

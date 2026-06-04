@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { type Language, dirForLanguage, translate } from "@/lib/i18n";
+import { type Language, dirForLanguage, localeForLanguage, translate } from "@/lib/i18n";
 
 const STORAGE_KEY = "nadlan-lang";
 
@@ -7,6 +7,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   dir: "ltr" | "rtl";
+  locale: string;
   t: (key: string) => string;
 }
 
@@ -23,6 +24,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
 
   const dir = dirForLanguage(language);
+  const locale = localeForLanguage(language);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -39,7 +41,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = (key: string) => translate(language, key);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, dir, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, dir, locale, t }}>
       {children}
     </LanguageContext.Provider>
   );

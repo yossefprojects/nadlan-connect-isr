@@ -17,6 +17,9 @@ import ListingDetail from "@/pages/listing-detail";
 import AnalyseIA from "@/pages/analyse-ia";
 import Reports from "@/pages/reports";
 import Dashboard from "@/pages/dashboard";
+import DashboardProgrammes from "@/pages/dashboard-programmes";
+import DashboardProgrammeEdit from "@/pages/dashboard-programme-edit";
+import ProgrammeDetail from "@/pages/programme-detail";
 import DashboardListingsNew from "@/pages/dashboard-listings-new";
 import DashboardListingsEdit from "@/pages/dashboard-listings-edit";
 import DashboardLeads from "@/pages/dashboard-leads";
@@ -38,6 +41,7 @@ function Router() {
       <Route path="/auth/register/agence" component={RegisterAgence} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
+      <Route path="/programme/:slug" component={ProgrammeDetail} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
       <Route path="/outils/mes-rapports" component={Reports} />
       
@@ -46,6 +50,9 @@ function Router() {
       <Route path="/dashboard/promoteur" component={Dashboard} />
       <Route path="/dashboard/agence" component={Dashboard} />
       <Route path="/dashboard/admin" component={Admin} />
+      <Route path="/dashboard/programmes" component={DashboardProgrammes} />
+      <Route path="/dashboard/programmes/new" component={DashboardProgrammeEdit} />
+      <Route path="/dashboard/programmes/:id/edit" component={DashboardProgrammeEdit} />
       <Route path="/dashboard/listings/new" component={DashboardListingsNew} />
       <Route path="/dashboard/listings/:id/edit" component={DashboardListingsEdit} />
       <Route path="/dashboard/leads" component={DashboardLeads} />

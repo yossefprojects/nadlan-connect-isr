@@ -8,12 +8,16 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./auth";
+import { programsTable } from "./programs";
 
 export const listingsTable = pgTable("listings", {
   id: serial("id").primaryKey(),
   ownerId: text("owner_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+  programId: integer("program_id").references(() => programsTable.id, {
+    onDelete: "set null",
+  }),
   type: text("type").notNull().default("resale"), // 'resale' | 'new_development'
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),

@@ -16,6 +16,12 @@ export default function DashboardListingsNew() {
   const createListing = useCreateListing();
   const addListingImage = useAddListingImage();
   const { t } = useLanguage();
+
+  const programIdParam =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("programId")
+      : null;
+  const programId = programIdParam ? Number(programIdParam) : undefined;
   
   const [formData, setFormData] = useState({
     title: "",
@@ -58,7 +64,8 @@ export default function DashboardListingsNew() {
           nbPieces: Number(formData.nbPieces),
           etage: formData.etage ? Number(formData.etage) : undefined,
           price: Number(formData.price),
-          type: formData.type
+          type: formData.type,
+          ...(programId != null ? { programId } : {})
         }
       });
 

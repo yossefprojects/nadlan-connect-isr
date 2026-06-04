@@ -38,7 +38,7 @@ export default function Dashboard() {
   const { data: stats, isLoading: isStatsLoading } = useGetDashboardStats();
   const { data: listingsData, isLoading: isListingsLoading } = useListListings();
   const { role } = useUserRole();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   if (isStatsLoading) return <div className="p-8">{t("common.loading")}</div>;
 
@@ -56,6 +56,13 @@ export default function Dashboard() {
             <Link href="/dashboard/mandates">
               <Button variant="outline" className="gap-2">
                 <Handshake className="h-4 w-4" /> {t("dashboard.myMandates")}
+              </Button>
+            </Link>
+          )}
+          {role === "developer" && (
+            <Link href="/dashboard/programmes">
+              <Button variant="outline" className="gap-2">
+                <Building className="h-4 w-4" /> {t("programs.title")}
               </Button>
             </Link>
           )}
@@ -208,7 +215,7 @@ export default function Dashboard() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{listing.ville}</td>
-                    <td className="px-6 py-4 text-muted-foreground">₪{listing.price.toLocaleString("he-IL")}</td>
+                    <td className="px-6 py-4 text-muted-foreground">₪{listing.price.toLocaleString(locale)}</td>
                     <td className="px-6 py-4">
                       <Badge variant="outline" className={
                         listing.status === "published" ? "border-emerald-200 text-emerald-700 bg-emerald-50" : ""

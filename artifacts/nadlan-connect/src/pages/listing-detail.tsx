@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "@/components/layout/language-provider";
 import { InvestmentScore } from "@/components/investment-score";
+import { DocumentManager } from "@/components/documents/document-manager";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +54,7 @@ export default function ListingDetail() {
   
   const { isAuthenticated } = useAuth();
   const { role } = useUserRole();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -362,17 +363,22 @@ export default function ListingDetail() {
               {listing.description || t("detail.noDescription")}
             </p>
           </div>
+
+          <div>
+            <h3 className="font-serif text-2xl font-bold text-primary mb-4">{t("documents.title")}</h3>
+            <DocumentManager listingId={listing.id} />
+          </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           <div className="bg-card border rounded-xl p-6 shadow-sm">
             <div className="text-3xl font-bold text-primary mb-2">
-              ₪{listing.price.toLocaleString("he-IL")}
+              ₪{listing.price.toLocaleString(locale)}
             </div>
             {listing.estimatedPrice && (
               <div className="text-sm font-medium text-emerald-600 mb-6">
-                {t("detail.marketEstimate")}: ₪{listing.estimatedPrice.toLocaleString("he-IL")}
+                {t("detail.marketEstimate")}: ₪{listing.estimatedPrice.toLocaleString(locale)}
               </div>
             )}
             
@@ -515,12 +521,12 @@ export default function ListingDetail() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t("detail.price")}</span>
-              <span className="font-medium">₪{listing.price.toLocaleString("he-IL")}</span>
+              <span className="font-medium">₪{listing.price.toLocaleString(locale)}</span>
             </div>
             {listing.estimatedPrice && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("detail.marketEstimateShort")}</span>
-                <span className="font-medium text-emerald-600">₪{listing.estimatedPrice.toLocaleString("he-IL")}</span>
+                <span className="font-medium text-emerald-600">₪{listing.estimatedPrice.toLocaleString(locale)}</span>
               </div>
             )}
             {listing.investmentScore != null && (

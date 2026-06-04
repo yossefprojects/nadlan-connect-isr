@@ -10,6 +10,8 @@ import mandatesRouter from "./mandates";
 import dashboardRouter from "./dashboard";
 import anthropicRouter from "./anthropic";
 import reportsRouter from "./reports";
+import programsRouter from "./programs";
+import documentsRouter from "./documents";
 
 const router: IRouter = Router();
 
@@ -24,5 +26,7 @@ router.use(mandatesRouter);
 router.use(dashboardRouter);
 router.use(anthropicRouter);
 router.use(reportsRouter);
+router.use(programsRouter);
+router.use(documentsRouter);
 
 export default router;

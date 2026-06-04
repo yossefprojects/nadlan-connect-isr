@@ -13,6 +13,8 @@ export interface Listing {
   slug: string;
   ownerId: string;
   /** @nullable */
+  programId?: number | null;
+  /** @nullable */
   ownerName?: string | null;
   /** @nullable */
   ownerAvatar?: string | null;

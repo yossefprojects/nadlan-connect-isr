@@ -8,6 +8,7 @@
 import type { ListingInputType } from './listingInputType';
 
 export interface ListingInput {
+  programId?: number;
   type: ListingInputType;
   /** @minLength 1 */
   title: string;

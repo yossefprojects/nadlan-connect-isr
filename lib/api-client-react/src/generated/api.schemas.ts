@@ -698,6 +698,8 @@ export interface Listing {
   slug: string;
   ownerId: string;
   /** @nullable */
+  programId?: number | null;
+  /** @nullable */
   ownerName?: string | null;
   /** @nullable */
   ownerAvatar?: string | null;
@@ -730,9 +732,44 @@ export interface ListingImage {
   position: number;
 }
 
+export type DocumentCategory = typeof DocumentCategory[keyof typeof DocumentCategory];
+
+
+export const DocumentCategory = {
+  photo: 'photo',
+  plan: 'plan',
+  authorization: 'authorization',
+} as const;
+
+export type DocumentVisibility = typeof DocumentVisibility[keyof typeof DocumentVisibility];
+
+
+export const DocumentVisibility = {
+  public: 'public',
+  private: 'private',
+} as const;
+
+export interface Document {
+  id: number;
+  /** @nullable */
+  programId?: number | null;
+  /** @nullable */
+  listingId?: number | null;
+  category: DocumentCategory;
+  visibility: DocumentVisibility;
+  /** Download URL for the document (access-controlled server-side). */
+  url: string;
+  /** @nullable */
+  fileName?: string | null;
+  /** @nullable */
+  mimeType?: string | null;
+  createdAt: string;
+}
+
 export interface ListingDetail {
   listing: Listing;
   images: ListingImage[];
+  documents?: Document[];
   isFavorited?: boolean;
 }
 
@@ -745,6 +782,7 @@ export const ListingInputType = {
 } as const;
 
 export interface ListingInput {
+  programId?: number;
   type: ListingInputType;
   /** @minLength 1 */
   title: string;
@@ -780,6 +818,8 @@ export const ListingUpdateStatus = {
 } as const;
 
 export interface ListingUpdate {
+  /** @nullable */
+  programId?: number | null;
   type?: ListingUpdateType;
   title?: string;
   description?: string;
@@ -831,6 +871,81 @@ export interface ListingsStats {
 export interface ListingImageInput {
   url: string;
   position: number;
+}
+
+export type ProgramStatus = typeof ProgramStatus[keyof typeof ProgramStatus];
+
+
+export const ProgramStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export interface Program {
+  id: number;
+  ownerId: string;
+  /** @nullable */
+  ownerName?: string | null;
+  slug: string;
+  title: string;
+  /** @nullable */
+  description?: string | null;
+  ville: string;
+  /** @nullable */
+  quartier?: string | null;
+  status: ProgramStatus;
+  /** @nullable */
+  coverImageUrl?: string | null;
+  projetsCount?: number;
+  createdAt: string;
+}
+
+export interface ProgramDetail {
+  program: Program;
+  projets: Listing[];
+  documents: Document[];
+}
+
+export interface ProgramInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  /** @minLength 1 */
+  ville: string;
+  quartier?: string;
+}
+
+export type ProgramUpdateStatus = typeof ProgramUpdateStatus[keyof typeof ProgramUpdateStatus];
+
+
+export const ProgramUpdateStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export interface ProgramUpdate {
+  title?: string;
+  description?: string;
+  ville?: string;
+  quartier?: string;
+  status?: ProgramUpdateStatus;
+}
+
+export type DocumentInputCategory = typeof DocumentInputCategory[keyof typeof DocumentInputCategory];
+
+
+export const DocumentInputCategory = {
+  photo: 'photo',
+  plan: 'plan',
+  authorization: 'authorization',
+} as const;
+
+export interface DocumentInput {
+  category: DocumentInputCategory;
+  /** @minLength 1 */
+  objectPath: string;
+  fileName?: string;
+  mimeType?: string;
 }
 
 export interface Favorite {
@@ -1024,6 +1139,11 @@ status?: string;
 ownerId?: string;
 limit?: number;
 offset?: number;
+};
+
+export type ListProgramsParams = {
+ownerId?: string;
+status?: string;
 };
 
 export type AdminListListingsParams = {

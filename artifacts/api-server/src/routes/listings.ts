@@ -5,6 +5,7 @@ import {
   listingImagesTable,
   favoritesTable,
   usersTable,
+  documentsTable,
 } from "@workspace/db";
 import { eq, and, gte, lte, sql, desc, count } from "drizzle-orm";
 import {
@@ -25,6 +26,7 @@ import {
 import { calcEstimation, calcInvestmentScore } from "../lib/engine";
 import { requireAdmin } from "../middlewares/authMiddleware";
 import { buildListingSlug } from "../lib/slug";
+import { serializeDocument, isAdmin } from "../lib/documents";
 
 const router = Router();
 
@@ -54,6 +56,7 @@ function serializeListing(
     id: l.id,
     slug: l.slug,
     ownerId: l.ownerId,
+    programId: l.programId ?? null,
     ownerName: owner
       ? owner.fullName ?? (owner.firstName && owner.lastName ? `${owner.firstName} ${owner.lastName}` : owner.firstName ?? null)
       : null,
@@ -236,7 +239,7 @@ router.get("/listings/:listingId", async (req, res): Promise<void> => {
     return;
   }
 
-  const [owner, images] = await Promise.all([
+  const [owner, images, docs] = await Promise.all([
     db
       .select()
       .from(usersTable)
@@ -248,7 +251,17 @@ router.get("/listings/:listingId", async (req, res): Promise<void> => {
       .from(listingImagesTable)
       .where(eq(listingImagesTable.listingId, listing.id))
       .orderBy(listingImagesTable.position),
+    db
+      .select()
+      .from(documentsTable)
+      .where(eq(documentsTable.listingId, listing.id))
+      .orderBy(documentsTable.createdAt),
   ]);
+
+  const viewerId = req.isAuthenticated() ? req.user!.id : null;
+  const canSeePrivate =
+    viewerId === listing.ownerId ||
+    (viewerId !== null && (await isAdmin(viewerId)));
 
   let isFavorited = false;
   if (req.isAuthenticated()) {
@@ -275,6 +288,9 @@ router.get("/listings/:listingId", async (req, res): Promise<void> => {
       url: img.url,
       position: img.position,
     })),
+    documents: docs
+      .filter((d) => d.visibility === "public" || canSeePrivate)
+      .map(serializeDocument),
     isFavorited,
   });
 });
@@ -313,6 +329,7 @@ router.post("/listings", async (req, res): Promise<void> => {
     .insert(listingsTable)
     .values({
       ownerId: req.user!.id,
+      programId: data.programId ?? null,
       type: data.type,
       title: data.title,
       slug,
