@@ -8,6 +8,7 @@ import {
 import type { SavedReport } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/components/layout/language-provider";
+import { localeForLanguage } from "@/lib/i18n";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +26,7 @@ import {
 } from "lucide-react";
 
 export default function Reports() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const { isAuthenticated } = useUserRole();
   const queryClient = useQueryClient();
@@ -40,10 +41,11 @@ export default function Reports() {
     setDownloadingId(r.id);
     try {
       const mod = await import("@/lib/report-pdf");
+      const locale = localeForLanguage(language);
       if (r.kind === "analysis" && r.analysis) {
-        await mod.downloadAnalysisPdf(r.listingText ?? "", r.analysis);
+        await mod.downloadAnalysisPdf(r.listingText ?? "", r.analysis, locale);
       } else if (r.kind === "chat" && r.chatMarkdown) {
-        await mod.downloadChatPdf(r.chatMarkdown, r.title);
+        await mod.downloadChatPdf(r.chatMarkdown, r.title, locale);
       }
     } catch {
       toast({ title: t("analyse.pdfFailed"), variant: "destructive" });
@@ -125,11 +127,14 @@ export default function Reports() {
                   <div className="flex-1">
                     <h3 className="line-clamp-2 font-medium text-[#1A3A5C]">{r.title}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {new Date(r.createdAt).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {new Date(r.createdAt).toLocaleDateString(
+                        localeForLanguage(language),
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
                     </p>
                   </div>
                   <div className="flex gap-2">

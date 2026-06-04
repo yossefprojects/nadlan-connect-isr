@@ -268,11 +268,13 @@ function Bullet({ title, body }: { title: string; body: string }) {
 function ReportDoc({
   text,
   r,
+  locale,
 }: {
   text: string;
   r: AnalyzePropertyResult;
+  locale: string;
 }) {
-  const date = new Date().toLocaleDateString("fr-FR", {
+  const date = new Date().toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -704,8 +706,11 @@ function ReportDoc({
 export async function downloadAnalysisPdf(
   text: string,
   result: AnalyzePropertyResult,
+  locale = "fr-FR",
 ): Promise<void> {
-  const blob = await pdf(<ReportDoc text={text} r={result} />).toBlob();
+  const blob = await pdf(
+    <ReportDoc text={text} r={result} locale={locale} />,
+  ).toBlob();
   triggerDownload(blob, `rapport-nadlanconnect-${Date.now()}.pdf`);
 }
 
@@ -769,8 +774,16 @@ function parseMarkdown(md: string): MdBlock[] {
   return blocks;
 }
 
-function ChatDoc({ markdown, title }: { markdown: string; title: string }) {
-  const date = new Date().toLocaleDateString("fr-FR", {
+function ChatDoc({
+  markdown,
+  title,
+  locale,
+}: {
+  markdown: string;
+  title: string;
+  locale: string;
+}) {
+  const date = new Date().toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -838,7 +851,10 @@ function ChatDoc({ markdown, title }: { markdown: string; title: string }) {
 export async function downloadChatPdf(
   markdown: string,
   title: string,
+  locale = "fr-FR",
 ): Promise<void> {
-  const blob = await pdf(<ChatDoc markdown={markdown} title={title} />).toBlob();
+  const blob = await pdf(
+    <ChatDoc markdown={markdown} title={title} locale={locale} />,
+  ).toBlob();
   triggerDownload(blob, `conversation-shamai-${Date.now()}.pdf`);
 }
