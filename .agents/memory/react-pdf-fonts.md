@@ -25,3 +25,12 @@ The built-in `Helvetica` can only render WinAnsi glyphs. Two silent corruptions 
 - Any **LLM- or user-supplied free text** can contain `₪`, `≈`, en/em dashes, smart quotes, and narrow/thin spaces. Run it through a `sanitize()` that maps these to ASCII (`₪→NIS`, `≈→~`, `−–—→-`, smart quotes→`'`/`"`, exotic spaces→` `) before putting it in a `<Text>`.
 
 **Why:** these failures are invisible in code review and only show up in the rendered PDF; they were a real user-reported bug. The `×` (U+00D7), `·` (U+00B7), `²` (U+00B2), `—` em dash, and accented Latin are all in WinAnsi and render fine — only the above need handling.
+
+## Localizing the report (FR/EN/HE) + Hebrew font + RTL
+
+The report's static chrome is translated by passing the active `language` (not a precomputed `locale`) into the doc builders; they call `translate(language, key)` over a `report.*` key namespace in `i18n.ts`. AI-generated content is already localized via the analysis contract — leave it untouched.
+
+- **Helvetica and DM Serif Display have NO Hebrew glyphs.** For `he`, register a **static** Hebrew TTF and use it for everything; for `fr`/`en` keep Helvetica/DM Serif. We bundled **Heebo Regular + Bold** (verified full Latin+Hebrew+digit coverage via fonttools). The Google variable Heebo and the Hebrew-only subset both failed — variable fonts don't parse, and subsets dropped Latin digits.
+- Make styles a **`makeStyles(fonts, rtl)` factory**, not a static `StyleSheet`. Switch `fontFamily` by language and flip *physical* props for RTL: page `direction: "rtl"`, and the side of margins/padding/borders (section-number badge, bullet/anomaly accent border). Label/value flex rows reverse naturally under `direction: rtl`.
+- **Verify headlessly before shipping fonts:** `node` + `renderToBuffer` with `Font.register({src: "src/assets/fonts/X.ttf"})` and a Hebrew+RTL test page; a valid `%PDF-` buffer confirms the font parses (catches the variable-font rejection that otherwise only throws at `toBlob()` in the browser).
+- Currency/number formatting stays as-is (`NIS`, ASCII-space grouping, comma decimals) — see the WinAnsi gotcha above; localizing those is a separate follow-up.

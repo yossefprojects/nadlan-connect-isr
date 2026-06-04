@@ -13,7 +13,6 @@ import type {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "@/components/layout/language-provider";
-import { localeForLanguage } from "@/lib/i18n";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -264,7 +263,7 @@ export default function AnalyseIA() {
     setExporting(true);
     try {
       const { downloadAnalysisPdf } = await import("@/lib/report-pdf");
-      await downloadAnalysisPdf(analyzedText, result, localeForLanguage(language));
+      await downloadAnalysisPdf(analyzedText, result, language);
     } catch {
       toast({
         title: t("analyse.pdfFailed"),
@@ -346,7 +345,7 @@ export default function AnalyseIA() {
       await downloadChatPdf(
         chatToMarkdown(),
         (firstUser?.content ?? "").slice(0, 80),
-        localeForLanguage(language),
+        language,
       );
     } catch {
       toast({

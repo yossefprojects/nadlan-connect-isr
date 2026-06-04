@@ -41,11 +41,10 @@ export default function Reports() {
     setDownloadingId(r.id);
     try {
       const mod = await import("@/lib/report-pdf");
-      const locale = localeForLanguage(language);
       if (r.kind === "analysis" && r.analysis) {
-        await mod.downloadAnalysisPdf(r.listingText ?? "", r.analysis, locale);
+        await mod.downloadAnalysisPdf(r.listingText ?? "", r.analysis, language);
       } else if (r.kind === "chat" && r.chatMarkdown) {
-        await mod.downloadChatPdf(r.chatMarkdown, r.title, locale);
+        await mod.downloadChatPdf(r.chatMarkdown, r.title, language);
       }
     } catch {
       toast({ title: t("analyse.pdfFailed"), variant: "destructive" });
