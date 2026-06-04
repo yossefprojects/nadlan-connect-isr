@@ -63,7 +63,14 @@ export default function Login() {
         setLocation("/");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("login.genericError"));
+      const status = (err as { status?: number })?.status;
+      if (status === 409) {
+        setError(t("login.emailExists"));
+      } else if (status === 400 || status === 401) {
+        setError(t("login.failedDesc"));
+      } else {
+        setError(t("login.genericError"));
+      }
     } finally {
       setSubmitting(false);
     }

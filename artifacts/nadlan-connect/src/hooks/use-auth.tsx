@@ -56,7 +56,11 @@ async function postAuth(
     error?: string;
   };
   if (!res.ok || !data.user) {
-    throw new Error(data.error || fallbackError);
+    const error = new Error(data.error || fallbackError) as Error & {
+      status?: number;
+    };
+    error.status = res.status;
+    throw error;
   }
   return data.user;
 }

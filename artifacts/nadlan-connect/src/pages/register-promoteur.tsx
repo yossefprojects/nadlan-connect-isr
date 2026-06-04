@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/components/layout/language-provider";
 import { Building2, CheckCircle2, Loader2 } from "lucide-react";
 
 const NAVY = "#1A3A5C";
@@ -25,6 +26,7 @@ type PlanId = (typeof PLANS)[number]["id"];
 
 export default function RegisterPromoteur() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const register = useRegisterPromoteur();
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
@@ -54,15 +56,15 @@ export default function RegisterPromoteur() {
       !form.nbProgrammes ||
       !form.password
     ) {
-      toast({ title: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
+      toast({ title: t("proRegister.fillRequired"), variant: "destructive" });
       return;
     }
     if (form.password.length < 8) {
-      toast({ title: "Le mot de passe doit contenir au moins 8 caractères.", variant: "destructive" });
+      toast({ title: t("proRegister.passwordMin"), variant: "destructive" });
       return;
     }
     if (!form.cgu) {
-      toast({ title: "Vous devez accepter les CGU.", variant: "destructive" });
+      toast({ title: t("proRegister.acceptCgu"), variant: "destructive" });
       return;
     }
 
@@ -89,8 +91,8 @@ export default function RegisterPromoteur() {
       toast({
         title:
           status === 409
-            ? "Un compte existe déjà avec cet email."
-            : "Une erreur est survenue. Veuillez réessayer.",
+            ? t("proRegister.emailExists")
+            : t("proRegister.genericError"),
         variant: "destructive",
       });
     }

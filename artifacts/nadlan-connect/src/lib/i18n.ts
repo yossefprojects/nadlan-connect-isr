@@ -196,6 +196,12 @@ const fr: Dict = {
   "login.agency": "Agence",
   "login.developer": "Promoteur",
   "login.genericError": "Une erreur est survenue.",
+  "login.emailExists": "Un compte existe déjà avec cet email.",
+  "proRegister.fillRequired": "Veuillez remplir tous les champs obligatoires.",
+  "proRegister.passwordMin": "Le mot de passe doit contenir au moins 8 caractères.",
+  "proRegister.acceptCgu": "Vous devez accepter les CGU.",
+  "proRegister.emailExists": "Un compte existe déjà avec cet email.",
+  "proRegister.genericError": "Une erreur est survenue. Veuillez réessayer.",
   "auth.redirecting": "Redirection…",
 
   // Listing detail
@@ -695,6 +701,12 @@ const en: Dict = {
   "login.agency": "Agency",
   "login.developer": "Developer",
   "login.genericError": "An error occurred.",
+  "login.emailExists": "An account already exists with this email.",
+  "proRegister.fillRequired": "Please fill in all required fields.",
+  "proRegister.passwordMin": "The password must contain at least 8 characters.",
+  "proRegister.acceptCgu": "You must accept the terms of use.",
+  "proRegister.emailExists": "An account already exists with this email.",
+  "proRegister.genericError": "An error occurred. Please try again.",
   "auth.redirecting": "Redirecting…",
 
   "detail.loading": "Loading…",
@@ -1192,6 +1204,12 @@ const he: Dict = {
   "login.agency": "סוכנות",
   "login.developer": "יזם",
   "login.genericError": "אירעה שגיאה.",
+  "login.emailExists": "כבר קיים חשבון עם אימייל זה.",
+  "proRegister.fillRequired": "נא למלא את כל שדות החובה.",
+  "proRegister.passwordMin": "הסיסמה חייבת להכיל לפחות 8 תווים.",
+  "proRegister.acceptCgu": "עליך לאשר את תנאי השימוש.",
+  "proRegister.emailExists": "כבר קיים חשבון עם אימייל זה.",
+  "proRegister.genericError": "אירעה שגיאה. נא לנסות שוב.",
   "auth.redirecting": "מעביר…",
 
   "detail.loading": "טוען…",

@@ -119,9 +119,8 @@ export default function ListingDetail() {
           setShowMandateForm(false);
           toast({ title: t("detail.mandateSent"), description: t("detail.mandateSentDesc") });
         },
-        onError: (err: unknown) => {
-          const message = err instanceof Error ? err.message : t("detail.sendError");
-          toast({ title: t("detail.error"), description: message, variant: "destructive" });
+        onError: () => {
+          toast({ title: t("detail.error"), description: t("detail.sendError"), variant: "destructive" });
         }
       }
     );

@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/components/layout/language-provider";
 import { CheckCircle2, KeyRound, Loader2 } from "lucide-react";
 
 const GOLD = "#C9A84C";
@@ -36,6 +37,7 @@ type SpecialtyId = (typeof SPECIALTIES)[number]["id"];
 
 export default function RegisterAgence() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const register = useRegisterAgence();
   const [submitted, setSubmitted] = useState(false);
   const [specialties, setSpecialties] = useState<SpecialtyId[]>([]);
@@ -69,15 +71,15 @@ export default function RegisterAgence() {
       !form.nbAgents ||
       !form.password
     ) {
-      toast({ title: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
+      toast({ title: t("proRegister.fillRequired"), variant: "destructive" });
       return;
     }
     if (form.password.length < 8) {
-      toast({ title: "Le mot de passe doit contenir au moins 8 caractères.", variant: "destructive" });
+      toast({ title: t("proRegister.passwordMin"), variant: "destructive" });
       return;
     }
     if (!form.cgu) {
-      toast({ title: "Vous devez accepter les CGU.", variant: "destructive" });
+      toast({ title: t("proRegister.acceptCgu"), variant: "destructive" });
       return;
     }
 
@@ -104,8 +106,8 @@ export default function RegisterAgence() {
       toast({
         title:
           status === 409
-            ? "Un compte existe déjà avec cet email."
-            : "Une erreur est survenue. Veuillez réessayer.",
+            ? t("proRegister.emailExists")
+            : t("proRegister.genericError"),
         variant: "destructive",
       });
     }
