@@ -255,7 +255,12 @@ export default function RegisterAgence() {
                 onCheckedChange={(v) => setForm({ ...form, cgu: v === true })}
                 className="mt-0.5"
               />
-              <span className="text-sm text-muted-foreground">{t("proRegister.cgu")} *</span>
+              <span className="text-sm text-muted-foreground">
+                {t("proRegister.cguPrefix")}{" "}
+                <Link href="/cgu" className="text-primary underline">{t("proRegister.cguLink")}</Link>
+                {" "}{t("proRegister.cguAnd")}{" "}
+                <Link href="/cgv" className="text-primary underline">{t("proRegister.cgvLink")}</Link> *
+              </span>
             </label>
 
             <Button

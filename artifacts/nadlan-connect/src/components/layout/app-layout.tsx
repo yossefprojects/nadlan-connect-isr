@@ -99,6 +99,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="border-t border-white/5 py-5 text-center">
+          <div className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
+            <Link href="/cgu" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.cgu")}</Link>
+            <span className="text-white/10">·</span>
+            <Link href="/cgv" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.cgv")}</Link>
+          </div>
           <p className="text-[11px] text-white/20">
             © {new Date().getFullYear()} NadlanConnect · {t("footer.disclaimer")}
           </p>
