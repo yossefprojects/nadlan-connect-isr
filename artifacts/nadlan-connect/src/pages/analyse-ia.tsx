@@ -13,6 +13,7 @@ import type {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "@/components/layout/language-provider";
+import type { Language } from "@/lib/i18n";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,14 +65,32 @@ const SEVERITY_STYLE: Record<string, string> = {
   high: "bg-red-100 text-red-800 border-red-200",
 };
 
-function fmtShekel(n: number | null | undefined): string {
-  if (n === null || n === undefined) return "—";
-  return new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " ₪";
-}
+// Number/currency formatting adapts to the reader's language, mirroring the
+// PDF report (see report-pdf.tsx `makeFmt`):
+// - FR: ASCII-space thousands, decimal comma, "8,5 %"
+// - EN/HE: comma thousands, decimal point, "8.5%"
+// On screen we always keep the ₪ glyph (unlike the PDF, where Helvetica has
+// no ₪ glyph and FR/EN fall back to "NIS").
+function makeFmt(lang: Language) {
+  const isFr = lang === "fr";
+  const groupSep = isFr ? " " : ",";
+  const decSep = isFr ? "," : ".";
+  const pctSep = isFr ? " " : "";
 
-function fmtPct(n: number | null | undefined): string {
-  if (n === null || n === undefined) return "—";
-  return n.toFixed(1).replace(".", ",") + " %";
+  function group(v: number): string {
+    return Math.round(v)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, groupSep);
+  }
+  function fmtShekel(n: number | null | undefined): string {
+    if (n === null || n === undefined || !Number.isFinite(n)) return "—";
+    return group(n) + " ₪";
+  }
+  function fmtPct(n: number | null | undefined): string {
+    if (n === null || n === undefined || !Number.isFinite(n)) return "—";
+    return n.toFixed(1).replace(".", decSep) + pctSep + "%";
+  }
+  return { fmtShekel, fmtPct };
 }
 
 function StatRow({ label, value }: { label: string; value: string }) {
@@ -137,6 +156,7 @@ function composeFromFields(qf: QuickFields): string {
 export default function AnalyseIA() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
+  const { fmtShekel, fmtPct } = makeFmt(language);
   const { isAuthenticated } = useUserRole();
 
   const [mode, setMode] = useState<"analysis" | "chat">("analysis");
