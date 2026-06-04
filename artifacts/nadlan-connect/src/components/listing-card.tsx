@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Listing } from "@workspace/api-client-react";
 import { InvestmentScore } from "./investment-score";
-import { MapPin, Maximize, Home as HomeIcon } from "lucide-react";
+import { MapPin, Maximize, Home as HomeIcon, Heart } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
 
 interface ListingCardProps {
   listing: Listing;
   showStatus?: boolean;
+  onRemove?: () => void;
+  isRemoving?: boolean;
 }
 
 const CITY_LABELS: Record<string, string> = {
@@ -20,7 +22,7 @@ const CITY_LABELS: Record<string, string> = {
   ash: "Ashdod",
 };
 
-export function ListingCard({ listing, showStatus }: ListingCardProps) {
+export function ListingCard({ listing, showStatus, onRemove, isRemoving }: ListingCardProps) {
   const { t } = useLanguage();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("he-IL", {
@@ -57,6 +59,22 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
               </Badge>
             )}
           </div>
+          {onRemove && (
+            <button
+              type="button"
+              aria-label={t("card.removeFavorite")}
+              title={t("card.removeFavorite")}
+              disabled={isRemoving}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="absolute top-3 right-3 rtl:right-auto rtl:left-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Heart className="h-5 w-5 fill-current" />
+            </button>
+          )}
         </div>
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start gap-4">

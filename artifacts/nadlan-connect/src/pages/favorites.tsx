@@ -1,10 +1,39 @@
-import { useGetMyFavorites } from "@workspace/api-client-react";
+import {
+  useGetMyFavorites,
+  useRemoveFavorite,
+  getGetMyFavoritesQueryKey,
+  type Listing,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ListingCard } from "@/components/listing-card";
 import { useLanguage } from "@/components/layout/language-provider";
 
 export default function Favorites() {
   const { data: favorites, isLoading } = useGetMyFavorites();
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
+  const removeFavorite = useRemoveFavorite();
+
+  const handleRemove = (listingId: number) => {
+    const queryKey = getGetMyFavoritesQueryKey();
+    const previous = queryClient.getQueryData<Listing[]>(queryKey);
+    queryClient.setQueryData<Listing[]>(queryKey, old =>
+      old?.filter(l => l.id !== listingId)
+    );
+    removeFavorite.mutate(
+      { listingId },
+      {
+        onError: () => {
+          if (previous) {
+            queryClient.setQueryData(queryKey, previous);
+          }
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey });
+        },
+      }
+    );
+  };
 
   return (
     <div className="container py-8 max-w-6xl">
@@ -23,7 +52,12 @@ export default function Favorites() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites?.map(listing => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              onRemove={() => handleRemove(listing.id)}
+              isRemoving={removeFavorite.isPending && removeFavorite.variables?.listingId === listing.id}
+            />
           ))}
         </div>
       )}

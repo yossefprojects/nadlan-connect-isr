@@ -182,6 +182,7 @@ const fr: Dict = {
   "card.archived": "Archivé",
   "card.rooms": "pièces",
   "card.estimation": "Estimation",
+  "card.removeFavorite": "Retirer des favoris",
   "listings.filter": "Filtrer",
 
   // Login / Auth
@@ -895,6 +896,7 @@ const en: Dict = {
   "card.archived": "Archived",
   "card.rooms": "rooms",
   "card.estimation": "Estimate",
+  "card.removeFavorite": "Remove from favorites",
   "listings.filter": "Filter",
 
   "login.title": "Sign in",
@@ -1605,6 +1607,7 @@ const he: Dict = {
   "card.archived": "בארכיון",
   "card.rooms": "חדרים",
   "card.estimation": "הערכה",
+  "card.removeFavorite": "הסר מהמועדפים",
   "listings.filter": "סינון",
 
   "login.title": "התחברות",
