@@ -97,6 +97,7 @@ export default function LeadDetail() {
 
       <div className="bg-background border rounded-xl p-3 shadow-sm flex items-end gap-2">
         <Textarea 
+          dir="auto"
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
           placeholder={t("leadDetail.messagePlaceholder")}

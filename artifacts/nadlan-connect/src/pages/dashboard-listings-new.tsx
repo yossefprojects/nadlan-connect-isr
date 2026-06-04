@@ -91,6 +91,7 @@ export default function DashboardListingsNew() {
           <div className="space-y-2">
             <label className="text-sm font-medium">{t("listingForm.fieldTitle")}</label>
             <Input 
+              dir="auto"
               value={formData.title} 
               onChange={e => setFormData({...formData, title: e.target.value})} 
               placeholder={t("listingForm.titlePlaceholder")}
@@ -128,6 +129,7 @@ export default function DashboardListingsNew() {
           <div className="space-y-2">
             <label className="text-sm font-medium">{t("listingForm.fieldQuartier")}</label>
             <Input 
+              dir="auto"
               value={formData.quartier} 
               onChange={e => setFormData({...formData, quartier: e.target.value})} 
             />
@@ -171,6 +173,7 @@ export default function DashboardListingsNew() {
         <div className="space-y-2">
           <label className="text-sm font-medium">{t("listingForm.fieldDescription")}</label>
           <Textarea 
+            dir="auto"
             value={formData.description} 
             onChange={e => setFormData({...formData, description: e.target.value})} 
             rows={5}
