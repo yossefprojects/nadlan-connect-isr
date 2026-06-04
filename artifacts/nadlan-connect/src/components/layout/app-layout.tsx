@@ -2,6 +2,7 @@ import { Navbar } from "./navbar";
 import { MarketBar } from "./market-bar";
 import { useLanguage } from "./language-provider";
 import { Link } from "wouter";
+import { Calculator } from "lucide-react";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
@@ -12,6 +13,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 w-full relative">
         {children}
       </main>
+      <a
+        href="https://israel-simzip.replit.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t("nav.simulator")}
+        className="fixed bottom-5 right-5 rtl:right-auto rtl:left-5 z-50 flex items-center gap-2 rounded-full bg-[#C9A84C] px-5 py-3 text-sm font-semibold text-[#0F2235] shadow-lg shadow-black/20 transition-transform hover:scale-105 hover:bg-[#d8b95e]"
+      >
+        <Calculator className="h-5 w-5" />
+        <span>{t("nav.simulator")}</span>
+      </a>
       <footer className="bg-[#0F2235] text-[#6B7280] border-t-[0.5px] border-[#C9A84C]">
         <div className="container py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">

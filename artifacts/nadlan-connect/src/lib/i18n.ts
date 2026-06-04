@@ -25,6 +25,7 @@ type Dict = Record<string, string>;
 const fr: Dict = {
   // Navbar
   "nav.home": "Accueil",
+  "nav.simulator": "Simulateur",
   "nav.properties": "Propriétés",
   "nav.aiAnalysis": "Analyse IA",
   "nav.favorites": "Favoris",
@@ -639,6 +640,7 @@ const fr: Dict = {
 
 const en: Dict = {
   "nav.home": "Home",
+  "nav.simulator": "Simulator",
   "nav.properties": "Properties",
   "nav.aiAnalysis": "AI Analysis",
   "nav.favorites": "Favorites",
@@ -1243,6 +1245,7 @@ const en: Dict = {
 
 const he: Dict = {
   "nav.home": "בית",
+  "nav.simulator": "סימולטור",
   "nav.properties": "נכסים",
   "nav.aiAnalysis": "ניתוח בינה מלאכותית",
   "nav.favorites": "מועדפים",
