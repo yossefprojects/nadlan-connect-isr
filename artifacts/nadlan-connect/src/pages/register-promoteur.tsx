@@ -18,8 +18,9 @@ import { Building2, CheckCircle2, Loader2 } from "lucide-react";
 const NAVY = "#1A3A5C";
 
 const PLANS = [
-  { id: "starter", name: "Starter", price: "990₪" },
-  { id: "pro", name: "Pro", price: "2490₪" },
+  { id: "free", name: "Gratuit", price: "0₪" },
+  { id: "starter", name: "Starter", price: "14,8₪" },
+  { id: "pro", name: "Pro", price: "148₪" },
 ] as const;
 
 type PlanId = (typeof PLANS)[number]["id"];
@@ -39,7 +40,7 @@ export default function RegisterPromoteur() {
     ville: "",
     nbProgrammes: "",
     website: "",
-    plan: "starter" as PlanId,
+    plan: "free" as PlanId,
     password: "",
     cgu: false,
   });
@@ -186,7 +187,7 @@ export default function RegisterPromoteur() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t("proRegister.choosePlan")} *</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {PLANS.map((plan) => {
                   const selected = form.plan === plan.id;
                   return (
@@ -198,9 +199,13 @@ export default function RegisterPromoteur() {
                         selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                       }`}
                     >
-                      <div className="font-semibold text-primary">{plan.name}</div>
+                      <div className="font-semibold text-primary">
+                        {plan.id === "free" ? t("proRegister.planFree") : plan.name}
+                      </div>
                       <div className="text-2xl font-bold text-primary">{plan.price}</div>
-                      <div className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {plan.id === "free" ? "\u00A0" : t("proRegister.perMonth")}
+                      </div>
                     </button>
                   );
                 })}

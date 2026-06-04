@@ -2063,7 +2063,7 @@ components:
           type: string
         plan:
           type: string
-          enum: [starter, pro]
+          enum: [free, starter, pro]
         password:
           type: string
           minLength: 8
@@ -2103,7 +2103,7 @@ components:
             enum: [residentiel_neuf, investissement, luxe, tama38, diaspora_francophone, commercial]
         plan:
           type: string
-          enum: [starter, pro]
+          enum: [free, starter, pro]
         password:
           type: string
           minLength: 8

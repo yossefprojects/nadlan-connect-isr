@@ -530,6 +530,7 @@ export type PromoteurRegistrationInputPlan = typeof PromoteurRegistrationInputPl
 
 
 export const PromoteurRegistrationInputPlan = {
+  free: 'free',
   starter: 'starter',
   pro: 'pro',
 } as const;
@@ -575,6 +576,7 @@ export type AgenceRegistrationInputPlan = typeof AgenceRegistrationInputPlan[key
 
 
 export const AgenceRegistrationInputPlan = {
+  free: 'free',
   starter: 'starter',
   pro: 'pro',
 } as const;

@@ -10,6 +10,7 @@ export type PromoteurRegistrationInputPlan = typeof PromoteurRegistrationInputPl
 
 
 export const PromoteurRegistrationInputPlan = {
+  free: 'free',
   starter: 'starter',
   pro: 'pro',
 } as const;

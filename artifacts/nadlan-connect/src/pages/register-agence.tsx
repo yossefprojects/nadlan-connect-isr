@@ -18,8 +18,9 @@ import { CheckCircle2, KeyRound, Loader2 } from "lucide-react";
 const GOLD = "#C9A84C";
 
 const PLANS = [
-  { id: "starter", name: "Starter", price: "490₪" },
-  { id: "pro", name: "Pro", price: "990₪" },
+  { id: "free", name: "Gratuit", price: "0₪" },
+  { id: "starter", name: "Starter", price: "14,8₪" },
+  { id: "pro", name: "Pro", price: "148₪" },
 ] as const;
 
 type PlanId = (typeof PLANS)[number]["id"];
@@ -50,7 +51,7 @@ export default function RegisterAgence() {
     licenseNumber: "",
     ville: "",
     nbAgents: "",
-    plan: "starter" as PlanId,
+    plan: "free" as PlanId,
     password: "",
     cgu: false,
   });
@@ -210,7 +211,7 @@ export default function RegisterAgence() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">{t("proRegister.choosePlan")} *</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {PLANS.map((plan) => {
                   const selected = form.plan === plan.id;
                   return (
@@ -225,9 +226,13 @@ export default function RegisterAgence() {
                           : { borderColor: "hsl(var(--border))" }
                       }
                     >
-                      <div className="font-semibold text-primary">{plan.name}</div>
+                      <div className="font-semibold text-primary">
+                        {plan.id === "free" ? t("proRegister.planFree") : plan.name}
+                      </div>
                       <div className="text-2xl font-bold text-primary">{plan.price}</div>
-                      <div className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {plan.id === "free" ? "\u00A0" : t("proRegister.perMonth")}
+                      </div>
                     </button>
                   );
                 })}

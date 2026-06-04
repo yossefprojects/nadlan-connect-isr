@@ -245,7 +245,7 @@ export const RegisterPromoteurBody = zod.object({
   "ville": zod.string().min(1),
   "nbProgrammes": zod.number().min(registerPromoteurBodyNbProgrammesMin),
   "website": zod.string().optional(),
-  "plan": zod.enum(['starter', 'pro']),
+  "plan": zod.enum(['free', 'starter', 'pro']),
   "password": zod.string().min(registerPromoteurBodyPasswordMin),
   "cguAccepted": zod.boolean()
 })
@@ -275,7 +275,7 @@ export const RegisterAgenceBody = zod.object({
   "ville": zod.string().min(1),
   "nbAgents": zod.number().min(registerAgenceBodyNbAgentsMin),
   "specialties": zod.array(zod.enum(['residentiel_neuf', 'investissement', 'luxe', 'tama38', 'diaspora_francophone', 'commercial'])).optional(),
-  "plan": zod.enum(['starter', 'pro']),
+  "plan": zod.enum(['free', 'starter', 'pro']),
   "password": zod.string().min(registerAgenceBodyPasswordMin),
   "cguAccepted": zod.boolean()
 })
