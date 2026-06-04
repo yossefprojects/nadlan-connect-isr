@@ -1,2 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /favorites
+Disallow: /leads
+
+Sitemap: https://nadlanconnect.replit.app/sitemap.xml

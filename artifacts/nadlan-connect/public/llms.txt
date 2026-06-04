@@ -1,0 +1,35 @@
+# NadlanConnect
+
+> NadlanConnect is a B2B2C Israeli real estate platform connecting buyers, real estate agents, and developers. It offers property listings with AI-powered price estimation and investment scoring, new construction programmes, and an AI property analysis tool.
+
+## About
+
+NadlanConnect helps users discover, evaluate, and invest in Israeli real estate. The platform is available in French (default), English, and Hebrew, with full RTL support for Hebrew.
+
+## Public Pages
+
+- [Home](https://nadlanconnect.replit.app/): Platform overview and featured listings.
+- [Property Listings](https://nadlanconnect.replit.app/listings): Browse and filter all active property listings by city, type, price, and surface area. Each listing includes an estimated market price and an investment score (0–100).
+- [Property Detail](https://nadlanconnect.replit.app/listings/:slug): Individual property page with full details, gallery, estimated price, investment score, and contact form.
+- [New Construction Programmes](https://nadlanconnect.replit.app/programme/:slug): Detail pages for new construction programmes from verified developers. Includes unit types, delivery dates, and associated listings.
+- [AI Property Analysis](https://nadlanconnect.replit.app/outils/analyse-ia): Paste any property description to receive a Claude-powered structured investment analysis — features, anomaly detection, market price per m², rental yield estimate, renovation budget, urban-renewal potential (TAMA38/Pinoui Binoui), and an overall recommendation.
+- [General Terms of Use (CGU)](https://nadlanconnect.replit.app/cgu): Legal terms governing use of the platform.
+- [General Terms of Sale (CGV)](https://nadlanconnect.replit.app/cgv): Legal terms governing transactions on the platform.
+
+## Sitemap
+
+The full machine-readable sitemap is at: https://nadlanconnect.replit.app/sitemap.xml
+
+## Content Notes
+
+- Property detail URLs follow the pattern `/listings/:slug` where slugs are SEO-friendly strings derived from the property title and city (e.g., `/listings/appartement-4p-tel-aviv-hayarkon`).
+- Programme detail URLs follow the pattern `/programme/:slug`.
+- All listing and programme pages reflect live inventory — content changes as properties are added, sold, or removed.
+- The AI analysis tool (`/outils/analyse-ia`) is public and does not require an account.
+- Authenticated sections (buyer dashboard, agent/developer pro dashboard, admin panel) are private and should not be cited or indexed.
+
+## Languages
+
+French (FR) — default  
+English (EN)  
+Hebrew (HE) — right-to-left
