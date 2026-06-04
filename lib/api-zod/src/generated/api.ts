@@ -228,6 +228,7 @@ export const AdminUpdateUserResponse = zod.object({
 
 
 
+
 export const registerPromoteurBodyNbProgrammesMin = 0;
 
 export const registerPromoteurBodyPasswordMin = 8;
@@ -240,6 +241,7 @@ export const RegisterPromoteurBody = zod.object({
   "email": zod.string().email(),
   "phone": zod.string().optional(),
   "companyName": zod.string().min(1),
+  "companyNumber": zod.string().min(1).describe('Israeli company registration number (ח״פ \/ Teudat Hitagdout)'),
   "ville": zod.string().min(1),
   "nbProgrammes": zod.number().min(registerPromoteurBodyNbProgrammesMin),
   "website": zod.string().optional(),
@@ -299,6 +301,7 @@ export const AdminListProfilesResponseItem = zod.object({
   "status": zod.string(),
   "licenceStatut": zod.enum(['en_attente', 'verifie', 'rejete']),
   "licenseNumber": zod.string().nullish(),
+  "companyNumber": zod.string().nullish(),
   "nbAgents": zod.number().nullish(),
   "nbProgrammes": zod.number().nullish(),
   "website": zod.string().nullish(),
@@ -332,6 +335,7 @@ export const AdminUpdateLicenceStatutResponse = zod.object({
   "status": zod.string(),
   "licenceStatut": zod.enum(['en_attente', 'verifie', 'rejete']),
   "licenseNumber": zod.string().nullish(),
+  "companyNumber": zod.string().nullish(),
   "nbAgents": zod.number().nullish(),
   "nbProgrammes": zod.number().nullish(),
   "website": zod.string().nullish(),

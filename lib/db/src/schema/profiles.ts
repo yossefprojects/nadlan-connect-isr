@@ -28,6 +28,7 @@ export const profilesTable = pgTable("profiles", {
   // Promoteur-specific
   nbProgrammes: integer("nb_programmes"),
   website: text("website"),
+  companyNumber: text("company_number"), // ח״פ / Teudat Hitagdout (Israeli company reg. number)
   // Agence-specific
   licenseNumber: text("license_number"), // Risha'yon
   nbAgents: integer("nb_agents"),

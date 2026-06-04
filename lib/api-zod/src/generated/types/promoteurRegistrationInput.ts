@@ -16,6 +16,11 @@ export interface PromoteurRegistrationInput {
   phone?: string;
   /** @minLength 1 */
   companyName: string;
+  /**
+     * Israeli company registration number (ח״פ / Teudat Hitagdout)
+     * @minLength 1
+     */
+  companyNumber: string;
   /** @minLength 1 */
   ville: string;
   /** @minimum 0 */

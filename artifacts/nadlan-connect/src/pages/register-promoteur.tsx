@@ -33,6 +33,7 @@ export default function RegisterPromoteur() {
     email: "",
     phone: "",
     companyName: "",
+    companyNumber: "",
     ville: "",
     nbProgrammes: "",
     website: "",
@@ -48,6 +49,7 @@ export default function RegisterPromoteur() {
       !form.lastName ||
       !form.email ||
       !form.companyName ||
+      !form.companyNumber ||
       !form.ville ||
       !form.nbProgrammes ||
       !form.password
@@ -72,6 +74,7 @@ export default function RegisterPromoteur() {
           email: form.email,
           phone: form.phone || undefined,
           companyName: form.companyName,
+          companyNumber: form.companyNumber,
           ville: form.ville,
           nbProgrammes: Number(form.nbProgrammes),
           website: form.website || undefined,
@@ -148,6 +151,17 @@ export default function RegisterPromoteur() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Nom société *</label>
                 <Input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Numéro de société (ח״פ) *</label>
+                <Input
+                  value={form.companyNumber}
+                  onChange={(e) => setForm({ ...form, companyNumber: e.target.value })}
+                  placeholder="Ex. 51-234567-8"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Numéro d'enregistrement de la société en Israël (Teudat Hitagdout / ח״פ). Il sera vérifié par notre équipe.
+                </p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Ville *</label>

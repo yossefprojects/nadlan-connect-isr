@@ -1791,7 +1791,7 @@ components:
     # ── Registration (B2B onboarding) ──
     PromoteurRegistrationInput:
       type: object
-      required: [firstName, lastName, email, companyName, ville, nbProgrammes, plan, password, cguAccepted]
+      required: [firstName, lastName, email, companyName, companyNumber, ville, nbProgrammes, plan, password, cguAccepted]
       properties:
         firstName:
           type: string
@@ -1807,6 +1807,10 @@ components:
         companyName:
           type: string
           minLength: 1
+        companyNumber:
+          type: string
+          minLength: 1
+          description: Israeli company registration number (ח״פ / Teudat Hitagdout)
         ville:
           type: string
           minLength: 1
@@ -1908,6 +1912,8 @@ components:
           type: string
           enum: [en_attente, verifie, rejete]
         licenseNumber:
+          type: [string, 'null']
+        companyNumber:
           type: [string, 'null']
         nbAgents:
           type: [integer, 'null']

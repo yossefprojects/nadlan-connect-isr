@@ -12,6 +12,7 @@ export default function Admin() {
   const { data: stats, isLoading: isStatsLoading } = useGetAdminStats();
   const { data: listings, isLoading: isListingsLoading } = useAdminListListings({});
   const { data: agences, isLoading: isAgencesLoading } = useAdminListProfiles({ role: "agent" });
+  const { data: promoteurs, isLoading: isPromoteursLoading } = useAdminListProfiles({ role: "developer" });
 
   const updateStatus = useAdminUpdateListingStatus();
   const updateLicence = useAdminUpdateLicenceStatut();
@@ -27,10 +28,14 @@ export default function Admin() {
     });
   };
 
-  const handleLicenceChange = (profileId: number, licenceStatut: "verifie" | "rejete" | "en_attente") => {
+  const handleLicenceChange = (
+    profileId: number,
+    licenceStatut: "verifie" | "rejete" | "en_attente",
+    role: "agent" | "developer" = "agent",
+  ) => {
     updateLicence.mutate({ profileId, data: { licenceStatut } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getAdminListProfilesQueryKey({ role: "agent" }) });
+        queryClient.invalidateQueries({ queryKey: getAdminListProfilesQueryKey({ role }) });
       }
     });
   };
@@ -193,6 +198,80 @@ export default function Admin() {
                           className="h-8 text-red-700 border-red-200 hover:bg-red-50"
                           disabled={updateLicence.isPending}
                           onClick={() => handleLicenceChange(agence.id, "rejete")}
+                        >
+                          {t("admin.reject")}
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <ShieldCheck className="h-6 w-6 text-primary" />
+          <h2 className="font-serif text-2xl font-bold text-primary">{t("admin.promoteurVerification")}</h2>
+        </div>
+
+        <div className="bg-card border rounded-xl overflow-hidden">
+          <table className="w-full text-sm text-start">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colCompany")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colContact")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colCompanyNumber")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("admin.colActions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {isPromoteursLoading ? (
+                <tr><td colSpan={5} className="text-center py-8">{t("common.loading")}</td></tr>
+              ) : !promoteurs || promoteurs.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">{t("admin.noPromoteurRequests")}</td></tr>
+              ) : promoteurs.map((promoteur) => (
+                <tr key={promoteur.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4 font-medium">
+                    {promoteur.companyName}
+                    <div className="text-xs text-muted-foreground font-normal">{promoteur.ville}</div>
+                  </td>
+                  <td className="px-6 py-4 text-muted-foreground">
+                    {promoteur.firstName} {promoteur.lastName}
+                    <div className="text-xs">{promoteur.email}</div>
+                  </td>
+                  <td className="px-6 py-4 font-mono text-xs">{promoteur.companyNumber || "—"}</td>
+                  <td className="px-6 py-4">
+                    {promoteur.licenceStatut === "verifie" ? (
+                      <VerifiedBadge size="sm" label={t("admin.verified")} />
+                    ) : promoteur.licenceStatut === "rejete" ? (
+                      <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">{t("admin.rejected")}</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">{t("admin.pending")}</Badge>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-end">
+                    <div className="flex gap-2 justify-end">
+                      {promoteur.licenceStatut !== "verifie" && (
+                        <Button
+                          size="sm"
+                          className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          disabled={updateLicence.isPending}
+                          onClick={() => handleLicenceChange(promoteur.id, "verifie", "developer")}
+                        >
+                          {t("admin.verify")}
+                        </Button>
+                      )}
+                      {promoteur.licenceStatut !== "rejete" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-red-700 border-red-200 hover:bg-red-50"
+                          disabled={updateLicence.isPending}
+                          onClick={() => handleLicenceChange(promoteur.id, "rejete", "developer")}
                         >
                           {t("admin.reject")}
                         </Button>

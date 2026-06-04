@@ -37,6 +37,7 @@ function serializeProfile(p: typeof profilesTable.$inferSelect) {
     status: p.status,
     licenceStatut: p.licenceStatut,
     licenseNumber: p.licenseNumber,
+    companyNumber: p.companyNumber,
     nbAgents: p.nbAgents,
     nbProgrammes: p.nbProgrammes,
     website: p.website,
@@ -117,6 +118,7 @@ router.post("/profiles/promoteur", async (req, res): Promise<void> => {
         passwordHash,
         nbProgrammes: data.nbProgrammes,
         website: data.website ?? null,
+        companyNumber: data.companyNumber,
         cguAccepted: data.cguAccepted,
         status: "pending",
       })
@@ -259,16 +261,41 @@ router.patch("/admin/profiles/:profileId/licence", requireAdmin, async (req, res
     return;
   }
 
+  const [existing] = await db
+    .select()
+    .from(profilesTable)
+    .where(eq(profilesTable.id, profileId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Profile not found" });
+    return;
+  }
+
+  // A profile cannot be marked "verifie" without the identifier an admin is
+  // supposed to check: Risha'yon licence (agence) or company number / ח״פ
+  // (promoteur). This also blocks verifying legacy rows that predate the field.
+  if (parsed.data.licenceStatut === "verifie") {
+    const missingIdentifier =
+      existing.role === "agent"
+        ? !existing.licenseNumber
+        : !existing.companyNumber;
+    if (missingIdentifier) {
+      res.status(400).json({
+        error:
+          existing.role === "agent"
+            ? "Numéro de licence Risha'yon manquant — vérification impossible."
+            : "Numéro de société manquant — vérification impossible.",
+      });
+      return;
+    }
+  }
+
   const [updated] = await db
     .update(profilesTable)
     .set({ licenceStatut: parsed.data.licenceStatut })
     .where(eq(profilesTable.id, profileId))
     .returning();
-
-  if (!updated) {
-    res.status(404).json({ error: "Profile not found" });
-    return;
-  }
 
   res.json(serializeProfile(updated));
 });

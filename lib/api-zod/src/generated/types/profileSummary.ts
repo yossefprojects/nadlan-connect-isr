@@ -24,6 +24,8 @@ export interface ProfileSummary {
   /** @nullable */
   licenseNumber?: string | null;
   /** @nullable */
+  companyNumber?: string | null;
+  /** @nullable */
   nbAgents?: number | null;
   /** @nullable */
   nbProgrammes?: number | null;
