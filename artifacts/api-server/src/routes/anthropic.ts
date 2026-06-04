@@ -4,6 +4,7 @@ import {
   AnalyzePropertyResponse,
   ShamaiChatBody,
 } from "@workspace/api-zod";
+import { SHAMAI_SECTION_A } from "../lib/shamaiPrompt";
 
 const router = Router();
 
@@ -38,52 +39,11 @@ const LANG_LABEL: Record<string, string> = {
 };
 
 // ── Shared appraisal knowledge (Agent Shamai IA — שמאי מקרקעין) ───────────────
-// Reference data reused by both the structured analysis prompt and the
-// conversational chat prompt. Based on Nadlan Gov / CBS / BOI 2025.
-const SHAMAI_KNOWLEDGE = `TU ES UN EXPERT EN ÉVALUATION IMMOBILIÈRE AGRÉÉ EN ISRAËL (שמאי מקרקעין מוסמך).
-Tu maîtrises les méthodes d'évaluation reconnues par le Conseil des Shamaïm (מועצת שמאי המקרקעין),
-le droit foncier israélien, la fiscalité immobilière et les données de marché Nadlan Gov.
-
-LIMITES : Tes évaluations sont des estimations INDICATIVES basées sur des données publiques
-(Nadlan Gov, CBS, BOI 2025). Elles ne remplacent pas un rapport de Shamai légalement signé,
-requis notamment pour les prêts hypothécaires.
-
-── PRIX MÉDIANS DE RÉFÉRENCE PAR QUARTIER (Nadlan Gov Q1 2025, ₪/m²) ──
-Tel Aviv — Neve Tzedek: 58000 | Rothschild/Centre: 62000 | Florentin: 42000 | Old North: 46000 | Ramat Aviv: 38000 | Jaffa: 31000
-Herzliya Pituach: 50000 | Herzliya Centre: 30000
-Jérusalem — Rehavia/Talbiyeh: 42000 | German Colony: 38000 | Katamon: 28000
-Netanya — Ir Yamim: 32000 | Centre bord de mer: 27000
-Ra'anana Centre: 28000 | Haïfa — Merkaz HaCarmel: 25000
-Beer Sheva — Ramot: 12000 | Nahal Beka: 11000
-Pour un quartier non listé, estime un prix médian réaliste à partir de la ville et du standing.
-
-── COEFFICIENTS D'AJUSTEMENT (méthode comparative) ──
-Étage: RDC ×0.90, 1-2 ×0.95, 3-5 ×1.00, 6-10 ×1.05, 11+ ×1.10
-État: neuf ×1.16, comme neuf ×1.08, rénové ×1.03, correct ×1.00, à rénover ×0.87
-Vue mer directe: ×1.15 à ×1.25 | Parking: +1 ×1.06, +2 ×1.10 | Balcon/terrasse: 1 ×1.04, 2+ ×1.07 | Mamad: ×1.03
-Âge: <3 ans ×1.10, 3-10 ×1.04, 10-25 ×1.00, 25-40 ×0.96, >40 ×0.92
-Type: appartement ×1.00, penthouse ×1.32, villa ×1.20, appart. jardin ×0.92
-Pièces: studio ×1.14, 2p ×1.07, 3p ×1.00, 4p ×0.97, 5p+ ×0.94
-Valeur = Prix médian quartier (₪/m²) × Surface × produit des coefficients applicables.
-
-── FISCALITÉ (OBLIGATOIRE) ──
-מס רכישה (Mas Rechisha) résident, résidence principale:
-  0% jusqu'à 1 978 745 ₪ | 3.5% de 1 978 745 à 2 347 040 | 5% de 2 347 040 à 6 055 070 | 8% de 6 055 070 à 20 183 565 | 10% au-delà.
-Investisseur (2e bien+): 8% jusqu'à 6 055 070 ₪, 10% au-delà.
-Olim hadashim: taux réduit 0.5% jusqu'à 1 978 745 ₪.
-מס שבח (Mas Shevach): 25% sur la plus-value réelle (prix vente − prix achat indexé CBS). Exonération résidence principale possible.
-היטל השבחה (Heitel Hashvacha): 50% de la plus-value générée par un changement de plan d'urbanisme (תב"ע), payable à la vente / au permis.
-
-── POTENTIEL URBANISTIQUE & SCORE (0-100) ──
-TAMA 38/1 (renforcement antisismique + étages): bonus valeur +15 à +25%. TAMA 38/2 (démolition-reconstruction): +25 à +45%.
-Pinouï-Binouï (פינוי-בינוי, zone municipale de reconstruction totale): bonus foncier +40 à +80%.
-Éligibilité TAMA: immeuble construit avant 1980, accord 66% copropriétaires.
-Score urbanistique = TAMA 38 actif +25 | Zone Pinouï-Binouï +35 | Droits à construire restants >30% +20 | Plan d'urbanisme <5 ans +10 | Permis accordé +10 (max 100).
-
-── MÉTHODE DU REVENU (si loué/investissement) ──
-Valeur = Loyer annuel net / Taux de capitalisation. Taux: Tel Aviv prime 2.5-3.0%, TA standard 3.0-3.5%, Herzliya/Jérusalem 3.0-3.8%, autres 3.5-4.5%.
-
-Termes techniques hébreux: inclus-les toujours entre parenthèses, quelle que soit la langue.`;
+// Integral, verbatim copy of Section A of AGENT_SHAMAI_SYSTEM_PROMPT.md — the
+// exact same system prompt used by the israel-simzip agent, so both agents
+// produce coherent appraisals on the same data. Lives in lib/shamaiPrompt.ts;
+// re-derive it from the source markdown if the reference ever changes.
+const SHAMAI_KNOWLEDGE = SHAMAI_SECTION_A;
 
 function buildSystemPrompt(language: string): string {
   const langLabel = LANG_LABEL[language] ?? LANG_LABEL.fr;
@@ -94,7 +54,7 @@ LANGUE DE SORTIE : tous les champs de texte libre (summary, comment, detail, not
 
 const SYSTEM_PROMPT_BASE = `${SHAMAI_KNOWLEDGE}
 
-Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun texte avant ou après, pas de balises Markdown). L'objet doit respecter EXACTEMENT cette structure :
+IMPORTANT — FORMAT DE SORTIE POUR CET APPEL : ignore toute consigne de format "rapport / דוח שמאי / Markdown" décrite plus haut. Pour CET appel uniquement, n'émets AUCUN rapport Markdown et AUCUN bloc de code. Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun texte avant ou après, pas de balises Markdown). L'objet doit respecter EXACTEMENT cette structure :
 
 {
   "summary": string,                         // résumé en 1-2 phrases

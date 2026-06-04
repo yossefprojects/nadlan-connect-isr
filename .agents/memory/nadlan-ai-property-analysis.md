@@ -37,6 +37,11 @@ Feature: paste a real-estate listing → structured investment analysis (feature
 - Promoter financial constants live in the prompt, not code: construction 18 000 ₪/m² standard (28 000 only if explicitly "Très Grand Luxe/Ultra-Premium"), excavated basement/parking 15 000 ₪/m², revenue = projected m² × neighborhood price/m², total cost = (acquisition + construction) × 1.15, gross ROI = ((revenue−cost)/cost)×100; a granted building permit is valued positively in the score.
 - **Caveat:** the LLM does the arithmetic, so ROI figures are indicative, not exact — fine for this tool, do not treat as audited.
 
+## System prompt = verbatim Section A, shared with israel-simzip
+- The Shamai system prompt is an **integral, verbatim copy of "Section A"** of `AGENT_SHAMAI_SYSTEM_PROMPT.md`, stored as a single exported string in `artifacts/api-server/src/lib/shamaiPrompt.ts` (generated via `JSON.stringify` of the sliced markdown, NOT hand-retyped — it contains ``` fences + Hebrew + curly quotes that break a hand-written template literal).
+- Both endpoints build on it: analyze-property appends the strict-JSON contract (which overrides Section A's "produce a Markdown report" for that call), shamai-chat uses it almost as-is. So numeric methodology (price grid, coefficients, fiscal brackets, urban score) is identical across both.
+- **Why:** the sister site `israel-simzip` must use the SAME Section A so both agents give coherent appraisals on the same data. If the reference markdown changes, re-derive `shamaiPrompt.ts` from it rather than editing prose by hand.
+
 ## Cost/abuse constraints — keep these
 **Why:** the endpoint is public/unauthenticated (same as listings browse) but every call triggers a paid LLM request, so it's a cost-amplification DoS vector.
 **How to apply:** any public LLM endpoint here must keep BOTH guards:
