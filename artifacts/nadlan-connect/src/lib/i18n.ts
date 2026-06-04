@@ -198,6 +198,8 @@ const fr: Dict = {
   "listings.noResultsDesc": "Modifiez vos filtres pour voir plus de résultats.",
   "listings.loading": "Chargement…",
   "listings.tagline": "Trouvez votre prochain investissement parmi notre sélection premium.",
+  "listings.catalog": "Catalogue premium",
+  "listings.resetFilters": "Réinitialiser les filtres",
   "listings.city": "Ville",
   "listings.allCities": "Toutes les villes",
   "listings.propertyType": "Type de bien",
@@ -355,6 +357,7 @@ const fr: Dict = {
   "notfound.title": "Page introuvable",
   "notfound.desc": "La page que vous recherchez n'existe pas ou a été déplacée.",
   "notfound.back": "Retour à l'accueil",
+  "notfound.viewProperties": "Voir les propriétés",
 
   // Agent Shamai IA
   "analyse.shamaiBadge": "AGENT SHAMAI IA · ÉVALUATION",
@@ -939,6 +942,8 @@ const en: Dict = {
   "listings.noResultsDesc": "Adjust your filters to see more results.",
   "listings.loading": "Loading…",
   "listings.tagline": "Find your next investment among our premium selection.",
+  "listings.catalog": "Premium catalog",
+  "listings.resetFilters": "Reset filters",
   "listings.city": "City",
   "listings.allCities": "All cities",
   "listings.propertyType": "Property type",
@@ -1093,6 +1098,7 @@ const en: Dict = {
   "notfound.title": "Page not found",
   "notfound.desc": "The page you are looking for does not exist or has been moved.",
   "notfound.back": "Back to home",
+  "notfound.viewProperties": "View properties",
 
   // Agent Shamai IA
   "analyse.shamaiBadge": "AGENT SHAMAI AI · APPRAISAL",
@@ -1677,6 +1683,8 @@ const he: Dict = {
   "listings.noResultsDesc": "שנו את הסינון כדי לראות תוצאות נוספות.",
   "listings.loading": "טוען…",
   "listings.tagline": "מצאו את ההשקעה הבאה שלכם מתוך מבחר הפרימיום שלנו.",
+  "listings.catalog": "קטלוג פרימיום",
+  "listings.resetFilters": "איפוס סינון",
   "listings.city": "עיר",
   "listings.allCities": "כל הערים",
   "listings.propertyType": "סוג נכס",
@@ -1831,6 +1839,7 @@ const he: Dict = {
   "notfound.title": "הדף לא נמצא",
   "notfound.desc": "הדף שאתם מחפשים אינו קיים או הועבר.",
   "notfound.back": "חזרה לדף הבית",
+  "notfound.viewProperties": "צפייה בנכסים",
 
   // Agent Shamai IA
   "analyse.shamaiBadge": "סוכן שמאי AI · הערכת שווי",

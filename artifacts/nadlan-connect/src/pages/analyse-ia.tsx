@@ -48,7 +48,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-const NAVY = "#1A3A5C";
 const GOLD = "#C9A84C";
 
 const EXAMPLE = `Appartement 4 pièces à vendre, Florentin, Tel Aviv. 92 m², 3ème étage avec ascenseur. Mamad, balcon, rénové récemment. Proche de la gare. Prix: 3,200,000 ₪. Possibilité de location 8500₪/mois.`;
@@ -437,19 +436,23 @@ export default function AnalyseIA() {
           <p className="mt-2 max-w-2xl text-white/70">{t("analyse.shamaiSubtitle")}</p>
 
           {/* Mode toggle */}
-          <div className="mt-6 inline-flex rounded-lg bg-white/10 p-1">
+          <div className="mt-6 inline-flex rounded-full border border-white/10 bg-white/5 p-1">
             <button
               onClick={() => setMode("analysis")}
-              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                mode === "analysis" ? "bg-[#C9A84C] text-white" : "text-white/70 hover:text-white"
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                mode === "analysis"
+                  ? "bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)]"
+                  : "text-white/70 hover:text-white"
               }`}
             >
               <FileText className="h-4 w-4" /> {t("analyse.tabAnalysis")}
             </button>
             <button
               onClick={() => setMode("chat")}
-              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                mode === "chat" ? "bg-[#C9A84C] text-white" : "text-white/70 hover:text-white"
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                mode === "chat"
+                  ? "bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)]"
+                  : "text-white/70 hover:text-white"
               }`}
             >
               <MessageSquare className="h-4 w-4" /> {t("analyse.tabChat")}
@@ -491,8 +494,7 @@ export default function AnalyseIA() {
                   <Button
                     onClick={handleAnalyze}
                     disabled={analyze.isPending}
-                    className="w-full text-white border-0"
-                    style={{ backgroundColor: GOLD }}
+                    className="w-full border-0 bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] font-bold text-[#0A1628] shadow-[0_6px_18px_rgba(201,168,76,0.38)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(201,168,76,0.5)]"
                   >
                     {analyze.isPending ? (
                       <>
@@ -514,10 +516,15 @@ export default function AnalyseIA() {
           {/* Results */}
           <div className="lg:col-span-3 space-y-6">
             {!result && !analyze.isPending && (
-              <Card className="border-dashed">
+              <Card className="border-dashed border-[#C9A84C]/30">
                 <CardContent className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-                  <Gauge className="h-10 w-10 mb-3 text-[#C9A84C]" />
-                  <p className="font-medium text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
+                  <div className="relative mb-5">
+                    <span className="absolute inset-0 animate-ping rounded-2xl bg-[#C9A84C]/20" />
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[#C9A84C]/20 bg-[#C9A84C]/10">
+                      <Gauge className="h-8 w-8 text-[#C9A84C]" />
+                    </div>
+                  </div>
+                  <p className="font-serif text-lg text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
                   <p className="text-sm">{t("analyse.emptyDesc")}</p>
                 </CardContent>
               </Card>
@@ -538,11 +545,8 @@ export default function AnalyseIA() {
                 {/* Score + recommendation */}
                 <Card className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
-                    <div
-                      className="flex flex-col items-center justify-center p-6 text-white sm:w-48"
-                      style={{ backgroundColor: NAVY }}
-                    >
-                      <span className="text-5xl font-serif">{result.overallScore}</span>
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#0A1628] to-[#1A3A5C] p-6 text-white sm:w-48">
+                      <span className="font-serif text-5xl text-[#C9A84C]">{result.overallScore}</span>
                       <span className="text-xs uppercase tracking-wider text-white/60">{t("analyse.scoreOf")}</span>
                     </div>
                     <div className="flex-1 p-6">
@@ -963,8 +967,7 @@ export default function AnalyseIA() {
                   <Button
                     onClick={handleSend}
                     disabled={chat.isPending || chatInput.trim().length < 2}
-                    className="h-[52px] shrink-0 text-white border-0"
-                    style={{ backgroundColor: GOLD }}
+                    className="h-[52px] shrink-0 border-0 bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)] transition-all hover:shadow-[0_6px_20px_rgba(201,168,76,0.5)]"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
