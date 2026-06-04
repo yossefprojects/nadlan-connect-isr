@@ -312,7 +312,7 @@ function Bullet({
   );
 }
 
-function ReportDoc({
+export function ReportDoc({
   text,
   r,
   language,
@@ -942,7 +942,7 @@ function parseMarkdown(md: string, keepShekel = false): MdBlock[] {
   return blocks;
 }
 
-function ChatDoc({
+export function ChatDoc({
   markdown,
   title,
   language,
