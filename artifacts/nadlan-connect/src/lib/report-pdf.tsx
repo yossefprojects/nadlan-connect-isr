@@ -119,6 +119,17 @@ function boolT(b: boolean | null | undefined, t: T): string {
   return b ? t("common.yes") : t("common.no");
 }
 
+const HEBREW_RE = /[\u0590-\u05FF]/;
+// Numeric / Latin value runs (amounts, ranges, "8.5%", "m²", "/ 100",
+// "(…)") must read left-to-right even inside an RTL Hebrew report; otherwise
+// the bidi algorithm mirrors parentheses and reorders the segments around a
+// neutral separator. Values that actually contain Hebrew keep the inherited
+// base direction. In FR/EN reports the page is already LTR, so forcing LTR
+// here is a no-op and the layout is unchanged.
+function ltrIfNumeric(s: string): { direction?: "ltr" } {
+  return HEBREW_RE.test(s) ? {} : { direction: "ltr" };
+}
+
 function makeStyles(f: Fonts, rtl: boolean) {
   return StyleSheet.create({
     page: {
@@ -279,7 +290,7 @@ function Row({
     <View style={st.row} wrap={false}>
       <Text style={st.rowLabel}>{label}</Text>
       <View style={st.leader} />
-      <Text style={st.rowValue}>{value}</Text>
+      <Text style={[st.rowValue, ltrIfNumeric(value)]}>{value}</Text>
     </View>
   );
 }
@@ -296,7 +307,7 @@ function Bullet({
   return (
     <View style={st.bullet} wrap={false}>
       <Text style={st.bulletTitle}>{title}</Text>
-      <Text style={st.bulletBody}>{body}</Text>
+      <Text style={[st.bulletBody, ltrIfNumeric(body)]}>{body}</Text>
     </View>
   );
 }
@@ -808,8 +819,15 @@ function ReportDoc({
               <Text style={[st.scoreNum, { color: statusColor.color }]}>
                 {r.overallScore}
               </Text>
-              <View style={{ marginLeft: 8, marginBottom: 8 }}>
-                <Text style={{ color: INK, fontSize: 11 }}>/ 100</Text>
+              <View
+                style={{
+                  ...(rtl ? { marginRight: 8 } : { marginLeft: 8 }),
+                  marginBottom: 8,
+                }}
+              >
+                <Text style={[{ color: INK, fontSize: 11 }, ltrIfNumeric("/ 100")]}>
+                  / 100
+                </Text>
                 <Text style={st.scoreCaption}>
                   {t("report.sec.investmentScore")}
                 </Text>
@@ -983,7 +1001,13 @@ function ChatDoc({
             }
             if (b.kind === "li") {
               return (
-                <Text key={i} style={[st.para, { marginLeft: 10 }]}>
+                <Text
+                  key={i}
+                  style={[
+                    st.para,
+                    rtl ? { marginRight: 10 } : { marginLeft: 10 },
+                  ]}
+                >
                   • {b.text}
                 </Text>
               );
