@@ -38,6 +38,17 @@ const LANG_LABEL: Record<string, string> = {
   he: "Hebrew (עברית)",
 };
 
+// Per-language number/currency conventions for free-text chat output. Mirrors
+// the structured-analysis + PDF formatting (analyse-ia.tsx / report-pdf.tsx
+// `makeFmt`): FR uses space thousands, decimal comma and "8,5 %"; EN/HE use
+// comma thousands, decimal point and "8.5%". Currency keeps the ₪ glyph after
+// the amount in every language.
+const NUMBER_FORMAT_GUIDE: Record<string, string> = {
+  fr: `FORMAT DES NOMBRES (français) : sépare les milliers par une espace (1 250 000), utilise la virgule décimale (8,5), écris les pourcentages avec une espace avant le signe (8,5 %) et les montants avec le symbole ₪ après le nombre (1 250 000 ₪).`,
+  en: `NUMBER FORMAT (English) : separate thousands with a comma (1,250,000), use a decimal point (8.5), write percentages with no space before the sign (8.5%) and amounts with the ₪ symbol after the number (1,250,000 ₪).`,
+  he: `NUMBER FORMAT (Hebrew) : separate thousands with a comma (1,250,000), use a decimal point (8.5), write percentages with no space before the sign (8.5%) and amounts with the ₪ symbol after the number (1,250,000 ₪).`,
+};
+
 // ── Shared appraisal knowledge (Agent Shamai IA — שמאי מקרקעין) ───────────────
 // Integral, verbatim copy of Section A of AGENT_SHAMAI_SYSTEM_PROMPT.md — the
 // exact same system prompt used by the israel-simzip agent, so both agents
@@ -306,7 +317,9 @@ router.post("/anthropic/shamai-chat", async (req, res): Promise<void> => {
       max_tokens: 4096,
       system: `${SHAMAI_CHAT_PROMPT}
 
-LANGUE DE LA RÉPONSE : réponds en ${langLabel} (les termes techniques hébreux restent entre parenthèses).`,
+LANGUE DE LA RÉPONSE : réponds en ${langLabel} (les termes techniques hébreux restent entre parenthèses).
+
+${NUMBER_FORMAT_GUIDE[language] ?? NUMBER_FORMAT_GUIDE.fr}`,
       messages: parsed.data.messages.map((m) => ({
         role: m.role,
         content: m.content,
