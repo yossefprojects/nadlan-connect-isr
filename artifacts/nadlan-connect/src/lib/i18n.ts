@@ -2302,7 +2302,7 @@ const he: Dict = {
   "report.status.red": "מסוכן",
 };
 
-const dictionaries: Record<Language, Dict> = { fr, en, he };
+export const dictionaries: Record<Language, Dict> = { fr, en, he };
 
 export function translate(lang: Language, key: string): string {
   return dictionaries[lang]?.[key] ?? dictionaries.fr[key] ?? key;
