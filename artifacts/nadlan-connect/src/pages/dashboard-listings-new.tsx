@@ -189,7 +189,7 @@ export default function DashboardListingsNew() {
         <div className="pt-4 border-t flex justify-end gap-4">
           <Button variant="outline" type="button" onClick={() => setLocation("/dashboard")}>{t("listingForm.cancel")}</Button>
           <Button type="submit" disabled={createListing.isPending || isUploading}>
-            {(createListing.isPending || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {(createListing.isPending || isUploading) && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
             {t("listingForm.create")}
           </Button>
         </div>

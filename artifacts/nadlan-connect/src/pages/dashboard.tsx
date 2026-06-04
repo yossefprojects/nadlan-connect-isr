@@ -16,7 +16,7 @@ function ListingMandateSection({ listingId, title }: { listingId: number; title:
   return (
     <div className="border rounded-xl overflow-hidden">
       <button
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-sm font-medium text-left"
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-sm font-medium text-start"
         onClick={() => setOpen(!open)}
       >
         <span className="truncate max-w-[70%]">{title}</span>
@@ -188,14 +188,14 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="bg-card border rounded-xl overflow-hidden">
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-sm text-start">
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colTitle")}</th>
                   <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colCity")}</th>
                   <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colPrice")}</th>
                   <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colStatus")}</th>
-                  <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("dashboard.colActions")}</th>
+                  <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("dashboard.colActions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -216,10 +216,10 @@ export default function Dashboard() {
                         {t(`status.${listing.status}`)}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-end">
                       <Link href={`/dashboard/listings/${listing.id}/edit`}>
                         <Button variant="ghost" size="sm" className="h-8">
-                          <Edit className="h-4 w-4 mr-2" /> {t("dashboard.edit")}
+                          <Edit className="h-4 w-4 me-2" /> {t("dashboard.edit")}
                         </Button>
                       </Link>
                     </td>

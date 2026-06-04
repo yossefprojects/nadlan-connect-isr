@@ -78,7 +78,7 @@ export default function Admin() {
         <h2 className="font-serif text-2xl font-bold text-primary mb-6">{t("admin.moderationTitle")}</h2>
         
         <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
@@ -86,7 +86,7 @@ export default function Admin() {
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colOwner")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colType")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("admin.colActions")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("admin.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -109,12 +109,12 @@ export default function Admin() {
                       {t(`status.${listing.status}`)}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-end">
                     <Select 
                       value={listing.status} 
                       onValueChange={(val: any) => handleStatusChange(listing.id, val)}
                     >
-                      <SelectTrigger className="w-[140px] ml-auto h-8 text-xs">
+                      <SelectTrigger className="w-[140px] ms-auto h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -139,14 +139,14 @@ export default function Admin() {
         </div>
 
         <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colAgency")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colContact")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colLicense")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("admin.colActions")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("admin.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -174,7 +174,7 @@ export default function Admin() {
                       <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">{t("admin.pending")}</Badge>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-end">
                     <div className="flex gap-2 justify-end">
                       {agence.licenceStatut !== "verifie" && (
                         <Button

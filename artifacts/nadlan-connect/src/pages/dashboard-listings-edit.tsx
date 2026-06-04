@@ -134,7 +134,7 @@ export default function DashboardListingsEdit() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="font-serif text-3xl font-bold text-primary">{t("listingForm.editTitle")}</h1>
         <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleteListing.isPending}>
-          <Trash2 className="h-4 w-4 mr-2" /> {t("listingForm.delete")}
+          <Trash2 className="h-4 w-4 me-2" /> {t("listingForm.delete")}
         </Button>
       </div>
       
@@ -255,7 +255,7 @@ export default function DashboardListingsEdit() {
         <div className="pt-4 border-t flex justify-end gap-4">
           <Button variant="outline" type="button" onClick={() => setLocation("/dashboard")}>{t("listingForm.cancel")}</Button>
           <Button type="submit" disabled={updateListing.isPending || isUploading}>
-            {(updateListing.isPending || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {(updateListing.isPending || isUploading) && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
             {t("listingForm.save")}
           </Button>
         </div>

@@ -9,7 +9,7 @@ FR/EN/HE is **functional** on public surfaces AND the Pro dashboards (agent/deve
 
 - A flat-namespaced dictionary in `src/lib/i18n.ts` holds three blocks (FR/EN/HE). Keys are dotted strings like `detail.*`, `listings.*`, `card.*`. `translate(lang, key)` looks up the block.
 - `LanguageProvider` exposes `t()/language/dir/setLanguage`, persists choice to `localStorage["nadlan-lang"]`, and sets `document.documentElement.dir` + `lang` in an effect. Default language is **fr**.
-- RTL: relies on `dir="rtl"` on `<html>` + Tailwind v4's built-in `rtl:` variant. Logical flips for absolutely-positioned elements need explicit `rtl:` classes (e.g. a `left-3` badge needs `rtl:left-auto rtl:right-3`); flexbox/text-align mirror automatically from `dir`.
+- RTL: relies on `dir="rtl"` on `<html>` + Tailwind v4's built-in `rtl:` variant. Flexbox (`flex-row`, `justify-*`, `items-*`) and the *default* text-align mirror automatically from `dir`. But **physical** utilities do NOT mirror: `text-left`/`text-right`, `mr-/ml-`, `pl-/pr-`, `left-/right-`, `rounded-tr-/tl-`. Fix them with logical equivalents (`text-start`/`text-end`, `me-/ms-`, `pe-/ps-`, `start-/end-`) which are identical in LTR and auto-flip in RTL, or with `rtl:` variant classes for cases with no logical form (e.g. a `left-3` badge → `rtl:left-auto rtl:right-3`, chat-bubble corner radii). The dashboard/admin tables originally used `text-left`/`text-right`/`mr-`/`ml-auto` and stayed left-anchored in HE until converted to logical props.
 
 **Rules to keep it working:**
 - Every new public-facing string must use `t()` and have a key in **all three** blocks. Shared components (e.g. `listing-card.tsx`) are easy to forget — they render on multiple public pages, so French leaks there are very visible in EN/HE.

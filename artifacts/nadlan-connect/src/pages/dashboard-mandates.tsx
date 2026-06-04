@@ -56,14 +56,14 @@ export default function DashboardMandates() {
         </div>
       ) : (
         <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colProject")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colType")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colStatus")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colDate")}</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("mandates.colActions")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("mandates.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -95,7 +95,7 @@ export default function DashboardMandates() {
                   <td className="px-6 py-4 text-muted-foreground">
                     {new Date(m.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-end">
                     {m.status === "pending" && (
                       <Button
                         variant="ghost"
@@ -104,7 +104,7 @@ export default function DashboardMandates() {
                         onClick={() => handleWithdraw(m.id)}
                         disabled={withdrawMandate.isPending}
                       >
-                        <X className="h-4 w-4 mr-1" /> {t("mandates.withdraw")}
+                        <X className="h-4 w-4 me-1" /> {t("mandates.withdraw")}
                       </Button>
                     )}
                   </td>
@@ -159,7 +159,7 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
                   variant="outline"
                   className="border-[#C9A84C]/30 text-[#C9A84C] bg-[#C9A84C]/5 text-xs"
                 >
-                  <Star className="h-3 w-3 mr-1 fill-[#C9A84C]" /> {t("mandates.exclusivityRequested")}
+                  <Star className="h-3 w-3 me-1 fill-[#C9A84C]" /> {t("mandates.exclusivityRequested")}
                 </Badge>
               )}
               <Badge variant="outline" className={`text-xs ${STATUS_STYLE[m.status] ?? ""}`}>

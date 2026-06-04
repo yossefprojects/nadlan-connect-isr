@@ -66,10 +66,10 @@ export default function LeadDetail() {
         </Badge>
       </div>
 
-      <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-4">
+      <div className="flex-1 overflow-y-auto mb-4 space-y-4 pe-4">
         {/* Original Message */}
         <div className="flex flex-col items-end">
-          <div className="bg-primary text-primary-foreground p-4 rounded-2xl rounded-tr-sm max-w-[80%] shadow-sm">
+          <div className="bg-primary text-primary-foreground p-4 rounded-2xl rounded-tr-sm rtl:rounded-tr-2xl rtl:rounded-tl-sm max-w-[80%] shadow-sm">
             <p className="whitespace-pre-wrap">{lead.message}</p>
           </div>
           <span className="text-xs text-muted-foreground mt-1">{t("leadDetail.you")} - {new Date(lead.createdAt).toLocaleTimeString()}</span>
@@ -82,8 +82,8 @@ export default function LeadDetail() {
             <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
               <div className={`p-4 rounded-2xl max-w-[80%] shadow-sm ${
                 isMe 
-                  ? "bg-primary text-primary-foreground rounded-tr-sm" 
-                  : "bg-muted text-foreground rounded-tl-sm"
+                  ? "bg-primary text-primary-foreground rounded-tr-sm rtl:rounded-tr-2xl rtl:rounded-tl-sm" 
+                  : "bg-muted text-foreground rounded-tl-sm rtl:rounded-tl-2xl rtl:rounded-tr-sm"
               }`}>
                 <p className="whitespace-pre-wrap">{msg.body}</p>
               </div>

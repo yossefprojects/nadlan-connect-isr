@@ -37,13 +37,13 @@ export default function DashboardLeads() {
         </div>
       ) : (
         <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashLeads.colClient")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashLeads.colProperty")}</th>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashLeads.colStatus")}</th>
-                <th className="px-6 py-4 font-medium text-muted-foreground text-right">{t("dashLeads.colActions")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("dashLeads.colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -70,10 +70,10 @@ export default function DashboardLeads() {
                       </SelectContent>
                     </Select>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-end">
                     <Link href={`/leads/${lead.id}`}>
                       <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                        <MessageCircle className="h-3 w-3 mr-1" /> {t("dashLeads.discuss")}
+                        <MessageCircle className="h-3 w-3 me-1" /> {t("dashLeads.discuss")}
                       </Badge>
                     </Link>
                   </td>
