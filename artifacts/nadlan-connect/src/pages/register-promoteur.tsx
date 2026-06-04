@@ -104,12 +104,10 @@ export default function RegisterPromoteur() {
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-10 pb-8 flex flex-col items-center gap-4">
             <CheckCircle2 className="h-14 w-14 text-green-600" />
-            <h1 className="font-serif text-2xl text-primary">Compte créé — vérification sous 24h</h1>
-            <p className="text-muted-foreground">
-              Merci ! Notre équipe vérifie votre dossier et vous contactera sous 24 heures.
-            </p>
+            <h1 className="font-serif text-2xl text-primary">{t("proRegister.successTitle")}</h1>
+            <p className="text-muted-foreground">{t("proRegister.promoteur.successText")}</p>
             <Button asChild className="mt-2" style={{ backgroundColor: NAVY }}>
-              <Link href="/">Retour à l'accueil</Link>
+              <Link href="/">{t("proRegister.backHome")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -126,8 +124,8 @@ export default function RegisterPromoteur() {
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="font-serif text-2xl text-primary">Inscription Promoteur</CardTitle>
-              <CardDescription>Présentez vos programmes neufs aux acheteurs et investisseurs.</CardDescription>
+              <CardTitle className="font-serif text-2xl text-primary">{t("proRegister.promoteur.title")}</CardTitle>
+              <CardDescription>{t("proRegister.promoteur.subtitle")}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -135,42 +133,40 @@ export default function RegisterPromoteur() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Prénom *</label>
+                <label className="text-sm font-medium">{t("proRegister.firstName")} *</label>
                 <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom *</label>
+                <label className="text-sm font-medium">{t("proRegister.lastName")} *</label>
                 <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email *</label>
+                <label className="text-sm font-medium">{t("proRegister.email")} *</label>
                 <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Téléphone</label>
+                <label className="text-sm font-medium">{t("proRegister.phone")}</label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom société *</label>
+                <label className="text-sm font-medium">{t("proRegister.promoteur.companyName")} *</label>
                 <Input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Numéro de société (ח״פ) *</label>
+                <label className="text-sm font-medium">{t("proRegister.promoteur.companyNumber")} *</label>
                 <Input
                   value={form.companyNumber}
                   onChange={(e) => setForm({ ...form, companyNumber: e.target.value })}
-                  placeholder="Ex. 51-234567-8"
+                  placeholder={t("proRegister.promoteur.companyNumberPlaceholder")}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Numéro d'enregistrement de la société en Israël (Teudat Hitagdout / ח״פ). Il sera vérifié par notre équipe.
-                </p>
+                <p className="text-xs text-muted-foreground">{t("proRegister.promoteur.companyNumberHelp")}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ville *</label>
+                <label className="text-sm font-medium">{t("proRegister.ville")} *</label>
                 <Input value={form.ville} onChange={(e) => setForm({ ...form, ville: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nombre de programmes *</label>
+                <label className="text-sm font-medium">{t("proRegister.promoteur.nbProgrammes")} *</label>
                 <Input
                   type="number"
                   min={0}
@@ -179,7 +175,7 @@ export default function RegisterPromoteur() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Site web</label>
+                <label className="text-sm font-medium">{t("proRegister.promoteur.website")}</label>
                 <Input
                   placeholder="https://"
                   value={form.website}
@@ -189,7 +185,7 @@ export default function RegisterPromoteur() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Choix du plan *</label>
+              <label className="text-sm font-medium">{t("proRegister.choosePlan")} *</label>
               <div className="grid grid-cols-2 gap-4">
                 {PLANS.map((plan) => {
                   const selected = form.plan === plan.id;
@@ -204,7 +200,7 @@ export default function RegisterPromoteur() {
                     >
                       <div className="font-semibold text-primary">{plan.name}</div>
                       <div className="text-2xl font-bold text-primary">{plan.price}</div>
-                      <div className="text-xs text-muted-foreground">/ mois</div>
+                      <div className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</div>
                     </button>
                   );
                 })}
@@ -212,12 +208,12 @@ export default function RegisterPromoteur() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Mot de passe *</label>
+              <label className="text-sm font-medium">{t("proRegister.password")} *</label>
               <Input
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="8 caractères minimum"
+                placeholder={t("proRegister.passwordPlaceholder")}
               />
             </div>
 
@@ -227,9 +223,7 @@ export default function RegisterPromoteur() {
                 onCheckedChange={(v) => setForm({ ...form, cgu: v === true })}
                 className="mt-0.5"
               />
-              <span className="text-sm text-muted-foreground">
-                J'accepte les conditions générales d'utilisation (CGU). *
-              </span>
+              <span className="text-sm text-muted-foreground">{t("proRegister.cgu")} *</span>
             </label>
 
             <Button
@@ -240,13 +234,13 @@ export default function RegisterPromoteur() {
               disabled={register.isPending}
             >
               {register.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Créer mon compte promoteur
+              {t("proRegister.promoteur.submit")}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Vous êtes une agence ?{" "}
+              {t("proRegister.promoteur.crossPrompt")}{" "}
               <Link href="/auth/register/agence" className="text-primary underline">
-                Inscription Agence
+                {t("proRegister.promoteur.crossLink")}
               </Link>
             </p>
           </form>

@@ -25,12 +25,12 @@ const PLANS = [
 type PlanId = (typeof PLANS)[number]["id"];
 
 const SPECIALTIES = [
-  { id: "residentiel_neuf", label: "Résidentiel neuf" },
-  { id: "investissement", label: "Investissement" },
-  { id: "luxe", label: "Luxe" },
-  { id: "tama38", label: "TAMA 38" },
-  { id: "diaspora_francophone", label: "Diaspora francophone" },
-  { id: "commercial", label: "Commercial" },
+  { id: "residentiel_neuf" },
+  { id: "investissement" },
+  { id: "luxe" },
+  { id: "tama38" },
+  { id: "diaspora_francophone" },
+  { id: "commercial" },
 ] as const;
 
 type SpecialtyId = (typeof SPECIALTIES)[number]["id"];
@@ -119,12 +119,10 @@ export default function RegisterAgence() {
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-10 pb-8 flex flex-col items-center gap-4">
             <CheckCircle2 className="h-14 w-14 text-green-600" />
-            <h1 className="font-serif text-2xl text-primary">Compte créé — vérification sous 24h</h1>
-            <p className="text-muted-foreground">
-              Merci ! Nous vérifions votre licence Risha'yon et activerons votre accès sous 24 heures.
-            </p>
+            <h1 className="font-serif text-2xl text-primary">{t("proRegister.successTitle")}</h1>
+            <p className="text-muted-foreground">{t("proRegister.agence.successText")}</p>
             <Button asChild className="mt-2" style={{ backgroundColor: GOLD }}>
-              <Link href="/">Retour à l'accueil</Link>
+              <Link href="/">{t("proRegister.backHome")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -141,8 +139,8 @@ export default function RegisterAgence() {
               <KeyRound className="h-6 w-6" style={{ color: GOLD }} />
             </div>
             <div>
-              <CardTitle className="font-serif text-2xl text-primary">Inscription Agence</CardTitle>
-              <CardDescription>Accédez aux programmes neufs et aux acheteurs qualifiés.</CardDescription>
+              <CardTitle className="font-serif text-2xl text-primary">{t("proRegister.agence.title")}</CardTitle>
+              <CardDescription>{t("proRegister.agence.subtitle")}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -150,42 +148,39 @@ export default function RegisterAgence() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Prénom *</label>
+                <label className="text-sm font-medium">{t("proRegister.firstName")} *</label>
                 <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom *</label>
+                <label className="text-sm font-medium">{t("proRegister.lastName")} *</label>
                 <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email *</label>
+                <label className="text-sm font-medium">{t("proRegister.email")} *</label>
                 <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Téléphone</label>
+                <label className="text-sm font-medium">{t("proRegister.phone")}</label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom agence *</label>
+                <label className="text-sm font-medium">{t("proRegister.agence.companyName")} *</label>
                 <Input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Numéro de licence Risha'yon *</label>
+                <label className="text-sm font-medium">{t("proRegister.agence.licenseNumber")} *</label>
                 <Input
                   value={form.licenseNumber}
                   onChange={(e) => setForm({ ...form, licenseNumber: e.target.value })}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Ce numéro est obligatoire pour exercer en Israël (loi 5756-1996). Il sera vérifié
-                  manuellement avant l'activation de votre compte.
-                </p>
+                <p className="text-xs text-muted-foreground">{t("proRegister.agence.licenseHelp")}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ville *</label>
+                <label className="text-sm font-medium">{t("proRegister.ville")} *</label>
                 <Input value={form.ville} onChange={(e) => setForm({ ...form, ville: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nombre d'agents *</label>
+                <label className="text-sm font-medium">{t("proRegister.agence.nbAgents")} *</label>
                 <Input
                   type="number"
                   min={0}
@@ -196,7 +191,7 @@ export default function RegisterAgence() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Spécialités</label>
+              <label className="text-sm font-medium">{t("proRegister.agence.specialties")}</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SPECIALTIES.map((spec) => (
                   <label
@@ -207,14 +202,14 @@ export default function RegisterAgence() {
                       checked={specialties.includes(spec.id)}
                       onCheckedChange={() => toggleSpecialty(spec.id)}
                     />
-                    <span className="text-sm">{spec.label}</span>
+                    <span className="text-sm">{t(`proRegister.specialty.${spec.id}`)}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Choix du plan *</label>
+              <label className="text-sm font-medium">{t("proRegister.choosePlan")} *</label>
               <div className="grid grid-cols-2 gap-4">
                 {PLANS.map((plan) => {
                   const selected = form.plan === plan.id;
@@ -232,7 +227,7 @@ export default function RegisterAgence() {
                     >
                       <div className="font-semibold text-primary">{plan.name}</div>
                       <div className="text-2xl font-bold text-primary">{plan.price}</div>
-                      <div className="text-xs text-muted-foreground">/ mois</div>
+                      <div className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</div>
                     </button>
                   );
                 })}
@@ -240,12 +235,12 @@ export default function RegisterAgence() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Mot de passe *</label>
+              <label className="text-sm font-medium">{t("proRegister.password")} *</label>
               <Input
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="8 caractères minimum"
+                placeholder={t("proRegister.passwordPlaceholder")}
               />
             </div>
 
@@ -255,9 +250,7 @@ export default function RegisterAgence() {
                 onCheckedChange={(v) => setForm({ ...form, cgu: v === true })}
                 className="mt-0.5"
               />
-              <span className="text-sm text-muted-foreground">
-                J'accepte les conditions générales d'utilisation (CGU). *
-              </span>
+              <span className="text-sm text-muted-foreground">{t("proRegister.cgu")} *</span>
             </label>
 
             <Button
@@ -268,13 +261,13 @@ export default function RegisterAgence() {
               disabled={register.isPending}
             >
               {register.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Accéder aux programmes
+              {t("proRegister.agence.submit")}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Vous êtes un promoteur ?{" "}
+              {t("proRegister.agence.crossPrompt")}{" "}
               <Link href="/auth/register/promoteur" className="text-primary underline">
-                Inscription Promoteur
+                {t("proRegister.agence.crossLink")}
               </Link>
             </p>
           </form>
