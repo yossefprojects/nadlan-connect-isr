@@ -6,3 +6,21 @@ id = "xbZ_0YYTxYmghIAJ1RrMS"
 uri = "file://artifacts/nadlan-connect/public/hero-bg.png"
 type = "image"
 title = "Tel Aviv skyline luxury"
+
+[[generated]]
+id = "jJNsqJ-Xhz6htj56ZYdPw"
+uri = "file://artifacts/nadlan-connect/src/assets/interior-luxury.png"
+type = "image"
+title = "Luxury Tel Aviv interior"
+
+[[generated]]
+id = "MXBL63ryg0opSzlVyr47w"
+uri = "file://artifacts/nadlan-connect/src/assets/ai-abstract.png"
+type = "image"
+title = "Abstract AI connection"
+
+[[generated]]
+id = "VXaR3JXxmHuIZnVA_lFYV"
+uri = "file://artifacts/nadlan-connect/src/assets/pro-network.png"
+type = "image"
+title = "Modern glass office"
