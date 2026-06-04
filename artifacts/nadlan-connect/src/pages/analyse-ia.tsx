@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import {
   useAnalyzeProperty,
   useShamaiChat,
@@ -155,6 +156,11 @@ function composeFromFields(qf: QuickFields): string {
 export default function AnalyseIA() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
+
+  usePageMeta({
+    title: "Analyse IA Immobilière — Dashboard Investisseur | NadlanConnect",
+    description: "Analysez n'importe quel bien immobilier en Israël grâce à l'IA : estimation du prix au m², rendement locatif, budget rénovation, potentiel urbain TAMA38/Pinoui Binoui et score d'investissement personnalisé.",
+  });
   const { fmtShekel, fmtPct } = makeFmt(language);
   const { isAuthenticated } = useUserRole();
 

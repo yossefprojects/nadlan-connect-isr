@@ -9,6 +9,7 @@ import heroVideo from "@/assets/hero-video.mp4";
 import abstractAi from "@/assets/ai-abstract.png";
 import proNetwork from "@/assets/pro-network.png";
 import luxuryInterior from "@/assets/interior-luxury.png";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -30,6 +31,11 @@ export default function Home() {
   const { t, dir } = useLanguage();
 
   const isRtl = dir === "rtl";
+
+  usePageMeta({
+    title: "NadlanConnect — Immobilier Premium en Israël",
+    description: "Achetez, investissez et trouvez les meilleures propriétés en Israël. Annonces exclusives à Tel Aviv, Jérusalem, Haïfa et partout en Israël — estimation IA, score d'investissement, connexion directe avec promoteurs et agences.",
+  });
 
   const HERO_STATS = [
     { val: t("home.heroStat1Val"), lbl: t("home.heroStat1") },

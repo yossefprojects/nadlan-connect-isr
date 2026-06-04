@@ -7,6 +7,7 @@ import {
   useApplyForMandate, getGetMyMandatesQueryKey,
   useGetMyMandates,
 } from "@workspace/api-client-react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "@/components/layout/language-provider";
@@ -62,6 +63,17 @@ export default function ListingDetail() {
   const removeFavorite = useRemoveFavorite();
   const createLead = useCreateLead();
   const applyForMandate = useApplyForMandate();
+
+  const metaListing = detail?.listing;
+  const metaVilleLabel = metaListing ? (VILLE_LABELS[metaListing.ville] ?? metaListing.ville) : undefined;
+  usePageMeta({
+    title: metaListing ? `${metaListing.title} — ${metaVilleLabel} | NadlanConnect` : undefined,
+    description: metaListing
+      ? `${metaListing.title} à ${metaVilleLabel} — ${metaListing.surface} m², ${metaListing.price.toLocaleString("fr-FR")} ₪. Score d'investissement : ${metaListing.investmentScore ?? "—"}/100. Découvrez ce bien sur NadlanConnect.`
+      : undefined,
+    image: metaListing?.coverImageUrl ? `/api/storage${metaListing.coverImageUrl}` : undefined,
+    url: metaListing?.slug ? `${window.location.origin}/listings/${metaListing.slug}` : undefined,
+  });
 
   const { data: myMandates } = useGetMyMandates({ query: { enabled: isAuthenticated && role === "agent", queryKey: getGetMyMandatesQueryKey() } });
   const existingMandate = myMandates?.find(m => m.listingId === listingId);

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
 import { DocumentManager } from "@/components/documents/document-manager";
 import { Building2, MapPin, ArrowRight } from "lucide-react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 export default function ProgrammeDetail() {
   const { t, locale } = useLanguage();
@@ -13,6 +14,16 @@ export default function ProgrammeDetail() {
   const slug = params?.slug ?? "";
   const { data: detail, isLoading } = useGetProgram(slug, {
     query: { enabled: !!slug, queryKey: getGetProgramQueryKey(slug) },
+  });
+
+  const metaProgram = detail?.program;
+  usePageMeta({
+    title: metaProgram ? `${metaProgram.title} — Programme Neuf | NadlanConnect` : undefined,
+    description: metaProgram
+      ? `${metaProgram.title}${metaProgram.ville ? ` à ${t(`city.${metaProgram.ville}`)}` : ""}${metaProgram.quartier ? ` · ${metaProgram.quartier}` : ""} — Programme immobilier neuf en Israël. Découvrez les projets et appartements disponibles sur NadlanConnect.`
+      : undefined,
+    image: metaProgram?.coverImageUrl ?? undefined,
+    url: metaProgram?.slug ? `${window.location.origin}/programme/${metaProgram.slug}` : undefined,
   });
 
   if (isLoading) {

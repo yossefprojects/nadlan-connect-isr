@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Filter, Building2, SlidersHorizontal } from "lucide-react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const ALL = "__all__";
 
@@ -19,6 +20,11 @@ export default function Listings() {
   });
 
   const count = data?.listings.length ?? 0;
+
+  usePageMeta({
+    title: "Catalogue Immobilier en Israël — NadlanConnect",
+    description: "Parcourez les annonces immobilières en Israël : appartements, villas, programmes neufs à Tel Aviv, Jérusalem, Haïfa et partout en Israël. Filtrez par ville, type et budget.",
+  });
 
   return (
     <div className="bg-[#F8F7F4] min-h-screen">

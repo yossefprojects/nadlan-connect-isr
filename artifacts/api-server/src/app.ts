@@ -8,6 +8,12 @@ import { authMiddleware } from "./middlewares/authMiddleware";
 import { db } from "@workspace/db";
 import { listingsTable, programsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import {
+  serveListingsPage,
+  serveListingDetailPage,
+  serveProgrammeDetailPage,
+  serveAnalyseIAPage,
+} from "./lib/ssr-pages";
 
 const app: Express = express();
 
@@ -114,5 +120,21 @@ ${urlXml}
 });
 
 app.use("/api", router);
+
+app.get("/listings", (_req: Request, res: Response) => {
+  serveListingsPage(res);
+});
+
+app.get("/listings/:idOrSlug", (req: Request, res: Response) => {
+  serveListingDetailPage(String(req.params.idOrSlug), res);
+});
+
+app.get("/programme/:slug", (req: Request, res: Response) => {
+  serveProgrammeDetailPage(String(req.params.slug), res);
+});
+
+app.get("/outils/analyse-ia", (_req: Request, res: Response) => {
+  serveAnalyseIAPage(res);
+});
 
 export default app;
