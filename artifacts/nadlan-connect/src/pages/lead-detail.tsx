@@ -58,7 +58,7 @@ export default function LeadDetail() {
     <div className="container py-8 max-w-4xl flex flex-col h-[calc(100vh-64px)]">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-primary">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h1>
+          <h1 dir="auto" className="font-serif text-2xl font-bold text-primary">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h1>
           <p className="text-muted-foreground text-sm">{t("leadDetail.initiatedOn")} {new Date(lead.createdAt).toLocaleDateString(locale)}</p>
         </div>
         <Badge variant="outline" className="text-sm px-3 py-1 bg-background">
@@ -70,7 +70,7 @@ export default function LeadDetail() {
         {/* Original Message */}
         <div className="flex flex-col items-end">
           <div className="bg-primary text-primary-foreground p-4 rounded-2xl rounded-tr-sm rtl:rounded-tr-2xl rtl:rounded-tl-sm max-w-[80%] shadow-sm">
-            <p className="whitespace-pre-wrap">{lead.message}</p>
+            <p dir="auto" className="whitespace-pre-wrap">{lead.message}</p>
           </div>
           <span className="text-xs text-muted-foreground mt-1">{t("leadDetail.you")} - {new Date(lead.createdAt).toLocaleTimeString(locale)}</span>
         </div>
@@ -85,7 +85,7 @@ export default function LeadDetail() {
                   ? "bg-primary text-primary-foreground rounded-tr-sm rtl:rounded-tr-2xl rtl:rounded-tl-sm" 
                   : "bg-muted text-foreground rounded-tl-sm rtl:rounded-tl-2xl rtl:rounded-tr-sm"
               }`}>
-                <p className="whitespace-pre-wrap">{msg.body}</p>
+                <p dir="auto" className="whitespace-pre-wrap">{msg.body}</p>
               </div>
               <span className="text-xs text-muted-foreground mt-1">
                 {isMe ? t("leadDetail.you") : msg.senderName || t("leadDetail.correspondent")} - {new Date(msg.createdAt).toLocaleTimeString(locale)}

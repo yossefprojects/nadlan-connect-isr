@@ -19,7 +19,7 @@ function ListingMandateSection({ listingId, title }: { listingId: number; title:
         className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-sm font-medium text-start"
         onClick={() => setOpen(!open)}
       >
-        <span className="truncate max-w-[70%]">{title}</span>
+        <span dir="auto" className="truncate max-w-[70%]">{title}</span>
         <span className="flex items-center gap-2 text-muted-foreground shrink-0">
           {t("dashboard.mandataires")}
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -209,7 +209,7 @@ export default function Dashboard() {
                 {listingsData?.listings.map((listing) => (
                   <tr key={listing.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4 font-medium">
-                      <div>{listing.title}</div>
+                      <div dir="auto">{listing.title}</div>
                       {listing.type === "new_development" && (
                         <span className="text-xs text-[#C9A84C] font-medium">{t("dashboard.newDevBadge")}</span>
                       )}

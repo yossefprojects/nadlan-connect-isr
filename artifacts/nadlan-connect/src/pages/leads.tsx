@@ -43,8 +43,8 @@ export default function Leads() {
               <Card className="hover:border-primary transition-colors cursor-pointer hover-elevate">
                 <CardContent className="p-6 flex items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-lg mb-1">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h3>
-                    <p className="text-sm text-muted-foreground truncate max-w-lg">{lead.message}</p>
+                    <h3 dir="auto" className="font-bold text-lg mb-1">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h3>
+                    <p dir="auto" className="text-sm text-muted-foreground truncate max-w-lg">{lead.message}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     {getStatusBadge(lead.status)}
