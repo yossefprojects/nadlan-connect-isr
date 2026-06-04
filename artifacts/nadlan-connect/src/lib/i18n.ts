@@ -216,6 +216,9 @@ const fr: Dict = {
   "card.rooms": "pièces",
   "card.estimation": "Estimation",
   "card.removeFavorite": "Retirer des favoris",
+  "card.prevPhoto": "Photo précédente",
+  "card.nextPhoto": "Photo suivante",
+  "card.goToPhoto": "Aller à la photo {n}",
   "listings.filter": "Filtrer",
 
   // Login / Auth
@@ -970,6 +973,9 @@ const en: Dict = {
   "card.rooms": "rooms",
   "card.estimation": "Estimate",
   "card.removeFavorite": "Remove from favorites",
+  "card.prevPhoto": "Previous photo",
+  "card.nextPhoto": "Next photo",
+  "card.goToPhoto": "Go to photo {n}",
   "listings.filter": "Filter",
 
   "login.title": "Sign in",
@@ -1721,6 +1727,9 @@ const he: Dict = {
   "card.rooms": "חדרים",
   "card.estimation": "הערכה",
   "card.removeFavorite": "הסר מהמועדפים",
+  "card.prevPhoto": "תמונה קודמת",
+  "card.nextPhoto": "תמונה הבאה",
+  "card.goToPhoto": "עבור לתמונה {n}",
   "listings.filter": "סינון",
 
   "login.title": "התחברות",

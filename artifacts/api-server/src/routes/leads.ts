@@ -302,38 +302,53 @@ router.get("/favorites", async (req, res): Promise<void> => {
     .from(listingsTable)
     .where(or(...listingIds.map((id) => eq(listingsTable.id, id))));
 
-  const coverImages = await db
-    .select({ listingId: listingImagesTable.listingId, url: listingImagesTable.url })
+  const GALLERY_LIMIT = 6;
+  const imageRows = await db
+    .select({
+      listingId: listingImagesTable.listingId,
+      url: listingImagesTable.url,
+      position: listingImagesTable.position,
+    })
     .from(listingImagesTable)
     .where(
-      and(
-        sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`,
-        eq(listingImagesTable.position, 0)
-      )
-    );
-  const coverMap = new Map(coverImages.map((c) => [c.listingId, c.url]));
+      sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`
+    )
+    .orderBy(listingImagesTable.listingId, listingImagesTable.position);
+  const galleryMap = new Map<number, string[]>();
+  for (const row of imageRows) {
+    const existing = galleryMap.get(row.listingId);
+    if (existing) {
+      if (existing.length < GALLERY_LIMIT) existing.push(row.url);
+    } else {
+      galleryMap.set(row.listingId, [row.url]);
+    }
+  }
 
   res.json(
-    listings.map((l) => ({
-      id: l.id,
-      ownerId: l.ownerId,
-      ownerName: null,
-      ownerAvatar: null,
-      type: l.type,
-      title: l.title,
-      description: l.description ?? null,
-      ville: l.ville,
-      quartier: l.quartier ?? null,
-      surface: l.surface,
-      nbPieces: l.nbPieces,
-      etage: l.etage ?? null,
-      price: l.price,
-      estimatedPrice: l.estimatedPrice ?? null,
-      investmentScore: l.investmentScore ?? null,
-      status: l.status,
-      coverImageUrl: coverMap.get(l.id) ?? null,
-      createdAt: l.createdAt.toISOString(),
-    }))
+    listings.map((l) => {
+      const gallery = galleryMap.get(l.id) ?? [];
+      return {
+        id: l.id,
+        ownerId: l.ownerId,
+        ownerName: null,
+        ownerAvatar: null,
+        type: l.type,
+        title: l.title,
+        description: l.description ?? null,
+        ville: l.ville,
+        quartier: l.quartier ?? null,
+        surface: l.surface,
+        nbPieces: l.nbPieces,
+        etage: l.etage ?? null,
+        price: l.price,
+        estimatedPrice: l.estimatedPrice ?? null,
+        investmentScore: l.investmentScore ?? null,
+        status: l.status,
+        coverImageUrl: gallery[0] ?? null,
+        galleryImageUrls: gallery,
+        createdAt: l.createdAt.toISOString(),
+      };
+    })
   );
 });
 

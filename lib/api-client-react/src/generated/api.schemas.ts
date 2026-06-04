@@ -724,6 +724,7 @@ export interface Listing {
   status: ListingStatus;
   /** @nullable */
   coverImageUrl?: string | null;
+  galleryImageUrls?: string[];
   createdAt: string;
 }
 

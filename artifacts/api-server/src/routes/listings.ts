@@ -47,10 +47,44 @@ async function uniqueSlug(base: string, excludeId?: number): Promise<string> {
   return `${base}-${i}`;
 }
 
+const GALLERY_LIMIT = 6;
+
+// Fetch up to GALLERY_LIMIT images (ordered by position, cover first) for each
+// listing id. Returns a map of listingId -> ordered image URLs.
+async function fetchGalleryMap(
+  listingIds: number[]
+): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  if (listingIds.length === 0) return map;
+
+  const rows = await db
+    .select({
+      listingId: listingImagesTable.listingId,
+      url: listingImagesTable.url,
+      position: listingImagesTable.position,
+    })
+    .from(listingImagesTable)
+    .where(
+      sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`
+    )
+    .orderBy(listingImagesTable.listingId, listingImagesTable.position);
+
+  for (const row of rows) {
+    const existing = map.get(row.listingId);
+    if (existing) {
+      if (existing.length < GALLERY_LIMIT) existing.push(row.url);
+    } else {
+      map.set(row.listingId, [row.url]);
+    }
+  }
+  return map;
+}
+
 function serializeListing(
   l: typeof listingsTable.$inferSelect,
   owner?: typeof usersTable.$inferSelect | null,
-  coverImageUrl?: string | null
+  coverImageUrl?: string | null,
+  galleryImageUrls?: string[] | null
 ) {
   return {
     id: l.id,
@@ -74,6 +108,7 @@ function serializeListing(
     investmentScore: l.investmentScore ?? null,
     status: l.status,
     coverImageUrl: coverImageUrl ?? null,
+    galleryImageUrls: galleryImageUrls ?? [],
     createdAt: l.createdAt.toISOString(),
   };
 }
@@ -131,24 +166,14 @@ router.get("/listings", async (req, res): Promise<void> => {
 
   const total = totalResult[0]?.count ?? 0;
 
-  // Get cover images
-  const listingIds = listings.map((l) => l.id);
-  let coverImages: Array<{ listingId: number; url: string }> = [];
-  if (listingIds.length > 0) {
-    coverImages = await db
-      .select({ listingId: listingImagesTable.listingId, url: listingImagesTable.url })
-      .from(listingImagesTable)
-      .where(
-        and(
-          sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`,
-          eq(listingImagesTable.position, 0)
-        )
-      );
-  }
-  const coverMap = new Map(coverImages.map((c) => [c.listingId, c.url]));
+  // Get gallery images (cover + a few extras) for each listing
+  const galleryMap = await fetchGalleryMap(listings.map((l) => l.id));
 
   res.json({
-    listings: listings.map((l) => serializeListing(l, null, coverMap.get(l.id) ?? null)),
+    listings: listings.map((l) => {
+      const gallery = galleryMap.get(l.id) ?? [];
+      return serializeListing(l, null, gallery[0] ?? null, gallery);
+    }),
     total,
   });
 });
@@ -162,22 +187,14 @@ router.get("/listings/featured", async (req, res): Promise<void> => {
     .orderBy(desc(listingsTable.investmentScore))
     .limit(6);
 
-  const listingIds = listings.map((l) => l.id);
-  let coverImages: Array<{ listingId: number; url: string }> = [];
-  if (listingIds.length > 0) {
-    coverImages = await db
-      .select({ listingId: listingImagesTable.listingId, url: listingImagesTable.url })
-      .from(listingImagesTable)
-      .where(
-        and(
-          sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(listingIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`,
-          eq(listingImagesTable.position, 0)
-        )
-      );
-  }
-  const coverMap = new Map(coverImages.map((c) => [c.listingId, c.url]));
+  const galleryMap = await fetchGalleryMap(listings.map((l) => l.id));
 
-  res.json(listings.map((l) => serializeListing(l, null, coverMap.get(l.id) ?? null)));
+  res.json(
+    listings.map((l) => {
+      const gallery = galleryMap.get(l.id) ?? [];
+      return serializeListing(l, null, gallery[0] ?? null, gallery);
+    })
+  );
 });
 
 // GET /listings/stats

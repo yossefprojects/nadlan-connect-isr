@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Listing } from "@workspace/api-client-react";
 import { InvestmentScore } from "./investment-score";
-import { MapPin, Maximize, Home as HomeIcon, Heart } from "lucide-react";
+import { MapPin, Maximize, Home as HomeIcon, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
 
 interface ListingCardProps {
@@ -24,6 +25,24 @@ const CITY_LABELS: Record<string, string> = {
 
 export function ListingCard({ listing, showStatus, onRemove, isRemoving }: ListingCardProps) {
   const { t } = useLanguage();
+
+  const galleryImages =
+    listing.galleryImageUrls && listing.galleryImageUrls.length > 0
+      ? listing.galleryImageUrls
+      : listing.coverImageUrl
+        ? [listing.coverImageUrl]
+        : [];
+  const [activeImage, setActiveImage] = useState(0);
+  const currentImage = galleryImages[Math.min(activeImage, galleryImages.length - 1)];
+  const hasMultiple = galleryImages.length > 1;
+
+  const goToImage = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const count = galleryImages.length;
+    setActiveImage(((index % count) + count) % count);
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("he-IL", {
       style: "currency",
@@ -38,9 +57,9 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
     <Link href={`/listings/${listing.slug}`}>
       <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-[10px] border-[0.5px] border-[#E5E7EB] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:border-[#C9A84C] hover:shadow-[0_4px_16px_rgba(26,58,92,0.12)]">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {listing.coverImageUrl ? (
+          {currentImage ? (
             <img
-              src={`/api/storage${listing.coverImageUrl}`}
+              src={`/api/storage${currentImage}`}
               alt={listing.title}
               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
             />
@@ -48,6 +67,45 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
               <HomeIcon className="h-10 w-10 opacity-20" />
             </div>
+          )}
+          {hasMultiple && (
+            <>
+              <button
+                type="button"
+                aria-label={t("card.prevPhoto")}
+                title={t("card.prevPhoto")}
+                onClick={(e) => goToImage(e, activeImage - 1)}
+                className="absolute top-1/2 left-2 rtl:left-auto rtl:right-2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-primary shadow-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              >
+                <ChevronLeft className="h-5 w-5 rtl:hidden" />
+                <ChevronRight className="h-5 w-5 hidden rtl:block" />
+              </button>
+              <button
+                type="button"
+                aria-label={t("card.nextPhoto")}
+                title={t("card.nextPhoto")}
+                onClick={(e) => goToImage(e, activeImage + 1)}
+                className="absolute top-1/2 right-2 rtl:right-auto rtl:left-2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-primary shadow-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              >
+                <ChevronRight className="h-5 w-5 rtl:hidden" />
+                <ChevronLeft className="h-5 w-5 hidden rtl:block" />
+              </button>
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                {galleryImages.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={t("card.goToPhoto").replace("{n}", String(i + 1))}
+                    onClick={(e) => goToImage(e, i)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      i === Math.min(activeImage, galleryImages.length - 1)
+                        ? "w-4 bg-white"
+                        : "w-1.5 bg-white/60 hover:bg-white/90"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
           )}
           <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3 flex gap-2">
             <Badge variant="secondary" className="bg-white/90 text-primary hover:bg-white backdrop-blur-sm shadow-sm font-semibold">

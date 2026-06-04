@@ -2224,6 +2224,10 @@ components:
           enum: [draft, published, sold, archived]
         coverImageUrl:
           type: ['string', 'null']
+        galleryImageUrls:
+          type: array
+          items:
+            type: string
         createdAt:
           type: string
           format: date-time
