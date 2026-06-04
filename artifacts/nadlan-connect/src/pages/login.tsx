@@ -201,19 +201,31 @@ export default function Login() {
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/auth/register/agence"
-                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors hover:text-white"
+                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors"
                 style={{ borderColor: NAVY, color: NAVY }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = NAVY)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = NAVY;
+                  e.currentTarget.style.color = "#ffffff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = NAVY;
+                }}
               >
                 {t("login.agency")}
               </Link>
               <Link
                 href="/auth/register/promoteur"
-                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors hover:text-white"
+                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors"
                 style={{ borderColor: NAVY, color: NAVY }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = NAVY)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = NAVY;
+                  e.currentTarget.style.color = "#ffffff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = NAVY;
+                }}
               >
                 {t("login.developer")}
               </Link>
