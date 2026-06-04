@@ -12,9 +12,13 @@ import { Button } from "@/components/ui/button";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Favorites() {
-  const { data: favorites, isLoading } = useGetMyFavorites();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { data: favorites, isLoading } = useGetMyFavorites({
+    query: { enabled: isAuthenticated, queryKey: getGetMyFavoritesQueryKey() },
+  });
   const { t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -82,7 +86,15 @@ export default function Favorites() {
       <h1 className="font-serif text-3xl font-bold text-primary mb-2">{t("favorites.title")}</h1>
       <p className="text-muted-foreground mb-8">{t("favorites.subtitle")}</p>
 
-      {isLoading ? (
+      {!isAuthLoading && !isAuthenticated ? (
+        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
+          <h3 className="text-xl font-medium mb-2">{t("favorites.signin.title")}</h3>
+          <p className="text-muted-foreground mb-6">{t("favorites.signin.subtitle")}</p>
+          <Link href="/auth/login">
+            <Button>{t("favorites.signin.cta")}</Button>
+          </Link>
+        </div>
+      ) : isAuthLoading || isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => <div key={i} className="h-[400px] bg-muted animate-pulse rounded-xl" />)}
         </div>
