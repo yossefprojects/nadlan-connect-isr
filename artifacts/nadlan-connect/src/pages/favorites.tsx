@@ -5,7 +5,9 @@ import {
   type Listing,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { ListingCard } from "@/components/listing-card";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
 
 export default function Favorites() {
@@ -47,7 +49,10 @@ export default function Favorites() {
       ) : favorites?.length === 0 ? (
         <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
           <h3 className="text-xl font-medium mb-2">{t("favorites.empty.title")}</h3>
-          <p className="text-muted-foreground">{t("favorites.empty.subtitle")}</p>
+          <p className="text-muted-foreground mb-6">{t("favorites.empty.subtitle")}</p>
+          <Link href="/listings">
+            <Button>{t("favorites.empty.cta")}</Button>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
