@@ -268,9 +268,9 @@ export default function ListingDetail() {
           </div>
           
           <div>
-            <h1 className="font-serif text-4xl font-bold text-primary mb-2">{listing.title}</h1>
+            <h1 dir="auto" className="font-serif text-4xl font-bold text-primary mb-2">{listing.title}</h1>
             <p className="text-muted-foreground flex items-center gap-2 text-lg">
-              <MapPin className="h-5 w-5" /> {listing.ville}{listing.quartier ? `, ${listing.quartier}` : ""}
+              <MapPin className="h-5 w-5" /> {listing.ville}{listing.quartier ? <>, <span dir="auto">{listing.quartier}</span></> : ""}
             </p>
           </div>
           
@@ -359,7 +359,7 @@ export default function ListingDetail() {
           
           <div>
             <h3 className="font-serif text-2xl font-bold text-primary mb-4">{t("detail.description")}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+            <p dir="auto" className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
               {listing.description || t("detail.noDescription")}
             </p>
           </div>
@@ -505,11 +505,11 @@ export default function ListingDetail() {
           <div className="bg-muted/40 rounded-lg p-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t("detail.property")}</span>
-              <span className="font-medium text-right max-w-[60%] truncate">{listing.title}</span>
+              <span dir="auto" className="font-medium text-right max-w-[60%] truncate">{listing.title}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t("detail.city")}</span>
-              <span className="font-medium">{VILLE_LABELS[listing.ville] ?? listing.ville}{listing.quartier ? ` — ${listing.quartier}` : ""}</span>
+              <span className="font-medium">{VILLE_LABELS[listing.ville] ?? listing.ville}{listing.quartier ? <> — <span dir="auto">{listing.quartier}</span></> : ""}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t("detail.surface")}</span>

@@ -61,12 +61,12 @@ export function ListingCard({ listing, showStatus }: ListingCardProps) {
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start gap-4">
             <div>
-              <h3 className="font-serif text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">
+              <h3 dir="auto" className="font-serif text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">
                 {listing.title}
               </h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                 <MapPin className="h-3 w-3" />
-                {cityLabel}{listing.quartier ? `, ${listing.quartier}` : ""}
+                {cityLabel}{listing.quartier ? <>, <span dir="auto">{listing.quartier}</span></> : ""}
               </p>
             </div>
           </div>
