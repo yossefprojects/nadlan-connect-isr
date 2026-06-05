@@ -1,0 +1,78 @@
+Redesign the "Analyse IA" page (route /outils/analyse-ia) with the following improvements. Keep all existing logic and functionality intact — only update the UI/CSS.
+
+---
+
+## HEADER
+
+- Background: #0D1B3E (dark navy)
+- Keep the badge "Agent Shamai IA · Évaluation" styled as a small pill with a gold border (#C9A84C) and uppercase text
+- Title: "Dashboard Investisseur" — font-size 26px, font-weight 500, white
+- Subtitle: smaller, opacity 0.55, white
+- Move the market ticker bar (Taux BOI, Taux hypothécaire, Indice CBS) INSIDE the header, below the subtitle, as a compact inline row with a dark semi-transparent background (rgba(0,0,0,0.3)), border-radius 6px, font-size 12px. Positive values in green (#4ade80), warning values in yellow (#facc15).
+- Tabs ("Analyse structurée" / "Conversation Shamai") stay below the ticker. Active tab: gold background (#C9A84C), text color #0D1B3E, font-weight 500. Inactive tab: transparent with white text at 55% opacity.
+
+---
+
+## MAIN LAYOUT
+
+- Page background: #F7F5F0 (warm off-white)
+- Two-column grid (1fr 1fr), gap 20px, padding 28px 32px
+- On mobile (< 768px): single column
+
+---
+
+## LEFT COLUMN — Two stacked cards
+
+### Card 1: "Champs rapides"
+- White background, 0.5px border, border-radius 12px, padding 20px
+- Card title: uppercase, font-size 13px, muted color, with a gold Tabler icon (ti-adjustments-horizontal) on the left
+- Fields in a 2-column grid (gap 10px):
+  - Ville / Quartier, Type de bien
+  - Surface (m²), Étage
+  - Année de construction, État du bien
+  - Objectif (full width, spans both columns)
+- Each field: label at 11px uppercase spaced above, input with light gray background, border 0.5px, border-radius 8px, padding 8px 10px, font-size 13px
+- On focus: input border becomes #C9A84C, background turns white
+- Button "Pré-remplir depuis les champs": full width, transparent background, 0.5px border, border-radius 8px, font-size 13px, with a ti-wand icon. Hover: light gray background.
+
+### Card 2: "Annonce à analyser"
+- Same card style
+- Card title with ti-clipboard-text icon
+- Label: "Copiez-collez le texte complet de l'annonce." at 13px muted
+- Textarea: min-height 120px, light gray background, border 0.5px, border-radius 8px, font-size 13px, line-height 1.6, resizable vertically. Focus: gold border, white background.
+- Below textarea: flex row with "Insérer un exemple" (gold underlined link, left) and character count (right), font-size 11px
+- Button "Analyser le bien": full width, height 44px, background #C9A84C, color #0D1B3E, font-weight 500, border-radius 8px, font-size 14px, with ti-sparkles icon. Hover: slightly darker (#b8963e).
+
+---
+
+## RIGHT COLUMN — Result card
+
+- Same card style, min-height ~320px
+- When no analysis has been run yet, show an empty state centered vertically:
+  - Icon: ti-chart-donut at 24px gold, inside a 52x52 rounded square with background #FBF5E6, border-radius 14px
+  - Title: "Aucune analyse pour le moment" — 15px, font-weight 500
+  - Subtitle: "Collez une annonce et lancez l'analyse pour voir les résultats ici." — 13px muted, max-width 240px, centered
+  - Below: a thin top border separator, then 3 numbered steps stacked vertically:
+    Each step: flex row, gold circle with step number (22px, font-size 11px), then text block with bold title + muted description (12px). Background: light gray, border-radius 8px, padding 10px 12px.
+    Steps:
+    1. "Remplissez les champs rapides" — "Optionnel — pour contextualiser l'analyse."
+    2. "Collez votre annonce" — "Texte complet depuis Yad2, Madlan ou autre."
+    3. "Lancez l'analyse" — "Estimation, points forts, risques et recommandations."
+
+---
+
+## FLOATING ACTION BUTTON (Simulateur)
+
+- Keep the existing FAB bottom-right
+- Style: background #C9A84C, color #0D1B3E, border-radius 24px, padding 10px 18px, font-size 13px, font-weight 500, with ti-calculator icon
+- No box-shadow
+
+---
+
+## GENERAL RULES
+
+- No gradients, no drop shadows, no blur effects
+- All text must be readable in both light and dark mode — use CSS variables where possible
+- Do not change any route, state management, API call, or business logic
+- Do not change the Hebrew text or any translated strings
+- Preserve all existing IDs and class names that are referenced in JS

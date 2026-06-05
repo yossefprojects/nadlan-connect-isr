@@ -49,6 +49,10 @@ import {
   Send,
   RotateCcw,
   Link2 as LinkIcon,
+  SlidersHorizontal,
+  Wand2,
+  ClipboardList,
+  PieChart,
 } from "lucide-react";
 
 const GOLD = "#C9A84C";
@@ -415,48 +419,54 @@ export default function AnalyseIA() {
 
   const reco = result ? RECO_STYLE[result.recommendation] ?? RECO_STYLE.orange : null;
 
+  const fieldLabelCls = "text-[11px] uppercase tracking-wide text-muted-foreground";
+  const fieldInputCls =
+    "rounded-lg border-[0.5px] border-black/10 bg-[#F5F4F0] text-[13px] focus-visible:border-[#C9A84C] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0";
+
   const QuickFieldsCard = (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-[#1A3A5C]">{t("analyse.quickFields")}</CardTitle>
+    <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-wide text-muted-foreground">
+          <SlidersHorizontal className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.quickFields")}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfCity")}</Label>
-            <Input value={qf.city} onChange={(e) => setQf({ ...qf, city: e.target.value })} placeholder={t("analyse.qfCityPh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfCity")}</Label>
+            <Input className={fieldInputCls} value={qf.city} onChange={(e) => setQf({ ...qf, city: e.target.value })} placeholder={t("analyse.qfCityPh")} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfType")}</Label>
-            <Input value={qf.type} onChange={(e) => setQf({ ...qf, type: e.target.value })} placeholder={t("analyse.qfTypePh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfType")}</Label>
+            <Input className={fieldInputCls} value={qf.type} onChange={(e) => setQf({ ...qf, type: e.target.value })} placeholder={t("analyse.qfTypePh")} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfSurface")}</Label>
-            <Input value={qf.surface} onChange={(e) => setQf({ ...qf, surface: e.target.value })} placeholder={t("analyse.qfSurfacePh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfSurface")}</Label>
+            <Input className={fieldInputCls} value={qf.surface} onChange={(e) => setQf({ ...qf, surface: e.target.value })} placeholder={t("analyse.qfSurfacePh")} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfFloor")}</Label>
-            <Input value={qf.floor} onChange={(e) => setQf({ ...qf, floor: e.target.value })} placeholder={t("analyse.qfFloorPh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfFloor")}</Label>
+            <Input className={fieldInputCls} value={qf.floor} onChange={(e) => setQf({ ...qf, floor: e.target.value })} placeholder={t("analyse.qfFloorPh")} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfYear")}</Label>
-            <Input value={qf.year} onChange={(e) => setQf({ ...qf, year: e.target.value })} placeholder={t("analyse.qfYearPh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfYear")}</Label>
+            <Input className={fieldInputCls} value={qf.year} onChange={(e) => setQf({ ...qf, year: e.target.value })} placeholder={t("analyse.qfYearPh")} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{t("analyse.qfState")}</Label>
-            <Input value={qf.state} onChange={(e) => setQf({ ...qf, state: e.target.value })} placeholder={t("analyse.qfStatePh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfState")}</Label>
+            <Input className={fieldInputCls} value={qf.state} onChange={(e) => setQf({ ...qf, state: e.target.value })} placeholder={t("analyse.qfStatePh")} />
           </div>
           <div className="col-span-2 space-y-1">
-            <Label className="text-xs">{t("analyse.qfPrice")}</Label>
-            <Input value={qf.price} onChange={(e) => setQf({ ...qf, price: e.target.value })} placeholder={t("analyse.qfPricePh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfPrice")}</Label>
+            <Input className={fieldInputCls} value={qf.price} onChange={(e) => setQf({ ...qf, price: e.target.value })} placeholder={t("analyse.qfPricePh")} />
           </div>
           <div className="col-span-2 space-y-1">
-            <Label className="text-xs">{t("analyse.qfGoal")}</Label>
-            <Input value={qf.goal} onChange={(e) => setQf({ ...qf, goal: e.target.value })} placeholder={t("analyse.qfGoalPh")} />
+            <Label className={fieldLabelCls}>{t("analyse.qfGoal")}</Label>
+            <Input className={fieldInputCls} value={qf.goal} onChange={(e) => setQf({ ...qf, goal: e.target.value })} placeholder={t("analyse.qfGoalPh")} />
           </div>
         </div>
-        <Button variant="outline" size="sm" className="w-full border-[#1A3A5C]/20 text-[#1A3A5C]" onClick={applyFields}>
-          {t("analyse.fillFields")}
+        <Button variant="outline" size="sm" className="w-full rounded-lg border-[0.5px] border-black/15 text-[13px] text-[#1A3A5C] shadow-none hover:bg-muted" onClick={applyFields}>
+          <Wand2 className="mr-2 h-3.5 w-3.5" /> {t("analyse.fillFields")}
         </Button>
       </CardContent>
     </Card>
@@ -465,34 +475,59 @@ export default function AnalyseIA() {
   return (
     <div className="min-h-screen bg-[#F8F7F4]">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#0F2235] to-[#1A3A5C] text-white">
-        <div className="container py-12">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tracking-wide text-[#C9A84C]">
+      <div className="bg-[#0D1B3E] text-white">
+        <div className="container py-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C] px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#C9A84C]">
               <Scale className="h-3.5 w-3.5" /> {t("analyse.shamaiBadge")}
             </span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl">{t("analyse.title")}</h1>
-          <p className="mt-2 max-w-2xl text-white/70">{t("analyse.shamaiSubtitle")}</p>
+          <h1 className="text-[26px] font-medium leading-tight text-white">{t("analyse.title")}</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-white/55">{t("analyse.shamaiSubtitle")}</p>
+
+          {/* Market ticker */}
+          <div className="mt-4 inline-flex max-w-full flex-wrap items-center gap-x-5 gap-y-1.5 overflow-x-auto rounded-md bg-black/30 px-3.5 py-2 text-[12px]">
+            <span className="flex items-center gap-1.5 text-white/55">
+              <TrendingUp className="h-3 w-3 text-[#4ade80]" />
+              {t("market.asOf")}{" "}
+              {new Date().toLocaleDateString(
+                { fr: "fr-FR", en: "en-US", he: "he-IL" }[language] ?? "fr-FR",
+                { day: "2-digit", month: "2-digit", year: "numeric" },
+              )}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-white/55">{t("market.boiRate")}</span>
+              <span className="font-semibold text-[#facc15]">4.5%</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-white/55">{t("market.mortgageRate")}</span>
+              <span className="font-semibold text-[#facc15]">5.2%</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-white/55">{t("market.cbsIndex")}</span>
+              <span className="font-semibold text-white">285.4</span>
+              <span className="font-medium text-[#4ade80]">{t("market.cbsTrend")}</span>
+            </span>
+          </div>
 
           {/* Mode toggle */}
-          <div className="mt-6 inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+          <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/5 p-1">
             <button
               onClick={() => setMode("analysis")}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 mode === "analysis"
-                  ? "bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)]"
-                  : "text-white/70 hover:text-white"
+                  ? "bg-[#C9A84C] text-[#0D1B3E]"
+                  : "text-white/55 hover:text-white"
               }`}
             >
               <FileText className="h-4 w-4" /> {t("analyse.tabAnalysis")}
             </button>
             <button
               onClick={() => setMode("chat")}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 mode === "chat"
-                  ? "bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)]"
-                  : "text-white/70 hover:text-white"
+                  ? "bg-[#C9A84C] text-[#0D1B3E]"
+                  : "text-white/55 hover:text-white"
               }`}
             >
               <MessageSquare className="h-4 w-4" /> {t("analyse.tabChat")}
@@ -502,15 +537,17 @@ export default function AnalyseIA() {
       </div>
 
       {mode === "analysis" ? (
-        <div className="container py-8 grid gap-6 lg:grid-cols-5">
+        <div className="container grid gap-5 px-6 py-7 md:px-8 lg:grid-cols-2">
           {/* Input */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="sticky top-20 space-y-6">
+          <div className="space-y-5">
+            <div className="space-y-5">
               {QuickFieldsCard}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-[#1A3A5C]">{t("analyse.inputTitle")}</CardTitle>
-                  <CardDescription>{t("analyse.inputDesc")}</CardDescription>
+              <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-wide text-muted-foreground">
+                    <ClipboardList className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.inputTitle")}
+                  </CardTitle>
+                  <CardDescription className="text-[13px]">{t("analyse.inputDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="rounded-lg border border-[#1A3A5C]/15 bg-[#1A3A5C]/[0.03] p-3 space-y-2">
@@ -558,24 +595,24 @@ export default function AnalyseIA() {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder={t("analyse.placeholder")}
-                    className="min-h-[200px] resize-y"
+                    className="min-h-[120px] resize-y rounded-lg border-[0.5px] border-black/10 bg-[#F5F4F0] text-[13px] leading-relaxed focus-visible:border-[#C9A84C] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                   <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
                       onClick={() => setText(EXAMPLE)}
-                      className="text-xs text-[#1A3A5C] underline underline-offset-2 hover:text-[#C9A84C]"
+                      className="text-[11px] text-[#C9A84C] underline underline-offset-2 hover:opacity-80"
                     >
                       {t("analyse.insertExample")}
                     </button>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {text.length} {t("analyse.charCount")}
                     </span>
                   </div>
                   <Button
                     onClick={handleAnalyze}
                     disabled={analyze.isPending}
-                    className="w-full border-0 bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] font-bold text-[#0A1628] shadow-[0_6px_18px_rgba(201,168,76,0.38)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(201,168,76,0.5)]"
+                    className="h-11 w-full rounded-lg border-0 bg-[#C9A84C] text-sm font-medium text-[#0D1B3E] shadow-none transition-colors hover:bg-[#b8963e]"
                   >
                     {analyze.isPending ? (
                       <>
@@ -595,18 +632,30 @@ export default function AnalyseIA() {
           </div>
 
           {/* Results */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="space-y-5">
             {!result && !analyze.isPending && (
-              <Card className="border-dashed border-[#C9A84C]/30">
-                <CardContent className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-                  <div className="relative mb-5">
-                    <span className="absolute inset-0 animate-ping rounded-2xl bg-[#C9A84C]/20" />
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[#C9A84C]/20 bg-[#C9A84C]/10">
-                      <Gauge className="h-8 w-8 text-[#C9A84C]" />
+              <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
+                <CardContent className="px-6 py-8">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-[#FBF5E6]">
+                      <PieChart className="h-6 w-6 text-[#C9A84C]" />
                     </div>
+                    <p className="text-[15px] font-medium text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
+                    <p className="mt-1 max-w-[240px] text-[13px] text-muted-foreground">{t("analyse.emptyDesc")}</p>
                   </div>
-                  <p className="font-serif text-lg text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
-                  <p className="text-sm">{t("analyse.emptyDesc")}</p>
+                  <div className="mt-6 space-y-2.5 border-t border-black/10 pt-6">
+                    {[1, 2, 3].map((n) => (
+                      <div key={n} className="flex items-start gap-3 rounded-lg bg-[#F5F4F0] p-3">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#C9A84C] text-[12px] font-semibold text-[#0D1B3E]">
+                          {n}
+                        </span>
+                        <div className="space-y-0.5">
+                          <p className="text-[13px] font-medium text-[#1A3A5C]">{t(`analyse.step${n}Title`)}</p>
+                          <p className="text-[12px] leading-snug text-muted-foreground">{t(`analyse.step${n}Desc`)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}

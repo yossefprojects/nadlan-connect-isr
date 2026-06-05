@@ -1,0 +1,98 @@
+Redesign both registration pages (/auth/register/promoteur and /auth/register/agence) with the following changes. Keep all existing logic, form validation, API calls, and routing intact — only update the UI and the pricing/plan structure.
+
+---
+
+## PRICING STRUCTURE — Replace the existing 3 plans with 2 plans only
+
+Remove the "Starter" plan entirely. Keep only:
+
+**Plan Gratuit — 0₪**
+- 3 annonces publiées
+- 2 analyses IA Shamai / mois
+- Simulateur financier inclus
+- Page profil basique
+
+**Plan Pro — 49₪/mois**
+- Annonces illimitées
+- Analyse IA Shamai illimitée
+- Simulateur financier inclus
+- Page profil personnalisée + badge vérifié
+- Mise en avant dans les résultats
+- Support email prioritaire
+
+The plan selector UI should be 2 cards side by side (equal width, gap 12px).
+The "Pro" card should have a gold border (2px solid #C9A84C) and a small badge "Recommandé" at the top right: background #C9A84C, color #0D1B3E, font-size 11px, border-radius 0 10px 0 8px, padding 4px 10px, positioned absolute top-right of the card.
+The "Gratuit" card: border 0.5px solid rgba(0,0,0,0.12), border-radius 10px.
+Both cards: padding 20px, cursor pointer, transition on hover.
+Selected card: border 2px solid #0D1B3E, background #F7F5F0.
+Inside each card: plan name at 14px font-weight 500, price large (24px font-weight 600, color #0D1B3E), "/mois" small muted, then a list of features at 12px with ✓ checkmarks in green (#16a34a) and ✗ in muted gray.
+
+---
+
+## PAGE LAYOUT
+
+- Page background: #F7F5F0
+- Center a single white card: max-width 480px, border-radius 14px, border 0.5px solid rgba(0,0,0,0.08), padding 32px
+- At the top of the card: logo or site name, then page title:
+  - /promoteur → "Créer un compte promoteur"
+  - /agence → "Créer un compte agence"
+  - Font-size 20px, font-weight 500, color #0D1B3E, margin-bottom 6px
+- Subtitle below title (muted, 13px):
+  - /promoteur → "Publiez vos projets et accédez aux outils d'analyse."
+  - /agence → "Gérez vos annonces et développez votre visibilité."
+
+---
+
+## FORM FIELDS
+
+Keep all existing fields and their validation. Apply this styling:
+- Each field: label at 12px uppercase letter-spacing 0.05em muted, above the input
+- Input: full width, padding 10px 12px, border 0.5px solid rgba(0,0,0,0.15), border-radius 8px, font-size 14px, background white
+- On focus: border-color #C9A84C, outline none
+- Error state: border-color #dc2626, small red message below at 12px
+- Field order: Prénom, Nom, Email, Téléphone, Agence/Société, Site web, Choix du plan, Mot de passe
+
+---
+
+## PASSWORD FIELD
+
+- Add a show/hide toggle icon (eye icon) on the right side of the input
+- Show strength indicator below: 4-segment bar, colors red → orange → yellow → green as strength increases
+- Hint text: "8 caractères minimum" at 11px muted
+
+---
+
+## TERMS CHECKBOX
+
+- Keep existing CGU/CGV links and required validation
+- Style: custom checkbox with gold accent color (#C9A84C) when checked
+- Label font-size 13px, links in #C9A84C underlined
+
+---
+
+## SUBMIT BUTTON
+
+- Full width, height 46px, background #0D1B3E, color white, border-radius 8px, font-size 15px, font-weight 500
+- Text:
+  - /promoteur → "Créer mon compte promoteur"
+  - /agence → "Créer mon compte agence"
+- Hover: background #1a2f5e
+- Loading state: show a spinner and disable the button while submitting
+
+---
+
+## BOTTOM LINK
+
+- /promoteur → "Vous êtes une agence ? Inscription Agence" (link to /auth/register/agence)
+- /agence → "Vous êtes un promoteur ? Inscription Promoteur" (link to /auth/register/promoteur)
+- Font-size 13px, centered, muted text, link in #C9A84C
+
+---
+
+## GENERAL RULES
+
+- No gradients, no shadows, no blur
+- Mobile-first: on screens < 480px the card fills full width with padding 20px, plan cards stack vertically
+- Do not change any existing form field names, IDs, or validation logic
+- Do not change any route or backend call
+- Preserve all existing error handling and success redirect behavior

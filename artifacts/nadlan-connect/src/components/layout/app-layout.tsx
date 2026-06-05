@@ -8,10 +8,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [location] = useLocation();
   const isHome = location === "/";
+  const hideMarketBar = location === "/outils/analyse-ia";
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <div className={`${isHome ? "fixed" : "sticky"} top-0 left-0 right-0 z-50`}>
-        <MarketBar />
+        {!hideMarketBar && <MarketBar />}
         <Navbar />
       </div>
       <main className="flex-1 w-full relative">
