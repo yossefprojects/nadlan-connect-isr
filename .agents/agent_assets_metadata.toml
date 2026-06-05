@@ -24,3 +24,33 @@ id = "VXaR3JXxmHuIZnVA_lFYV"
 uri = "file://artifacts/nadlan-connect/src/assets/pro-network.png"
 type = "image"
 title = "Modern glass office"
+
+[[generated]]
+id = "qWyIzyfQI4voGD3TSQB3V"
+uri = "file://attached_assets/seed_listings/kitchen_1.png"
+type = "image"
+title = "kitchen"
+
+[[generated]]
+id = "hutIfEI7WVz2svV3O0G9o"
+uri = "file://attached_assets/seed_listings/bathroom_1.png"
+type = "image"
+title = "bathroom"
+
+[[generated]]
+id = "rliOkvjuK6j4mEJDH1La-"
+uri = "file://attached_assets/seed_listings/exterior_1.png"
+type = "image"
+title = "building exterior"
+
+[[generated]]
+id = "Tuw3-9RtFor7MHPd9Kh4C"
+uri = "file://attached_assets/seed_listings/balcony_1.png"
+type = "image"
+title = "balcony view"
+
+[[generated]]
+id = "19QsJGWD4Pv97q3LD1kDb"
+uri = "file://attached_assets/seed_listings/dining_1.png"
+type = "image"
+title = "dining area"
