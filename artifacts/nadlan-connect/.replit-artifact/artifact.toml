@@ -29,8 +29,56 @@ PORT = "3000"
 BASE_PATH = "/"
 NODE_ENV = "production"
 
+# ── SPA fallback rewrites ────────────────────────────────────────────────────
+#
+# Public routes (/  /listings  /listings/:slug  /programme/:slug
+# /outils/analyse-ia  /cgu  /cgv) are prerendered to static HTML files by the
+# post-build prerender step and served directly by the static server.
+#
+# Private / authenticated routes still need the SPA shell because they are
+# never prerendered.  Their rewrites are listed below.
+#
+# NOTE: /listings/* and /programme/* do NOT have a catch-all rewrite.
+# Prerendered slugs are served as static files (HTTP 200 + route-specific HTML).
+# Slugs that do not exist as static files return a genuine HTTP 404, which is
+# the desired behaviour for unknown/made-up URLs and eliminates the soft-404
+# crawl-budget problem.  The production build REQUIRES DATABASE_URL so that
+# all currently published slugs are prerendered before deployment.
+
 [[services.production.rewrites]]
-from = "/*"
+from = "/auth"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/auth/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/dashboard"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/dashboard/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/favorites"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/leads"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/leads/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/outils/mes-rapports"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/admin"
 to = "/index.html"
 
 [services.env]
