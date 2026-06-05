@@ -379,6 +379,33 @@ export interface ShamaiChatResult {
   reply: string;
 }
 
+/**
+ * Language for the synthesized listing text.
+ */
+export type ExtractListingInputLanguage = typeof ExtractListingInputLanguage[keyof typeof ExtractListingInputLanguage];
+
+
+export const ExtractListingInputLanguage = {
+  fr: 'fr',
+  en: 'en',
+  he: 'he',
+} as const;
+
+export interface ExtractListingInput {
+  /**
+     * Public URL of a real-estate listing page (e.g. Yad2, Madlan) to fetch and summarize.
+     * @maxLength 2000
+     */
+  url: string;
+  /** Language for the synthesized listing text. */
+  language?: ExtractListingInputLanguage;
+}
+
+export interface ExtractListingResult {
+  /** Synthesized property listing text extracted from the page, ready to analyze. */
+  listingText: string;
+}
+
 export type SavedReportKind = typeof SavedReportKind[keyof typeof SavedReportKind];
 
 

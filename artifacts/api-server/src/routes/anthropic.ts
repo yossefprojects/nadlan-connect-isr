@@ -1,8 +1,11 @@
 import { Router } from "express";
+import { lookup as dnsLookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import {
   AnalyzePropertyBody,
   AnalyzePropertyResponse,
   ShamaiChatBody,
+  ExtractListingBody,
 } from "@workspace/api-zod";
 import { SHAMAI_SECTION_A } from "../lib/shamaiPrompt";
 
@@ -186,6 +189,162 @@ Termine les rapports complets par un court avertissement indicatif.
 
 Ton : expert, précis, honnête sur les incertitudes.`;
 
+// ── Listing-URL fetch + synthesis ────────────────────────────────────────────
+const FETCH_TIMEOUT_MS = 12_000;
+const MAX_PAGE_BYTES = 4_000_000; // 4 MB hard cap on the downloaded page
+const MAX_TEXT_CHARS = 14_000; // text sent to the model after HTML stripping
+const MAX_REDIRECTS = 5; // each hop is re-validated by the SSRF guard
+
+// Block requests that resolve to non-public address space (SSRF guard).
+function isPrivateIp(ip: string): boolean {
+  const v = isIP(ip);
+  if (v === 4) {
+    const p = ip.split(".").map(Number);
+    if (p[0] === 10) return true;
+    if (p[0] === 127) return true; // loopback
+    if (p[0] === 169 && p[1] === 254) return true; // link-local + cloud metadata
+    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
+    if (p[0] === 192 && p[1] === 168) return true;
+    if (p[0] === 100 && p[1] >= 64 && p[1] <= 127) return true; // CGNAT
+    if (p[0] === 0) return true;
+    return false;
+  }
+  if (v === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === "::1" || lower === "::") return true; // loopback / unspecified
+    if (lower.startsWith("fe80")) return true; // link-local
+    if (lower.startsWith("fc") || lower.startsWith("fd")) return true; // unique-local
+    // IPv4-mapped IPv6 (::ffff:a.b.c.d)
+    const mapped = lower.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (mapped) return isPrivateIp(mapped[1]);
+    return false;
+  }
+  return false;
+}
+
+async function assertPublicUrl(raw: string): Promise<URL> {
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error("INVALID_URL");
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("INVALID_URL");
+  }
+  const host = parsed.hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal")) {
+    throw new Error("BLOCKED_HOST");
+  }
+  // Resolve every address the host maps to and reject if any is private.
+  let addresses: { address: string }[];
+  if (isIP(host)) {
+    addresses = [{ address: host }];
+  } else {
+    try {
+      addresses = await dnsLookup(host, { all: true });
+    } catch {
+      throw new Error("DNS_FAILED");
+    }
+  }
+  if (addresses.length === 0) throw new Error("DNS_FAILED");
+  for (const a of addresses) {
+    if (isPrivateIp(a.address)) throw new Error("BLOCKED_HOST");
+  }
+  return parsed;
+}
+
+async function fetchPageText(raw: string): Promise<string> {
+  // Manual redirect handling: every hop (including the initial URL) must pass
+  // the SSRF guard, otherwise a public URL could redirect to an internal host.
+  let current = await assertPublicUrl(raw);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  let resp: Response;
+  try {
+    let redirects = 0;
+    while (true) {
+      let r: Response;
+      try {
+        r = await fetch(current, {
+          redirect: "manual",
+          signal: controller.signal,
+          headers: {
+            "user-agent":
+              "Mozilla/5.0 (compatible; NadlanConnectBot/1.0; +https://nadlanconnect.replit.app)",
+            accept: "text/html,application/xhtml+xml",
+          },
+        });
+      } catch {
+        throw new Error("FETCH_FAILED");
+      }
+      // 3xx with a Location header → validate the next hop and continue.
+      if (r.status >= 300 && r.status < 400) {
+        const location = r.headers.get("location");
+        if (!location) throw new Error("FETCH_FAILED");
+        if (++redirects > MAX_REDIRECTS) throw new Error("FETCH_FAILED");
+        const next = new URL(location, current.href);
+        current = await assertPublicUrl(next.href);
+        continue;
+      }
+      resp = r;
+      break;
+    }
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!resp.ok) throw new Error("FETCH_FAILED");
+  const ct = resp.headers.get("content-type") ?? "";
+  if (ct && !/text\/html|application\/xhtml|text\/plain/i.test(ct)) {
+    throw new Error("NOT_HTML");
+  }
+  const lenHeader = Number(resp.headers.get("content-length") ?? "0");
+  if (lenHeader && lenHeader > MAX_PAGE_BYTES) throw new Error("TOO_LARGE");
+
+  const reader = resp.body?.getReader();
+  if (!reader) throw new Error("FETCH_FAILED");
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      received += value.length;
+      if (received > MAX_PAGE_BYTES) {
+        await reader.cancel();
+        throw new Error("TOO_LARGE");
+      }
+      chunks.push(value);
+    }
+  }
+  const html = Buffer.concat(chunks).toString("utf-8");
+  return htmlToText(html);
+}
+
+function htmlToText(html: string): string {
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.slice(0, MAX_TEXT_CHARS);
+}
+
+const EXTRACT_SYSTEM: Record<string, string> = {
+  fr: `Tu reçois le contenu texte brut d'une page web d'annonce immobilière (souvent bruité : menus, pubs, pieds de page). Extrais et résume UNIQUEMENT les informations sur le bien immobilier, en une description claire et continue en français, prête à être analysée. Inclure si disponibles : type de bien, ville/quartier, surface (m²), nombre de pièces, étage, année de construction, état/rénovation, prix demandé (₪), loyer éventuel, et caractéristiques (Mamad, ascenseur, parking, balcon, etc.). N'invente aucune donnée absente. Si la page n'est manifestement pas une annonce immobilière, réponds exactement : "AUCUNE_ANNONCE". Ne renvoie que la description, sans titre ni commentaire.`,
+  en: `You receive the raw text of a real-estate listing web page (often noisy: menus, ads, footers). Extract and summarize ONLY the property information into a clear, continuous description in English, ready to be analyzed. Include when available: property type, city/neighborhood, surface (m²), rooms, floor, construction year, condition/renovation, asking price (₪), any rent, and features (Mamad, elevator, parking, balcony, etc.). Do not invent missing data. If the page is clearly not a property listing, reply exactly: "AUCUNE_ANNONCE". Return only the description, with no title or commentary.`,
+  he: `אתה מקבל את הטקסט הגולמי של דף אינטרנט של מודעת נדל"ן (לרוב רועש: תפריטים, פרסומות, כותרות תחתונות). חלץ וסכם רק את המידע על הנכס לתיאור ברור ורציף בעברית, מוכן לניתוח. כלול אם זמין: סוג הנכס, עיר/שכונה, שטח (מ"ר), מספר חדרים, קומה, שנת בנייה, מצב/שיפוץ, מחיר מבוקש (₪), שכירות אם קיימת, ומאפיינים (ממ"ד, מעלית, חניה, מרפסת וכו'). אל תמציא נתונים חסרים. אם הדף בבירור אינו מודעת נדל"ן, השב בדיוק: "AUCUNE_ANNONCE". החזר רק את התיאור, ללא כותרת או הערות.`,
+};
+
 function extractJson(text: string): string {
   const trimmed = text.trim();
   const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -336,6 +495,90 @@ ${NUMBER_FORMAT_GUIDE[language] ?? NUMBER_FORMAT_GUIDE.fr}`,
     res.json({ reply });
   } catch (err) {
     req.log.error({ err }, "Anthropic shamai-chat request failed");
+    res.status(502).json({ error: "Le service d'analyse IA est momentanément indisponible." });
+  }
+});
+
+// POST /anthropic/extract-listing
+router.post("/anthropic/extract-listing", async (req, res): Promise<void> => {
+  const parsed = ExtractListingBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Lien invalide." });
+    return;
+  }
+
+  const rateKey = req.user?.id ?? req.ip ?? "anonymous";
+  if (!allowRequest(rateKey)) {
+    res.status(429).json({
+      error: "Trop de requêtes. Patientez une minute avant de réessayer.",
+    });
+    return;
+  }
+
+  // Fetch the page server-side (SSRF-guarded).
+  let pageText: string;
+  try {
+    pageText = await fetchPageText(parsed.data.url);
+  } catch (err) {
+    const code = (err as Error).message;
+    if (code === "INVALID_URL") {
+      res.status(400).json({ error: "Lien invalide." });
+      return;
+    }
+    if (code === "BLOCKED_HOST" || code === "DNS_FAILED") {
+      res.status(400).json({ error: "Ce lien ne peut pas être récupéré." });
+      return;
+    }
+    req.log.warn({ err }, "extract-listing fetch failed");
+    res.status(502).json({
+      error: "Impossible de récupérer cette page. Collez le texte manuellement.",
+    });
+    return;
+  }
+
+  if (pageText.trim().length < 40) {
+    res.status(502).json({
+      error: "Cette page ne contient pas de texte exploitable. Collez le texte manuellement.",
+    });
+    return;
+  }
+
+  // Lazy import so a missing AI integration env only fails this route.
+  let anthropic;
+  try {
+    ({ anthropic } = await import("@workspace/integrations-anthropic-ai"));
+  } catch (err) {
+    req.log.error({ err }, "Anthropic integration is not configured");
+    res.status(502).json({ error: "Le service d'analyse IA n'est pas configuré." });
+    return;
+  }
+
+  const language = parsed.data.language ?? "fr";
+
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      system: EXTRACT_SYSTEM[language] ?? EXTRACT_SYSTEM.fr,
+      messages: [
+        {
+          role: "user",
+          content: `Contenu de la page (${parsed.data.url}) :\n\n${pageText}`,
+        },
+      ],
+    });
+
+    const listingText = firstTextBlock(message.content).trim();
+    if (!listingText || listingText.includes("AUCUNE_ANNONCE")) {
+      res.status(502).json({
+        error: "Aucune annonce immobilière détectée sur cette page. Collez le texte manuellement.",
+      });
+      return;
+    }
+
+    res.json({ listingText });
+  } catch (err) {
+    req.log.error({ err }, "Anthropic extract-listing synthesis failed");
     res.status(502).json({ error: "Le service d'analyse IA est momentanément indisponible." });
   }
 });

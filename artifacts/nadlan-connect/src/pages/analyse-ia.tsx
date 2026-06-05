@@ -5,6 +5,7 @@ import {
   useShamaiChat,
   useCreateReport,
   useGetReport,
+  useExtractListing,
   getGetReportQueryKey,
 } from "@workspace/api-client-react";
 import type {
@@ -47,6 +48,7 @@ import {
   FileText,
   Send,
   RotateCcw,
+  Link2 as LinkIcon,
 } from "lucide-react";
 
 const GOLD = "#C9A84C";
@@ -109,6 +111,7 @@ type QuickFields = {
   floor: string;
   year: string;
   state: string;
+  price: string;
   goal: string;
 };
 
@@ -119,6 +122,7 @@ const EMPTY_QF: QuickFields = {
   floor: "",
   year: "",
   state: "",
+  price: "",
   goal: "",
 };
 
@@ -148,6 +152,7 @@ function composeFromFields(qf: QuickFields): string {
   if (qf.floor) parts.push(`étage ${qf.floor}`);
   if (qf.year) parts.push(`construit ${qf.year}`);
   if (qf.state) parts.push(qf.state);
+  if (qf.price) parts.push(`prix ${qf.price}`);
   let s = parts.join(", ");
   if (qf.goal) s += `. Objectif : ${qf.goal}`;
   return s ? s + "." : "";
@@ -173,6 +178,10 @@ export default function AnalyseIA() {
   const [analyzedText, setAnalyzedText] = useState("");
   const [exporting, setExporting] = useState(false);
   const analyze = useAnalyzeProperty();
+
+  // ---- Import from a listing URL ----
+  const [url, setUrl] = useState("");
+  const extract = useExtractListing();
 
   // ---- Chat mode state ----
   const [messages, setMessages] = useState<ShamaiChatMessage[]>([]);
@@ -260,6 +269,27 @@ export default function AnalyseIA() {
       setChatInput((prev) => (prev ? prev + " " + composed : composed));
     } else {
       setText((prev) => (prev ? prev + "\n" + composed : composed));
+    }
+  };
+
+  const handleImportUrl = async () => {
+    const link = url.trim();
+    if (!link) return;
+    if (!/^https?:\/\/.+/i.test(link)) {
+      toast({ title: t("analyse.urlInvalid"), variant: "destructive" });
+      return;
+    }
+    try {
+      const res = await extract.mutateAsync({ data: { url: link, language } });
+      setText(res.listingText);
+      setResult(null);
+      toast({ title: t("analyse.urlSuccess") });
+    } catch {
+      toast({
+        title: t("analyse.urlFailed"),
+        description: t("analyse.urlFailedDesc"),
+        variant: "destructive",
+      });
     }
   };
 
@@ -417,6 +447,10 @@ export default function AnalyseIA() {
             <Input value={qf.state} onChange={(e) => setQf({ ...qf, state: e.target.value })} placeholder={t("analyse.qfStatePh")} />
           </div>
           <div className="col-span-2 space-y-1">
+            <Label className="text-xs">{t("analyse.qfPrice")}</Label>
+            <Input value={qf.price} onChange={(e) => setQf({ ...qf, price: e.target.value })} placeholder={t("analyse.qfPricePh")} />
+          </div>
+          <div className="col-span-2 space-y-1">
             <Label className="text-xs">{t("analyse.qfGoal")}</Label>
             <Input value={qf.goal} onChange={(e) => setQf({ ...qf, goal: e.target.value })} placeholder={t("analyse.qfGoalPh")} />
           </div>
@@ -479,6 +513,47 @@ export default function AnalyseIA() {
                   <CardDescription>{t("analyse.inputDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="rounded-lg border border-[#1A3A5C]/15 bg-[#1A3A5C]/[0.03] p-3 space-y-2">
+                    <Label className="text-xs flex items-center gap-1.5 text-[#1A3A5C]">
+                      <LinkIcon className="h-3.5 w-3.5" /> {t("analyse.urlLabel")}
+                    </Label>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Input
+                        type="url"
+                        inputMode="url"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleImportUrl();
+                          }
+                        }}
+                        placeholder={t("analyse.urlPh")}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleImportUrl}
+                        disabled={extract.isPending || !url.trim()}
+                        className="border-[#1A3A5C]/20 text-[#1A3A5C] shrink-0"
+                      >
+                        {extract.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {t("analyse.urlImporting")}
+                          </>
+                        ) : (
+                          <>
+                            <Download className="mr-2 h-4 w-4" />
+                            {t("analyse.urlBtn")}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{t("analyse.urlHint")}</p>
+                  </div>
                   <Textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}

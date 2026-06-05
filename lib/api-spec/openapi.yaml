@@ -1374,6 +1374,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
 
+  /anthropic/extract-listing:
+    post:
+      tags: [AI]
+      operationId: extractListing
+      summary: Fetch a listing URL and synthesize its text (Claude)
+      description: Fetches a public real-estate listing page server-side and returns a synthesized listing description ready to analyze.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractListingInput'
+      responses:
+        '200':
+          description: Synthesized listing text.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractListingResult'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '502':
+          description: Fetch or AI synthesis failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
   /reports:
     get:
       tags: [Reports]
@@ -1851,6 +1889,28 @@ components:
         reply:
           type: string
           description: Assistant reply as Markdown (a Shamai-style report or conversational answer).
+
+    ExtractListingInput:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+          maxLength: 2000
+          description: Public URL of a real-estate listing page (e.g. Yad2, Madlan) to fetch and summarize.
+        language:
+          type: string
+          enum: [fr, en, he]
+          default: fr
+          description: Language for the synthesized listing text.
+    ExtractListingResult:
+      type: object
+      required: [listingText]
+      properties:
+        listingText:
+          type: string
+          description: Synthesized property listing text extracted from the page, ready to analyze.
 
     # ── Saved reports ──
     SavedReport:

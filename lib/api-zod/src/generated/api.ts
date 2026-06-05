@@ -1396,6 +1396,24 @@ export const ShamaiChatResponse = zod.object({
 
 
 /**
+ * Fetches a public real-estate listing page server-side and returns a synthesized listing description ready to analyze.
+ * @summary Fetch a listing URL and synthesize its text (Claude)
+ */
+export const extractListingBodyUrlMax = 2000;
+
+export const extractListingBodyLanguageDefault = `fr`;
+
+export const ExtractListingBody = zod.object({
+  "url": zod.string().url().max(extractListingBodyUrlMax).describe('Public URL of a real-estate listing page (e.g. Yad2, Madlan) to fetch and summarize.'),
+  "language": zod.enum(['fr', 'en', 'he']).default(extractListingBodyLanguageDefault).describe('Language for the synthesized listing text.')
+})
+
+export const ExtractListingResponse = zod.object({
+  "listingText": zod.string().describe('Synthesized property listing text extracted from the page, ready to analyze.')
+})
+
+
+/**
  * @summary List the current user's saved reports
  */
 export const ListMyReportsHeader = zod.object({

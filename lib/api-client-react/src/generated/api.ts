@@ -35,6 +35,8 @@ import type {
   Document,
   DocumentInput,
   ErrorEnvelope,
+  ExtractListingInput,
+  ExtractListingResult,
   Favorite,
   HealthStatus,
   Lead,
@@ -4315,6 +4317,78 @@ export const useShamaiChat = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getShamaiChatMutationOptions(options));
+    }
+
+export const getExtractListingUrl = () => {
+
+
+
+
+  return `/api/anthropic/extract-listing`
+}
+
+/**
+ * Fetches a public real-estate listing page server-side and returns a synthesized listing description ready to analyze.
+ * @summary Fetch a listing URL and synthesize its text (Claude)
+ */
+export const extractListing = async (extractListingInput: ExtractListingInput, options?: RequestInit): Promise<ExtractListingResult> => {
+
+  return customFetch<ExtractListingResult>(getExtractListingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      extractListingInput,)
+  }
+);}
+
+
+
+
+export const getExtractListingMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof extractListing>>, TError,{data: BodyType<ExtractListingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof extractListing>>, TError,{data: BodyType<ExtractListingInput>}, TContext> => {
+
+const mutationKey = ['extractListing'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof extractListing>>, {data: BodyType<ExtractListingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  extractListing(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExtractListingMutationResult = NonNullable<Awaited<ReturnType<typeof extractListing>>>
+    export type ExtractListingMutationBody = BodyType<ExtractListingInput>
+    export type ExtractListingMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Fetch a listing URL and synthesize its text (Claude)
+ */
+export const useExtractListing = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof extractListing>>, TError,{data: BodyType<ExtractListingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof extractListing>>,
+        TError,
+        {data: BodyType<ExtractListingInput>},
+        TContext
+      > => {
+      return useMutation(getExtractListingMutationOptions(options));
     }
 
 export const getListMyReportsUrl = () => {
