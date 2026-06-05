@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -24,7 +24,7 @@ const CITY_LABELS: Record<string, string> = {
 };
 
 export function ListingCard({ listing, showStatus, onRemove, isRemoving }: ListingCardProps) {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   const galleryImages =
     listing.galleryImageUrls && listing.galleryImageUrls.length > 0
@@ -36,11 +36,59 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
   const currentImage = galleryImages[Math.min(activeImage, galleryImages.length - 1)];
   const hasMultiple = galleryImages.length > 1;
 
+  const stepImage = (delta: number) => {
+    const count = galleryImages.length;
+    if (count === 0) return;
+    setActiveImage((prev) => ((prev + delta) % count + count) % count);
+  };
+
   const goToImage = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
     const count = galleryImages.length;
     setActiveImage(((index % count) + count) % count);
+  };
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipedRef = useRef(false);
+  const SWIPE_THRESHOLD = 40;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    swipedRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
+      swipedRef.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || !hasMultiple) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < SWIPE_THRESHOLD) return;
+    swipedRef.current = true;
+    const swipeLeft = dx < 0;
+    const forward = dir === "rtl" ? !swipeLeft : swipeLeft;
+    stepImage(forward ? 1 : -1);
+  };
+
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (swipedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      swipedRef.current = false;
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -56,12 +104,19 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
   return (
     <Link href={`/listings/${listing.slug}`}>
       <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-[10px] border-[0.5px] border-[#E5E7EB] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:border-[#C9A84C] hover:shadow-[0_4px_16px_rgba(26,58,92,0.12)]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div
+          className="relative aspect-[4/3] overflow-hidden bg-muted touch-pan-y"
+          onTouchStart={hasMultiple ? handleTouchStart : undefined}
+          onTouchMove={hasMultiple ? handleTouchMove : undefined}
+          onTouchEnd={hasMultiple ? handleTouchEnd : undefined}
+          onClickCapture={hasMultiple ? handleClickCapture : undefined}
+        >
           {currentImage ? (
             <img
               src={`/api/storage${currentImage}`}
               alt={listing.title}
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              draggable={false}
+              className="object-cover w-full h-full select-none group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
