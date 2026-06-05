@@ -8,7 +8,7 @@ description: How trilingual translation and RTL work on the public site, and wha
 FR/EN/HE is **functional** on public surfaces AND the Pro dashboards (agent/developer) + admin panel (no longer just scaffolded). Pattern:
 
 - A flat-namespaced dictionary in `src/lib/i18n.ts` holds three blocks (FR/EN/HE). Keys are dotted strings like `detail.*`, `listings.*`, `card.*`. `translate(lang, key)` looks up the block.
-- `LanguageProvider` exposes `t()/language/dir/setLanguage`, persists choice to `localStorage["nadlan-lang"]`, and sets `document.documentElement.dir` + `lang` in an effect. Default language is **fr**.
+- `LanguageProvider` exposes `t()/language/dir/setLanguage`, persists choice to `localStorage["nadlan-lang"]`, and sets `document.documentElement.dir` + `lang` in an effect. Default language (no stored pref) is **en**.
 - RTL: relies on `dir="rtl"` on `<html>` + Tailwind v4's built-in `rtl:` variant. Flexbox (`flex-row`, `justify-*`, `items-*`) and the *default* text-align mirror automatically from `dir`. But **physical** utilities do NOT mirror: `text-left`/`text-right`, `mr-/ml-`, `pl-/pr-`, `left-/right-`, `rounded-tr-/tl-`. Fix them with logical equivalents (`text-start`/`text-end`, `me-/ms-`, `pe-/ps-`, `start-/end-`) which are identical in LTR and auto-flip in RTL, or with `rtl:` variant classes for cases with no logical form (e.g. a `left-3` badge → `rtl:left-auto rtl:right-3`, chat-bubble corner radii). The dashboard/admin tables originally used `text-left`/`text-right`/`mr-`/`ml-auto` and stayed left-anchored in HE until converted to logical props.
 
 **Rules to keep it working:**

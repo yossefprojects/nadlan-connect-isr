@@ -14,10 +14,10 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 function getInitialLanguage(): Language {
-  if (typeof window === "undefined") return "fr";
+  if (typeof window === "undefined") return "en";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "fr" || stored === "en" || stored === "he") return stored;
-  return "fr";
+  return "en";
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
