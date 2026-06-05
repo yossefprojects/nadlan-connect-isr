@@ -15,6 +15,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { InvestmentScore } from "@/components/investment-score";
 import { DocumentManager } from "@/components/documents/document-manager";
 import { Button } from "@/components/ui/button";
+import { ToastAction } from "@/components/ui/toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -159,7 +160,23 @@ export default function ListingDetail() {
       removeFavorite.mutate({ listingId }, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
-          toast({ title: t("detail.removedFavorite") });
+          toast({
+            title: t("favorites.removed"),
+            action: (
+              <ToastAction
+                altText={t("favorites.undo")}
+                onClick={() => {
+                  addFavorite.mutate({ listingId }, {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
+                    },
+                  });
+                }}
+              >
+                {t("favorites.undo")}
+              </ToastAction>
+            ),
+          });
         }
       });
     } else {
