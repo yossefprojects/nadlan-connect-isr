@@ -19,7 +19,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <a
-        href="https://israel-simzip.replit.app/"
+        href="https://simmoisrael.com/"
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("nav.simulator")}
@@ -88,7 +88,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               contact@nadlanconnect.co.il
             </a>
             <a
-              href="https://israel-simzip.replit.app/"
+              href="https://simmoisrael.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-[#C9A84C]/20 bg-[#C9A84C]/10 px-3.5 py-2 text-xs font-semibold text-[#C9A84C] transition-colors hover:border-[#C9A84C]/40 hover:bg-[#C9A84C]/20"

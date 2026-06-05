@@ -31,7 +31,7 @@ import { useState } from "react";
 import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star, Scale } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const SIMULATOR_URL = "https://israel-simzip.replit.app/";
+const SIMULATOR_URL = "https://simmoisrael.com/";
 
 const VILLE_LABELS: Record<string, string> = {
   tlv: "Tel Aviv",
