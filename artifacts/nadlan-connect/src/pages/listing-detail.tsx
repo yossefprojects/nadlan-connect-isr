@@ -8,6 +8,7 @@ import {
   useGetMyMandates,
 } from "@workspace/api-client-react";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { useJsonLd } from "@/hooks/use-json-ld";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "@/components/layout/language-provider";
@@ -66,14 +67,75 @@ export default function ListingDetail() {
 
   const metaListing = detail?.listing;
   const metaVilleLabel = metaListing ? (VILLE_LABELS[metaListing.ville] ?? metaListing.ville) : undefined;
+  const canonicalUrl = metaListing?.slug ? `${window.location.origin}/listings/${metaListing.slug}` : undefined;
+  const coverImageUrl = metaListing?.coverImageUrl ? `${window.location.origin}/api/storage${metaListing.coverImageUrl}` : undefined;
   usePageMeta({
     title: metaListing ? `${metaListing.title} — ${metaVilleLabel} | NadlanConnect` : undefined,
     description: metaListing
       ? `${metaListing.title} à ${metaVilleLabel} — ${metaListing.surface} m², ${metaListing.price.toLocaleString("fr-FR")} ₪. Score d'investissement : ${metaListing.investmentScore ?? "—"}/100. Découvrez ce bien sur NadlanConnect.`
       : undefined,
-    image: metaListing?.coverImageUrl ? `/api/storage${metaListing.coverImageUrl}` : undefined,
-    url: metaListing?.slug ? `${window.location.origin}/listings/${metaListing.slug}` : undefined,
+    image: coverImageUrl,
+    url: canonicalUrl,
   });
+
+  useJsonLd(
+    metaListing && canonicalUrl
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "RealEstateListing",
+              "@id": canonicalUrl,
+              name: metaListing.title,
+              description: metaListing.description ?? undefined,
+              url: canonicalUrl,
+              ...(coverImageUrl ? { image: coverImageUrl } : {}),
+              floorSize: {
+                "@type": "QuantitativeValue",
+                value: metaListing.surface,
+                unitCode: "MTK",
+              },
+              numberOfRooms: metaListing.nbPieces,
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: metaVilleLabel,
+                ...(metaListing.quartier ? { addressRegion: metaListing.quartier } : {}),
+                addressCountry: "IL",
+              },
+              offers: {
+                "@type": "Offer",
+                price: metaListing.price,
+                priceCurrency: "ILS",
+                availability: "https://schema.org/InStock",
+              },
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "NadlanConnect",
+                  item: window.location.origin,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Biens immobiliers",
+                  item: `${window.location.origin}/listings`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: metaListing.title,
+                  item: canonicalUrl,
+                },
+              ],
+            },
+          ],
+        }
+      : null
+  );
 
   const { data: myMandates } = useGetMyMandates({ query: { enabled: isAuthenticated && role === "agent", queryKey: getGetMyMandatesQueryKey() } });
   const existingMandate = myMandates?.find(m => m.listingId === listingId);

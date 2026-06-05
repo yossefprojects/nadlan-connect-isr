@@ -7,6 +7,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { DocumentManager } from "@/components/documents/document-manager";
 import { Building2, MapPin, ArrowRight } from "lucide-react";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { useJsonLd } from "@/hooks/use-json-ld";
 
 export default function ProgrammeDetail() {
   const { t, locale } = useLanguage();
@@ -17,14 +18,84 @@ export default function ProgrammeDetail() {
   });
 
   const metaProgram = detail?.program;
+  const programCanonicalUrl = metaProgram?.slug ? `${window.location.origin}/programme/${metaProgram.slug}` : undefined;
+  const programCityLabel = metaProgram?.ville ? t(`city.${metaProgram.ville}`) : undefined;
   usePageMeta({
     title: metaProgram ? `${metaProgram.title} — Programme Neuf | NadlanConnect` : undefined,
     description: metaProgram
-      ? `${metaProgram.title}${metaProgram.ville ? ` à ${t(`city.${metaProgram.ville}`)}` : ""}${metaProgram.quartier ? ` · ${metaProgram.quartier}` : ""} — Programme immobilier neuf en Israël. Découvrez les projets et appartements disponibles sur NadlanConnect.`
+      ? `${metaProgram.title}${metaProgram.ville ? ` à ${programCityLabel}` : ""}${metaProgram.quartier ? ` · ${metaProgram.quartier}` : ""} — Programme immobilier neuf en Israël. Découvrez les projets et appartements disponibles sur NadlanConnect.`
       : undefined,
     image: metaProgram?.coverImageUrl ?? undefined,
-    url: metaProgram?.slug ? `${window.location.origin}/programme/${metaProgram.slug}` : undefined,
+    url: programCanonicalUrl,
   });
+
+  useJsonLd(
+    metaProgram && programCanonicalUrl
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "ApartmentComplex",
+              "@id": programCanonicalUrl,
+              name: metaProgram.title,
+              description: metaProgram.description ?? undefined,
+              url: programCanonicalUrl,
+              ...(metaProgram.coverImageUrl ? { image: metaProgram.coverImageUrl } : {}),
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: programCityLabel,
+                ...(metaProgram.quartier ? { addressRegion: metaProgram.quartier } : {}),
+                addressCountry: "IL",
+              },
+              ...(detail?.projets && detail.projets.length > 0
+                ? {
+                    containsPlace: detail.projets.map((projet) => ({
+                      "@type": "Apartment",
+                      name: projet.title,
+                      url: `${window.location.origin}/listings/${projet.slug}`,
+                      floorSize: {
+                        "@type": "QuantitativeValue",
+                        value: projet.surface,
+                        unitCode: "MTK",
+                      },
+                      numberOfRooms: projet.nbPieces,
+                      offers: {
+                        "@type": "Offer",
+                        price: projet.price,
+                        priceCurrency: "ILS",
+                        availability: "https://schema.org/InStock",
+                      },
+                    })),
+                  }
+                : {}),
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "NadlanConnect",
+                  item: window.location.origin,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Programmes neufs",
+                  item: `${window.location.origin}/programmes`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: metaProgram.title,
+                  item: programCanonicalUrl,
+                },
+              ],
+            },
+          ],
+        }
+      : null
+  );
 
   if (isLoading) {
     return <div className="container py-8">{t("common.loading")}</div>;
