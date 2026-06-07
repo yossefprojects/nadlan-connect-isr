@@ -148,17 +148,17 @@ function parseChatMarkdown(md: string): ShamaiChatMessage[] {
   return out.filter((x) => x.content.trim().length > 0);
 }
 
-function composeFromFields(qf: QuickFields): string {
+function composeFromFields(qf: QuickFields, tr: (key: string) => string): string {
   const parts: string[] = [];
   if (qf.type) parts.push(qf.type);
   if (qf.city) parts.push(qf.city);
-  if (qf.surface) parts.push(`${qf.surface} m²`);
-  if (qf.floor) parts.push(`étage ${qf.floor}`);
-  if (qf.year) parts.push(`construit ${qf.year}`);
+  if (qf.surface) parts.push(`${qf.surface} ${tr("analyse.qfComposeSqm")}`);
+  if (qf.floor) parts.push(`${tr("analyse.qfComposeFloor")} ${qf.floor}`);
+  if (qf.year) parts.push(`${tr("analyse.qfComposeYear")} ${qf.year}`);
   if (qf.state) parts.push(qf.state);
-  if (qf.price) parts.push(`prix ${qf.price}`);
+  if (qf.price) parts.push(`${tr("analyse.qfComposePrice")} ${qf.price}`);
   let s = parts.join(", ");
-  if (qf.goal) s += `. Objectif : ${qf.goal}`;
+  if (qf.goal) s += `. ${tr("analyse.qfComposeGoal")} ${qf.goal}`;
   return s ? s + "." : "";
 }
 
@@ -267,7 +267,7 @@ export default function AnalyseIA() {
     b === null || b === undefined ? "—" : t(b ? "common.yes" : "common.no");
 
   const applyFields = () => {
-    const composed = composeFromFields(qf);
+    const composed = composeFromFields(qf, t);
     if (!composed) return;
     if (mode === "chat") {
       setChatInput((prev) => (prev ? prev + " " + composed : composed));
