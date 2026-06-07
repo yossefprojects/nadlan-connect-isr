@@ -6,6 +6,7 @@ import {
   useSendMessage
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,15 +20,16 @@ export default function LeadDetail() {
   const [, params] = useRoute("/leads/:id");
   const leadId = params?.id ? parseInt(params.id, 10) : 0;
   
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
   const { data: leadDetail, isLoading: isLeadLoading } = useGetLead(leadId, {
-    query: { enabled: !!leadId, queryKey: getGetLeadQueryKey(leadId) }
+    query: { enabled: !!leadId && isAuthenticated, queryKey: getGetLeadQueryKey(leadId) }
   });
   
   const { data: messages, isLoading: isMessagesLoading } = useGetLeadMessages(leadId, {
-    query: { enabled: !!leadId, queryKey: getGetLeadMessagesQueryKey(leadId) }
+    query: { enabled: !!leadId && isAuthenticated, queryKey: getGetLeadMessagesQueryKey(leadId) }
   });
 
-  const { user } = useAuth();
   const sendMessage = useSendMessage();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -49,7 +51,20 @@ export default function LeadDetail() {
     });
   };
 
-  if (isLeadLoading || isMessagesLoading) return <div className="p-8 text-center">{t("common.loading")}</div>;
+  if (!isAuthLoading && !isAuthenticated) {
+    return (
+      <div className="container py-8 max-w-4xl">
+        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
+          <h3 className="text-xl font-medium mb-2">{t("leadsPage.signin.title")}</h3>
+          <p className="text-muted-foreground mb-6">{t("leadsPage.signin.subtitle")}</p>
+          <Link href="/auth/login">
+            <Button>{t("leadsPage.signin.cta")}</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  if (isAuthLoading || isLeadLoading || isMessagesLoading) return <div className="p-8 text-center">{t("common.loading")}</div>;
   if (!leadDetail) return <div className="p-8 text-center">{t("leadDetail.notFound")}</div>;
 
   const { lead } = leadDetail;

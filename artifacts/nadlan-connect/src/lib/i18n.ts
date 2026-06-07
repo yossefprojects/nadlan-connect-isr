@@ -570,6 +570,9 @@ const fr: Dict = {
   "leadsPage.emptyTitle": "Aucune demande",
   "leadsPage.emptyDesc": "Vous n'avez pas encore contacté de professionnel.",
   "leadsPage.openDiscussion": "Ouvrir la discussion",
+  "leadsPage.signin.title": "Connectez-vous pour voir vos messages",
+  "leadsPage.signin.subtitle": "Connectez-vous pour retrouver vos échanges avec les agents et promoteurs.",
+  "leadsPage.signin.cta": "Se connecter",
 
   // Lead detail
   "leadDetail.sendError": "Erreur d'envoi",
@@ -1359,6 +1362,9 @@ const en: Dict = {
   "leadsPage.emptyTitle": "No requests",
   "leadsPage.emptyDesc": "You haven't contacted any professional yet.",
   "leadsPage.openDiscussion": "Open conversation",
+  "leadsPage.signin.title": "Sign in to see your messages",
+  "leadsPage.signin.subtitle": "Sign in to find your conversations with agents and developers.",
+  "leadsPage.signin.cta": "Sign in",
 
   // Lead detail
   "leadDetail.sendError": "Send error",
@@ -2145,6 +2151,9 @@ const he: Dict = {
   "leadsPage.emptyTitle": "אין בקשות",
   "leadsPage.emptyDesc": "עדיין לא יצרתם קשר עם איש מקצוע.",
   "leadsPage.openDiscussion": "פתח שיחה",
+  "leadsPage.signin.title": "התחברו כדי לראות את ההודעות שלכם",
+  "leadsPage.signin.subtitle": "התחברו כדי למצוא את ההתכתבויות שלכם עם סוכנים ויזמים.",
+  "leadsPage.signin.cta": "התחברות",
 
   // Lead detail
   "leadDetail.sendError": "שגיאה בשליחה",

@@ -1,12 +1,17 @@
 import { useListLeads, getListLeadsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { MessageCircle } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Leads() {
-  const { data: leads, isLoading } = useListLeads();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { data: leads, isLoading } = useListLeads({
+    query: { enabled: isAuthenticated, queryKey: getListLeadsQueryKey() },
+  });
   const { t } = useLanguage();
 
   const getStatusBadge = (status: string) => {
@@ -27,7 +32,15 @@ export default function Leads() {
       <h1 className="font-serif text-3xl font-bold text-primary mb-2">{t("leadsPage.title")}</h1>
       <p className="text-muted-foreground mb-8">{t("leadsPage.subtitle")}</p>
 
-      {isLoading ? (
+      {!isAuthLoading && !isAuthenticated ? (
+        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
+          <h3 className="text-xl font-medium mb-2">{t("leadsPage.signin.title")}</h3>
+          <p className="text-muted-foreground mb-6">{t("leadsPage.signin.subtitle")}</p>
+          <Link href="/auth/login">
+            <Button>{t("leadsPage.signin.cta")}</Button>
+          </Link>
+        </div>
+      ) : isAuthLoading || isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted animate-pulse rounded-xl" />)}
         </div>
