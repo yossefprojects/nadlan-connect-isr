@@ -1,6 +1,7 @@
 import { Navbar } from "./navbar";
 import { MarketBar } from "./market-bar";
 import { useLanguage } from "./language-provider";
+import { IsraelFlag } from "./israel-flag";
 import { Link, useLocation } from "wouter";
 import { Calculator, Linkedin, Instagram, Mail, MapPin, ArrowUpRight } from "lucide-react";
 
@@ -34,8 +35,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div>
             <div className="mb-4 flex items-center gap-2.5">
               <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-              <span className="font-serif text-xl text-white">
+              <span className="relative inline-block font-serif text-xl text-white">
                 Nadlan<span className="text-[#C9A84C]">Connect</span>
+                <IsraelFlag className="absolute -bottom-1 -right-3.5 h-3 w-[18px] rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
               </span>
             </div>
             <p className="mb-6 max-w-xs text-sm leading-relaxed text-white/40">

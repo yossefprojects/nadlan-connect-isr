@@ -8,6 +8,7 @@ import { Globe, LogOut, Menu, UserCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { IsraelFlag } from "./israel-flag";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -96,8 +97,9 @@ export function Navbar() {
             <div className="h-8 w-8 rounded overflow-hidden relative">
                <img src="/favicon.png" alt="NadlanConnect" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
             </div>
-            <span className="font-serif text-xl tracking-tight text-white transition-opacity group-hover:opacity-90">
+            <span className="relative inline-block font-serif text-xl tracking-tight text-white transition-opacity group-hover:opacity-90">
               Nadlan<span className="text-[#C9A84C]">Connect</span>
+              <IsraelFlag className="absolute -bottom-1 -right-3.5 h-3 w-[18px] rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
             </span>
           </Link>
           <nav className="hidden md:flex gap-8">
@@ -163,8 +165,9 @@ export function Navbar() {
                 <div className="p-6 border-b border-white/10">
                   <Link href="/" className="flex items-center space-x-2.5">
                     <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded" />
-                    <span className="font-serif text-xl tracking-tight text-white">
+                    <span className="relative inline-block font-serif text-xl tracking-tight text-white">
                       Nadlan<span className="text-[#C9A84C]">Connect</span>
+                      <IsraelFlag className="absolute -bottom-1 -right-3.5 h-3 w-[18px] rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
                     </span>
                   </Link>
                 </div>
