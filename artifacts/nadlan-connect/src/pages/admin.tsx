@@ -1,11 +1,12 @@
-import { useGetAdminStats, useAdminListListings, useAdminUpdateListingStatus, getAdminListListingsQueryKey, getGetAdminStatsQueryKey, useAdminListProfiles, useAdminUpdateLicenceStatut, getAdminListProfilesQueryKey } from "@workspace/api-client-react";
+import { useGetAdminStats, useAdminListListings, useAdminUpdateListingStatus, getAdminListListingsQueryKey, getGetAdminStatsQueryKey, useAdminListProfiles, useAdminUpdateLicenceStatut, getAdminListProfilesQueryKey, useListAllDemolitionListings, useUpdateDemolitionListingStatus, getListAllDemolitionListingsQueryKey, type DemolitionStatusUpdate } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Users, Building, ShieldCheck, FileText } from "lucide-react";
+import { Users, Building, ShieldCheck, FileText, Hammer } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
 
 export default function Admin() {
@@ -14,10 +15,29 @@ export default function Admin() {
   const { data: agences, isLoading: isAgencesLoading } = useAdminListProfiles({ role: "agent" });
   const { data: promoteurs, isLoading: isPromoteursLoading } = useAdminListProfiles({ role: "developer" });
 
+  const { data: demoListings, isLoading: isDemoLoading } = useListAllDemolitionListings();
+
   const updateStatus = useAdminUpdateListingStatus();
   const updateLicence = useAdminUpdateLicenceStatut();
+  const updateDemoStatus = useUpdateDemolitionListingStatus();
   const queryClient = useQueryClient();
   const { t } = useLanguage();
+  const { toast } = useToast();
+
+  const handleDemoUpdate = (id: number, data: DemolitionStatusUpdate) => {
+    updateDemoStatus.mutate({ listingId: id, data }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAllDemolitionListingsQueryKey() });
+        toast({ title: t("demo.admin.updated") });
+      },
+      onError: () => toast({ title: t("demo.admin.updateError"), variant: "destructive" }),
+    });
+  };
+
+  const demoProjectLabel = (pt: string) =>
+    pt === "tama38" ? t("demo.projectType.tama38")
+      : pt === "pinui_binui" ? t("demo.projectType.pinui_binui")
+      : t("demo.projectType.both");
 
   const handleStatusChange = (id: number, status: "draft" | "published" | "sold" | "archived") => {
     updateStatus.mutate({ listingId: id, data: { status } }, {
@@ -276,6 +296,93 @@ export default function Admin() {
                           {t("admin.reject")}
                         </Button>
                       )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <Hammer className="h-6 w-6 text-primary" />
+          <h2 className="font-serif text-2xl font-bold text-primary">{t("demo.admin.title")}</h2>
+        </div>
+
+        <div className="bg-card border rounded-xl overflow-hidden">
+          <table className="w-full text-sm text-start">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("demo.detail.building")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("demo.filter.projectType")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("demo.offers")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("admin.colActions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {isDemoLoading ? (
+                <tr><td colSpan={6} className="text-center py-8">{t("common.loading")}</td></tr>
+              ) : !demoListings || demoListings.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">{t("demo.admin.none")}</td></tr>
+              ) : demoListings.map((d) => (
+                <tr key={d.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4 font-mono text-xs">{d.id}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-medium" dir="auto">{d.address}</div>
+                    <div className="text-xs text-muted-foreground" dir="auto">{d.city} · {d.units} {t("demo.units")}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant="outline">{demoProjectLabel(d.projectType)}</Badge>
+                  </td>
+                  <td className="px-6 py-4 text-muted-foreground">{d.offerCount}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      <Badge className={
+                        d.status === "active" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" :
+                        d.status === "pending" ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
+                        "bg-muted text-muted-foreground hover:bg-muted"
+                      } variant="secondary">
+                        {t(`demo.status.${d.status}`)}
+                      </Badge>
+                      <Badge variant="secondary" className={
+                        d.isPaid ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-muted text-muted-foreground hover:bg-muted"
+                      }>
+                        {d.isPaid ? t("demo.admin.paid") : t("demo.admin.unpaid")}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-end">
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      {d.status !== "active" && (
+                        <Button size="sm" className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          disabled={updateDemoStatus.isPending}
+                          onClick={() => handleDemoUpdate(d.id, { status: "active" })}>
+                          {t("demo.admin.approve")}
+                        </Button>
+                      )}
+                      {d.status !== "pending" && (
+                        <Button size="sm" variant="outline" className="h-8"
+                          disabled={updateDemoStatus.isPending}
+                          onClick={() => handleDemoUpdate(d.id, { status: "pending" })}>
+                          {t("demo.admin.setPending")}
+                        </Button>
+                      )}
+                      {d.status !== "closed" && (
+                        <Button size="sm" variant="outline" className="h-8 text-red-700 border-red-200 hover:bg-red-50"
+                          disabled={updateDemoStatus.isPending}
+                          onClick={() => handleDemoUpdate(d.id, { status: "closed" })}>
+                          {t("demo.admin.close")}
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" className="h-8"
+                        disabled={updateDemoStatus.isPending}
+                        onClick={() => handleDemoUpdate(d.id, { isPaid: !d.isPaid })}>
+                        {d.isPaid ? t("demo.admin.markUnpaid") : t("demo.admin.markPaid")}
+                      </Button>
                     </div>
                   </td>
                 </tr>

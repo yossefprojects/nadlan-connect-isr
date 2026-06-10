@@ -30,6 +30,9 @@ import Favorites from "@/pages/favorites";
 import Leads from "@/pages/leads";
 import LeadDetail from "@/pages/lead-detail";
 import Admin from "@/pages/admin";
+import DemolitionListings from "@/pages/demolition-listings";
+import DemolitionNew from "@/pages/demolition-new";
+import DemolitionDetail from "@/pages/demolition-detail";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,11 @@ function Router() {
       <Route path="/programme/:slug" component={ProgrammeDetail} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
       <Route path="/outils/mes-rapports" component={Reports} />
+
+      {/* Tama 38 / Pinui-Binui Marketplace */}
+      <Route path="/demolition/listings" component={DemolitionListings} />
+      <Route path="/demolition/nouveau" component={DemolitionNew} />
+      <Route path="/demolition/:id" component={DemolitionDetail} />
       <Route path="/cgu" component={Cgu} />
       <Route path="/cgv" component={Cgv} />
       

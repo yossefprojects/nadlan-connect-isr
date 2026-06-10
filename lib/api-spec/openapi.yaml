@@ -29,6 +29,8 @@ tags:
     description: Pro and admin dashboard stats.
   - name: AI
     description: AI-powered property analysis (Anthropic Claude).
+  - name: Demolition
+    description: Tama 38 / Pinui-Binui marketplace — owners list buildings, promoters submit offers.
 
 paths:
   /healthz:
@@ -1532,6 +1534,284 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
 
+  /demolition/listings:
+    get:
+      tags: [Demolition]
+      operationId: listDemolitionListings
+      summary: Browse active demolition-eligible buildings (public)
+      parameters:
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: projectType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [tama38, pinui_binui, both]
+        - name: minUnits
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Active demolition listings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionListing'
+    post:
+      tags: [Demolition]
+      operationId: createDemolitionListing
+      summary: Register a building (owner / building committee)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemolitionListingInput'
+      responses:
+        '201':
+          description: Building registered (pending moderation).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionListingDetail'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/mine:
+    get:
+      tags: [Demolition]
+      operationId: listMyDemolitionListings
+      summary: List the current user's registered buildings (with offers)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: The user's buildings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionListingDetail'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/admin/listings:
+    get:
+      tags: [Demolition]
+      operationId: listAllDemolitionListings
+      summary: List all demolition listings (admin moderation)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: All demolition listings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionListing'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/listings/{listingId}:
+    get:
+      tags: [Demolition]
+      operationId: getDemolitionListing
+      summary: Get a demolition listing with documents
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Demolition listing detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionListingDetail'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Demolition]
+      operationId: updateDemolitionListingStatus
+      summary: Moderate a demolition listing (admin — status / payment)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemolitionStatusUpdate'
+      responses:
+        '200':
+          description: Updated listing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionListingDetail'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/listings/{listingId}/offers:
+    get:
+      tags: [Demolition]
+      operationId: listDemolitionOffers
+      summary: List offers on a building (owner or admin only)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Offers on the building.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionOffer'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [Demolition]
+      operationId: createDemolitionOffer
+      summary: Submit an offer on a building (promoter / developer only)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemolitionOfferInput'
+      responses:
+        '201':
+          description: Offer submitted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionOffer'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden (only promoters can submit offers).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -2755,6 +3035,186 @@ components:
       properties:
         success:
           type: boolean
+    # ── Demolition (Tama 38 / Pinui-Binui) marketplace ──
+    DemolitionDocumentInput:
+      type: object
+      required: [url, name]
+      properties:
+        url:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+          default: 0
+    DemolitionDocument:
+      type: object
+      required: [id, listingId, url, name, position]
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        url:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+    DemolitionListingInput:
+      type: object
+      required: [address, city, units, buildYear, projectType, ownerName, ownerEmail, ownerPhone]
+      properties:
+        address:
+          type: string
+          minLength: 1
+          maxLength: 300
+        city:
+          type: string
+          minLength: 1
+          maxLength: 120
+        units:
+          type: integer
+          minimum: 1
+        buildYear:
+          type: integer
+          minimum: 1850
+          maximum: 2100
+        projectType:
+          type: string
+          enum: [tama38, pinui_binui, both]
+        ownerName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        ownerEmail:
+          type: string
+          minLength: 3
+          maxLength: 320
+        ownerPhone:
+          type: string
+          minLength: 1
+          maxLength: 60
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DemolitionDocumentInput'
+    DemolitionListing:
+      type: object
+      required:
+        - id
+        - address
+        - city
+        - units
+        - buildYear
+        - projectType
+        - ownerName
+        - status
+        - isPaid
+        - offerCount
+        - createdAt
+      properties:
+        id:
+          type: integer
+        address:
+          type: string
+        city:
+          type: string
+        units:
+          type: integer
+        buildYear:
+          type: integer
+        projectType:
+          type: string
+          enum: [tama38, pinui_binui, both]
+        ownerName:
+          type: string
+        ownerEmail:
+          type: [string, 'null']
+        ownerPhone:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [pending, active, closed]
+        isPaid:
+          type: boolean
+        offerCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    DemolitionListingDetail:
+      type: object
+      required: [listing, documents]
+      properties:
+        listing:
+          $ref: '#/components/schemas/DemolitionListing'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DemolitionDocument'
+    DemolitionOfferInput:
+      type: object
+      required: [pricePerUnit, newUnitsOffer, timeline, message]
+      properties:
+        pricePerUnit:
+          type: integer
+          minimum: 0
+        newUnitsOffer:
+          type: integer
+          minimum: 0
+        timeline:
+          type: string
+          minLength: 1
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+    DemolitionOffer:
+      type: object
+      required:
+        - id
+        - listingId
+        - promoterId
+        - pricePerUnit
+        - newUnitsOffer
+        - timeline
+        - message
+        - createdAt
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        promoterId:
+          type: string
+        promoterName:
+          type: [string, 'null']
+        promoterEmail:
+          type: [string, 'null']
+        promoterCompany:
+          type: [string, 'null']
+        pricePerUnit:
+          type: integer
+        newUnitsOffer:
+          type: integer
+        timeline:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    DemolitionStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, active, closed]
+        isPaid:
+          type: boolean
+
     ErrorEnvelope:
       type: object
       required: [error]

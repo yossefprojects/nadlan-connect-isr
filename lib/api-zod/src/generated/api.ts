@@ -1803,3 +1803,265 @@ export const DeleteReportResponse = zod.object({
 })
 
 
+/**
+ * @summary Browse active demolition-eligible buildings (public)
+ */
+export const ListDemolitionListingsQueryParams = zod.object({
+  "city": zod.coerce.string().optional(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']).optional(),
+  "minUnits": zod.coerce.number().optional()
+})
+
+export const ListDemolitionListingsResponseItem = zod.object({
+  "id": zod.number(),
+  "address": zod.string(),
+  "city": zod.string(),
+  "units": zod.number(),
+  "buildYear": zod.number(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string(),
+  "ownerEmail": zod.string().nullish(),
+  "ownerPhone": zod.string().nullish(),
+  "status": zod.enum(['pending', 'active', 'closed']),
+  "isPaid": zod.boolean(),
+  "offerCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})
+export const ListDemolitionListingsResponse = zod.array(ListDemolitionListingsResponseItem)
+
+
+/**
+ * @summary Register a building (owner / building committee)
+ */
+export const CreateDemolitionListingHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const createDemolitionListingBodyAddressMax = 300;
+
+export const createDemolitionListingBodyCityMax = 120;
+
+
+export const createDemolitionListingBodyBuildYearMin = 1850;
+export const createDemolitionListingBodyBuildYearMax = 2100;
+
+export const createDemolitionListingBodyOwnerNameMax = 200;
+
+export const createDemolitionListingBodyOwnerEmailMin = 3;
+export const createDemolitionListingBodyOwnerEmailMax = 320;
+
+export const createDemolitionListingBodyOwnerPhoneMax = 60;
+
+export const createDemolitionListingBodyDocumentsItemPositionDefault = 0;
+
+export const CreateDemolitionListingBody = zod.object({
+  "address": zod.string().min(1).max(createDemolitionListingBodyAddressMax),
+  "city": zod.string().min(1).max(createDemolitionListingBodyCityMax),
+  "units": zod.number().min(1),
+  "buildYear": zod.number().min(createDemolitionListingBodyBuildYearMin).max(createDemolitionListingBodyBuildYearMax),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string().min(1).max(createDemolitionListingBodyOwnerNameMax),
+  "ownerEmail": zod.string().min(createDemolitionListingBodyOwnerEmailMin).max(createDemolitionListingBodyOwnerEmailMax),
+  "ownerPhone": zod.string().min(1).max(createDemolitionListingBodyOwnerPhoneMax),
+  "documents": zod.array(zod.object({
+  "url": zod.string(),
+  "name": zod.string(),
+  "position": zod.number().default(createDemolitionListingBodyDocumentsItemPositionDefault)
+})).optional()
+})
+
+
+/**
+ * @summary List the current user's registered buildings (with offers)
+ */
+export const ListMyDemolitionListingsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const ListMyDemolitionListingsResponseItem = zod.object({
+  "listing": zod.object({
+  "id": zod.number(),
+  "address": zod.string(),
+  "city": zod.string(),
+  "units": zod.number(),
+  "buildYear": zod.number(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string(),
+  "ownerEmail": zod.string().nullish(),
+  "ownerPhone": zod.string().nullish(),
+  "status": zod.enum(['pending', 'active', 'closed']),
+  "isPaid": zod.boolean(),
+  "offerCount": zod.number(),
+  "createdAt": zod.coerce.date()
+}),
+  "documents": zod.array(zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "url": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+}))
+})
+export const ListMyDemolitionListingsResponse = zod.array(ListMyDemolitionListingsResponseItem)
+
+
+/**
+ * @summary List all demolition listings (admin moderation)
+ */
+export const ListAllDemolitionListingsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const ListAllDemolitionListingsResponseItem = zod.object({
+  "id": zod.number(),
+  "address": zod.string(),
+  "city": zod.string(),
+  "units": zod.number(),
+  "buildYear": zod.number(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string(),
+  "ownerEmail": zod.string().nullish(),
+  "ownerPhone": zod.string().nullish(),
+  "status": zod.enum(['pending', 'active', 'closed']),
+  "isPaid": zod.boolean(),
+  "offerCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAllDemolitionListingsResponse = zod.array(ListAllDemolitionListingsResponseItem)
+
+
+/**
+ * @summary Get a demolition listing with documents
+ */
+export const GetDemolitionListingParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const GetDemolitionListingHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const GetDemolitionListingResponse = zod.object({
+  "listing": zod.object({
+  "id": zod.number(),
+  "address": zod.string(),
+  "city": zod.string(),
+  "units": zod.number(),
+  "buildYear": zod.number(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string(),
+  "ownerEmail": zod.string().nullish(),
+  "ownerPhone": zod.string().nullish(),
+  "status": zod.enum(['pending', 'active', 'closed']),
+  "isPaid": zod.boolean(),
+  "offerCount": zod.number(),
+  "createdAt": zod.coerce.date()
+}),
+  "documents": zod.array(zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "url": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+}))
+})
+
+
+/**
+ * @summary Moderate a demolition listing (admin — status / payment)
+ */
+export const UpdateDemolitionListingStatusParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const UpdateDemolitionListingStatusHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const UpdateDemolitionListingStatusBody = zod.object({
+  "status": zod.enum(['pending', 'active', 'closed']).optional(),
+  "isPaid": zod.boolean().optional()
+})
+
+export const UpdateDemolitionListingStatusResponse = zod.object({
+  "listing": zod.object({
+  "id": zod.number(),
+  "address": zod.string(),
+  "city": zod.string(),
+  "units": zod.number(),
+  "buildYear": zod.number(),
+  "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
+  "ownerName": zod.string(),
+  "ownerEmail": zod.string().nullish(),
+  "ownerPhone": zod.string().nullish(),
+  "status": zod.enum(['pending', 'active', 'closed']),
+  "isPaid": zod.boolean(),
+  "offerCount": zod.number(),
+  "createdAt": zod.coerce.date()
+}),
+  "documents": zod.array(zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "url": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+}))
+})
+
+
+/**
+ * @summary List offers on a building (owner or admin only)
+ */
+export const ListDemolitionOffersParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ListDemolitionOffersHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const ListDemolitionOffersResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "promoterId": zod.string(),
+  "promoterName": zod.string().nullish(),
+  "promoterEmail": zod.string().nullish(),
+  "promoterCompany": zod.string().nullish(),
+  "pricePerUnit": zod.number(),
+  "newUnitsOffer": zod.number(),
+  "timeline": zod.string(),
+  "message": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListDemolitionOffersResponse = zod.array(ListDemolitionOffersResponseItem)
+
+
+/**
+ * @summary Submit an offer on a building (promoter / developer only)
+ */
+export const CreateDemolitionOfferParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const CreateDemolitionOfferHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const createDemolitionOfferBodyPricePerUnitMin = 0;
+
+export const createDemolitionOfferBodyNewUnitsOfferMin = 0;
+
+export const createDemolitionOfferBodyTimelineMax = 200;
+
+export const createDemolitionOfferBodyMessageMax = 4000;
+
+
+
+export const CreateDemolitionOfferBody = zod.object({
+  "pricePerUnit": zod.number().min(createDemolitionOfferBodyPricePerUnitMin),
+  "newUnitsOffer": zod.number().min(createDemolitionOfferBodyNewUnitsOfferMin),
+  "timeline": zod.string().min(1).max(createDemolitionOfferBodyTimelineMax),
+  "message": zod.string().min(1).max(createDemolitionOfferBodyMessageMax)
+})
+
+

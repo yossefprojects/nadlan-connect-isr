@@ -32,6 +32,12 @@ import type {
   DashboardStats,
   DeleteReportResult,
   DeleteSuccess,
+  DemolitionListing,
+  DemolitionListingDetail,
+  DemolitionListingInput,
+  DemolitionOffer,
+  DemolitionOfferInput,
+  DemolitionStatusUpdate,
   Document,
   DocumentInput,
   ErrorEnvelope,
@@ -43,6 +49,7 @@ import type {
   LeadDetail,
   LeadInput,
   LeadStatusUpdate,
+  ListDemolitionListingsParams,
   ListListingsParams,
   ListProgramsParams,
   ListUsersParams,
@@ -4684,5 +4691,612 @@ export const useDeleteReport = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getDeleteReportMutationOptions(options));
+    }
+
+export const getListDemolitionListingsUrl = (params?: ListDemolitionListingsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/demolition/listings?${stringifiedParams}` : `/api/demolition/listings`
+}
+
+/**
+ * @summary Browse active demolition-eligible buildings (public)
+ */
+export const listDemolitionListings = async (params?: ListDemolitionListingsParams, options?: RequestInit): Promise<DemolitionListing[]> => {
+
+  return customFetch<DemolitionListing[]>(getListDemolitionListingsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDemolitionListingsQueryKey = (params?: ListDemolitionListingsParams,) => {
+    return [
+    `/api/demolition/listings`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListDemolitionListingsQueryOptions = <TData = Awaited<ReturnType<typeof listDemolitionListings>>, TError = ErrorType<unknown>>(params?: ListDemolitionListingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDemolitionListingsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDemolitionListings>>> = ({ signal }) => listDemolitionListings(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDemolitionListings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDemolitionListingsQueryResult = NonNullable<Awaited<ReturnType<typeof listDemolitionListings>>>
+export type ListDemolitionListingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Browse active demolition-eligible buildings (public)
+ */
+
+export function useListDemolitionListings<TData = Awaited<ReturnType<typeof listDemolitionListings>>, TError = ErrorType<unknown>>(
+ params?: ListDemolitionListingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDemolitionListingsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateDemolitionListingUrl = () => {
+
+
+
+
+  return `/api/demolition/listings`
+}
+
+/**
+ * @summary Register a building (owner / building committee)
+ */
+export const createDemolitionListing = async (demolitionListingInput: DemolitionListingInput, options?: RequestInit): Promise<DemolitionListingDetail> => {
+
+  return customFetch<DemolitionListingDetail>(getCreateDemolitionListingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      demolitionListingInput,)
+  }
+);}
+
+
+
+
+export const getCreateDemolitionListingMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionListing>>, TError,{data: BodyType<DemolitionListingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDemolitionListing>>, TError,{data: BodyType<DemolitionListingInput>}, TContext> => {
+
+const mutationKey = ['createDemolitionListing'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDemolitionListing>>, {data: BodyType<DemolitionListingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createDemolitionListing(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDemolitionListingMutationResult = NonNullable<Awaited<ReturnType<typeof createDemolitionListing>>>
+    export type CreateDemolitionListingMutationBody = BodyType<DemolitionListingInput>
+    export type CreateDemolitionListingMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Register a building (owner / building committee)
+ */
+export const useCreateDemolitionListing = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionListing>>, TError,{data: BodyType<DemolitionListingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createDemolitionListing>>,
+        TError,
+        {data: BodyType<DemolitionListingInput>},
+        TContext
+      > => {
+      return useMutation(getCreateDemolitionListingMutationOptions(options));
+    }
+
+export const getListMyDemolitionListingsUrl = () => {
+
+
+
+
+  return `/api/demolition/mine`
+}
+
+/**
+ * @summary List the current user's registered buildings (with offers)
+ */
+export const listMyDemolitionListings = async ( options?: RequestInit): Promise<DemolitionListingDetail[]> => {
+
+  return customFetch<DemolitionListingDetail[]>(getListMyDemolitionListingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyDemolitionListingsQueryKey = () => {
+    return [
+    `/api/demolition/mine`
+    ] as const;
+    }
+
+
+export const getListMyDemolitionListingsQueryOptions = <TData = Awaited<ReturnType<typeof listMyDemolitionListings>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyDemolitionListingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyDemolitionListings>>> = ({ signal }) => listMyDemolitionListings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyDemolitionListings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMyDemolitionListingsQueryResult = NonNullable<Awaited<ReturnType<typeof listMyDemolitionListings>>>
+export type ListMyDemolitionListingsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List the current user's registered buildings (with offers)
+ */
+
+export function useListMyDemolitionListings<TData = Awaited<ReturnType<typeof listMyDemolitionListings>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMyDemolitionListingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAllDemolitionListingsUrl = () => {
+
+
+
+
+  return `/api/demolition/admin/listings`
+}
+
+/**
+ * @summary List all demolition listings (admin moderation)
+ */
+export const listAllDemolitionListings = async ( options?: RequestInit): Promise<DemolitionListing[]> => {
+
+  return customFetch<DemolitionListing[]>(getListAllDemolitionListingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllDemolitionListingsQueryKey = () => {
+    return [
+    `/api/demolition/admin/listings`
+    ] as const;
+    }
+
+
+export const getListAllDemolitionListingsQueryOptions = <TData = Awaited<ReturnType<typeof listAllDemolitionListings>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllDemolitionListingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllDemolitionListings>>> = ({ signal }) => listAllDemolitionListings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionListings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllDemolitionListingsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllDemolitionListings>>>
+export type ListAllDemolitionListingsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List all demolition listings (admin moderation)
+ */
+
+export function useListAllDemolitionListings<TData = Awaited<ReturnType<typeof listAllDemolitionListings>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionListings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllDemolitionListingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetDemolitionListingUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}`
+}
+
+/**
+ * @summary Get a demolition listing with documents
+ */
+export const getDemolitionListing = async (listingId: number, options?: RequestInit): Promise<DemolitionListingDetail> => {
+
+  return customFetch<DemolitionListingDetail>(getGetDemolitionListingUrl(listingId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDemolitionListingQueryKey = (listingId: number,) => {
+    return [
+    `/api/demolition/listings/${listingId}`
+    ] as const;
+    }
+
+
+export const getGetDemolitionListingQueryOptions = <TData = Awaited<ReturnType<typeof getDemolitionListing>>, TError = ErrorType<ErrorEnvelope>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDemolitionListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDemolitionListingQueryKey(listingId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemolitionListing>>> = ({ signal }) => getDemolitionListing(listingId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(listingId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDemolitionListing>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDemolitionListingQueryResult = NonNullable<Awaited<ReturnType<typeof getDemolitionListing>>>
+export type GetDemolitionListingQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a demolition listing with documents
+ */
+
+export function useGetDemolitionListing<TData = Awaited<ReturnType<typeof getDemolitionListing>>, TError = ErrorType<ErrorEnvelope>>(
+ listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDemolitionListing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDemolitionListingQueryOptions(listingId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateDemolitionListingStatusUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}`
+}
+
+/**
+ * @summary Moderate a demolition listing (admin — status / payment)
+ */
+export const updateDemolitionListingStatus = async (listingId: number,
+    demolitionStatusUpdate: DemolitionStatusUpdate, options?: RequestInit): Promise<DemolitionListingDetail> => {
+
+  return customFetch<DemolitionListingDetail>(getUpdateDemolitionListingStatusUrl(listingId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      demolitionStatusUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateDemolitionListingStatusMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionListingStatus>>, TError,{listingId: number;data: BodyType<DemolitionStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionListingStatus>>, TError,{listingId: number;data: BodyType<DemolitionStatusUpdate>}, TContext> => {
+
+const mutationKey = ['updateDemolitionListingStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDemolitionListingStatus>>, {listingId: number;data: BodyType<DemolitionStatusUpdate>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  updateDemolitionListingStatus(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDemolitionListingStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateDemolitionListingStatus>>>
+    export type UpdateDemolitionListingStatusMutationBody = BodyType<DemolitionStatusUpdate>
+    export type UpdateDemolitionListingStatusMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Moderate a demolition listing (admin — status / payment)
+ */
+export const useUpdateDemolitionListingStatus = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionListingStatus>>, TError,{listingId: number;data: BodyType<DemolitionStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDemolitionListingStatus>>,
+        TError,
+        {listingId: number;data: BodyType<DemolitionStatusUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDemolitionListingStatusMutationOptions(options));
+    }
+
+export const getListDemolitionOffersUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}/offers`
+}
+
+/**
+ * @summary List offers on a building (owner or admin only)
+ */
+export const listDemolitionOffers = async (listingId: number, options?: RequestInit): Promise<DemolitionOffer[]> => {
+
+  return customFetch<DemolitionOffer[]>(getListDemolitionOffersUrl(listingId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDemolitionOffersQueryKey = (listingId: number,) => {
+    return [
+    `/api/demolition/listings/${listingId}/offers`
+    ] as const;
+    }
+
+
+export const getListDemolitionOffersQueryOptions = <TData = Awaited<ReturnType<typeof listDemolitionOffers>>, TError = ErrorType<ErrorEnvelope>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionOffers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDemolitionOffersQueryKey(listingId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDemolitionOffers>>> = ({ signal }) => listDemolitionOffers(listingId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(listingId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDemolitionOffers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDemolitionOffersQueryResult = NonNullable<Awaited<ReturnType<typeof listDemolitionOffers>>>
+export type ListDemolitionOffersQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List offers on a building (owner or admin only)
+ */
+
+export function useListDemolitionOffers<TData = Awaited<ReturnType<typeof listDemolitionOffers>>, TError = ErrorType<ErrorEnvelope>>(
+ listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionOffers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDemolitionOffersQueryOptions(listingId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateDemolitionOfferUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}/offers`
+}
+
+/**
+ * @summary Submit an offer on a building (promoter / developer only)
+ */
+export const createDemolitionOffer = async (listingId: number,
+    demolitionOfferInput: DemolitionOfferInput, options?: RequestInit): Promise<DemolitionOffer> => {
+
+  return customFetch<DemolitionOffer>(getCreateDemolitionOfferUrl(listingId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      demolitionOfferInput,)
+  }
+);}
+
+
+
+
+export const getCreateDemolitionOfferMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionOffer>>, TError,{listingId: number;data: BodyType<DemolitionOfferInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDemolitionOffer>>, TError,{listingId: number;data: BodyType<DemolitionOfferInput>}, TContext> => {
+
+const mutationKey = ['createDemolitionOffer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDemolitionOffer>>, {listingId: number;data: BodyType<DemolitionOfferInput>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  createDemolitionOffer(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDemolitionOfferMutationResult = NonNullable<Awaited<ReturnType<typeof createDemolitionOffer>>>
+    export type CreateDemolitionOfferMutationBody = BodyType<DemolitionOfferInput>
+    export type CreateDemolitionOfferMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Submit an offer on a building (promoter / developer only)
+ */
+export const useCreateDemolitionOffer = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionOffer>>, TError,{listingId: number;data: BodyType<DemolitionOfferInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createDemolitionOffer>>,
+        TError,
+        {listingId: number;data: BodyType<DemolitionOfferInput>},
+        TContext
+      > => {
+      return useMutation(getCreateDemolitionOfferMutationOptions(options));
     }
 

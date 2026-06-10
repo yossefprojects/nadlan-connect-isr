@@ -12,6 +12,7 @@ import anthropicRouter from "./anthropic";
 import reportsRouter from "./reports";
 import programsRouter from "./programs";
 import documentsRouter from "./documents";
+import demolitionRouter from "./demolition";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(anthropicRouter);
 router.use(reportsRouter);
 router.use(programsRouter);
 router.use(documentsRouter);
+router.use(demolitionRouter);
 
 export default router;

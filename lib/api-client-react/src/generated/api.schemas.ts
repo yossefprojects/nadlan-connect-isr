@@ -1132,6 +1132,155 @@ export interface DeleteSuccess {
   success: boolean;
 }
 
+export interface DemolitionDocumentInput {
+  url: string;
+  name: string;
+  position?: number;
+}
+
+export interface DemolitionDocument {
+  id: number;
+  listingId: number;
+  url: string;
+  name: string;
+  position: number;
+}
+
+export type DemolitionListingInputProjectType = typeof DemolitionListingInputProjectType[keyof typeof DemolitionListingInputProjectType];
+
+
+export const DemolitionListingInputProjectType = {
+  tama38: 'tama38',
+  pinui_binui: 'pinui_binui',
+  both: 'both',
+} as const;
+
+export interface DemolitionListingInput {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  address: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  city: string;
+  /** @minimum 1 */
+  units: number;
+  /**
+     * @minimum 1850
+     * @maximum 2100
+     */
+  buildYear: number;
+  projectType: DemolitionListingInputProjectType;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  ownerName: string;
+  /**
+     * @minLength 3
+     * @maxLength 320
+     */
+  ownerEmail: string;
+  /**
+     * @minLength 1
+     * @maxLength 60
+     */
+  ownerPhone: string;
+  documents?: DemolitionDocumentInput[];
+}
+
+export type DemolitionListingProjectType = typeof DemolitionListingProjectType[keyof typeof DemolitionListingProjectType];
+
+
+export const DemolitionListingProjectType = {
+  tama38: 'tama38',
+  pinui_binui: 'pinui_binui',
+  both: 'both',
+} as const;
+
+export type DemolitionListingStatus = typeof DemolitionListingStatus[keyof typeof DemolitionListingStatus];
+
+
+export const DemolitionListingStatus = {
+  pending: 'pending',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface DemolitionListing {
+  id: number;
+  address: string;
+  city: string;
+  units: number;
+  buildYear: number;
+  projectType: DemolitionListingProjectType;
+  ownerName: string;
+  /** @nullable */
+  ownerEmail?: string | null;
+  /** @nullable */
+  ownerPhone?: string | null;
+  status: DemolitionListingStatus;
+  isPaid: boolean;
+  offerCount: number;
+  createdAt: string;
+}
+
+export interface DemolitionListingDetail {
+  listing: DemolitionListing;
+  documents: DemolitionDocument[];
+}
+
+export interface DemolitionOfferInput {
+  /** @minimum 0 */
+  pricePerUnit: number;
+  /** @minimum 0 */
+  newUnitsOffer: number;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  timeline: string;
+  /**
+     * @minLength 1
+     * @maxLength 4000
+     */
+  message: string;
+}
+
+export interface DemolitionOffer {
+  id: number;
+  listingId: number;
+  promoterId: string;
+  /** @nullable */
+  promoterName?: string | null;
+  /** @nullable */
+  promoterEmail?: string | null;
+  /** @nullable */
+  promoterCompany?: string | null;
+  pricePerUnit: number;
+  newUnitsOffer: number;
+  timeline: string;
+  message: string;
+  createdAt: string;
+}
+
+export type DemolitionStatusUpdateStatus = typeof DemolitionStatusUpdateStatus[keyof typeof DemolitionStatusUpdateStatus];
+
+
+export const DemolitionStatusUpdateStatus = {
+  pending: 'pending',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface DemolitionStatusUpdate {
+  status?: DemolitionStatusUpdateStatus;
+  isPaid?: boolean;
+}
+
 export interface ErrorEnvelope {
   error: string;
 }
@@ -1179,4 +1328,19 @@ status?: string;
 export type AdminListListingsParams = {
 status?: string;
 };
+
+export type ListDemolitionListingsParams = {
+city?: string;
+projectType?: ListDemolitionListingsProjectType;
+minUnits?: number;
+};
+
+export type ListDemolitionListingsProjectType = typeof ListDemolitionListingsProjectType[keyof typeof ListDemolitionListingsProjectType];
+
+
+export const ListDemolitionListingsProjectType = {
+  tama38: 'tama38',
+  pinui_binui: 'pinui_binui',
+  both: 'both',
+} as const;
 
