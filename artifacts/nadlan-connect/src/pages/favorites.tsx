@@ -13,6 +13,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
 import { useAuth } from "@/hooks/use-auth";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 export default function Favorites() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -87,13 +88,11 @@ export default function Favorites() {
       <p className="text-muted-foreground mb-8">{t("favorites.subtitle")}</p>
 
       {!isAuthLoading && !isAuthenticated ? (
-        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
-          <h3 className="text-xl font-medium mb-2">{t("favorites.signin.title")}</h3>
-          <p className="text-muted-foreground mb-6">{t("favorites.signin.subtitle")}</p>
-          <Link href="/auth/login">
-            <Button>{t("favorites.signin.cta")}</Button>
-          </Link>
-        </div>
+        <SignInPrompt
+          title="favorites.signin.title"
+          subtitle="favorites.signin.subtitle"
+          cta="favorites.signin.cta"
+        />
       ) : isAuthLoading || isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => <div key={i} className="h-[400px] bg-muted animate-pulse rounded-xl" />)}

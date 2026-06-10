@@ -6,7 +6,6 @@ import {
   useSendMessage
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +14,7 @@ import { Send } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 export default function LeadDetail() {
   const [, params] = useRoute("/leads/:id");
@@ -54,13 +54,11 @@ export default function LeadDetail() {
   if (!isAuthLoading && !isAuthenticated) {
     return (
       <div className="container py-8 max-w-4xl">
-        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
-          <h3 className="text-xl font-medium mb-2">{t("leadsPage.signin.title")}</h3>
-          <p className="text-muted-foreground mb-6">{t("leadsPage.signin.subtitle")}</p>
-          <Link href="/auth/login">
-            <Button>{t("leadsPage.signin.cta")}</Button>
-          </Link>
-        </div>
+        <SignInPrompt
+          title="leadsPage.signin.title"
+          subtitle="leadsPage.signin.subtitle"
+          cta="leadsPage.signin.cta"
+        />
       </div>
     );
   }

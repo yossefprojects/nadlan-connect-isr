@@ -1,11 +1,11 @@
 import { useListLeads, getListLeadsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { MessageCircle } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
 import { useAuth } from "@/hooks/use-auth";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 
 export default function Leads() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -33,13 +33,11 @@ export default function Leads() {
       <p className="text-muted-foreground mb-8">{t("leadsPage.subtitle")}</p>
 
       {!isAuthLoading && !isAuthenticated ? (
-        <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed">
-          <h3 className="text-xl font-medium mb-2">{t("leadsPage.signin.title")}</h3>
-          <p className="text-muted-foreground mb-6">{t("leadsPage.signin.subtitle")}</p>
-          <Link href="/auth/login">
-            <Button>{t("leadsPage.signin.cta")}</Button>
-          </Link>
-        </div>
+        <SignInPrompt
+          title="leadsPage.signin.title"
+          subtitle="leadsPage.signin.subtitle"
+          cta="leadsPage.signin.cta"
+        />
       ) : isAuthLoading || isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted animate-pulse rounded-xl" />)}
