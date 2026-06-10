@@ -583,6 +583,26 @@ export const AddListingImageBody = zod.object({
 
 
 /**
+ * @summary Reorder a listing's images (first id becomes the cover)
+ */
+export const ReorderListingImagesParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ReorderListingImagesBody = zod.object({
+  "imageIds": zod.array(zod.number()).describe('Image ids in the desired order; index 0 becomes the cover.')
+})
+
+export const ReorderListingImagesResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "url": zod.string(),
+  "position": zod.number()
+})
+export const ReorderListingImagesResponse = zod.array(ReorderListingImagesResponseItem)
+
+
+/**
  * @summary Remove an image from a listing
  */
 export const DeleteListingImageParams = zod.object({

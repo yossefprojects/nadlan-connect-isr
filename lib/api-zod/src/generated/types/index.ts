@@ -121,6 +121,7 @@ export * from './registerInput';
 export * from './renovationEstimate';
 export * from './renovationEstimateLevel';
 export * from './rentalYield';
+export * from './reorderImagesInput';
 export * from './roleCount';
 export * from './roleSelection';
 export * from './roleSelectionRole';

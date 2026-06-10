@@ -80,6 +80,7 @@ import type {
   ProgramUpdate,
   PromoteurRegistrationInput,
   RegisterInput,
+  ReorderImagesInput,
   RoleSelection,
   SavedReport,
   ShamaiChatInput,
@@ -1888,6 +1889,78 @@ export const useAddListingImage = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getAddListingImageMutationOptions(options));
+    }
+
+export const getReorderListingImagesUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/images/order`
+}
+
+/**
+ * @summary Reorder a listing's images (first id becomes the cover)
+ */
+export const reorderListingImages = async (listingId: number,
+    reorderImagesInput: ReorderImagesInput, options?: RequestInit): Promise<ListingImage[]> => {
+
+  return customFetch<ListingImage[]>(getReorderListingImagesUrl(listingId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      reorderImagesInput,)
+  }
+);}
+
+
+
+
+export const getReorderListingImagesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reorderListingImages>>, TError,{listingId: number;data: BodyType<ReorderImagesInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reorderListingImages>>, TError,{listingId: number;data: BodyType<ReorderImagesInput>}, TContext> => {
+
+const mutationKey = ['reorderListingImages'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reorderListingImages>>, {listingId: number;data: BodyType<ReorderImagesInput>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  reorderListingImages(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReorderListingImagesMutationResult = NonNullable<Awaited<ReturnType<typeof reorderListingImages>>>
+    export type ReorderListingImagesMutationBody = BodyType<ReorderImagesInput>
+    export type ReorderListingImagesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Reorder a listing's images (first id becomes the cover)
+ */
+export const useReorderListingImages = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reorderListingImages>>, TError,{listingId: number;data: BodyType<ReorderImagesInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reorderListingImages>>,
+        TError,
+        {listingId: number;data: BodyType<ReorderImagesInput>},
+        TContext
+      > => {
+      return useMutation(getReorderListingImagesMutationOptions(options));
     }
 
 export const getDeleteListingImageUrl = (listingId: number,

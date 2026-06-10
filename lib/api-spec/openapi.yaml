@@ -667,6 +667,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListingImage'
 
+  /listings/{listingId}/images/order:
+    patch:
+      tags: [Listings]
+      operationId: reorderListingImages
+      summary: Reorder a listing's images (first id becomes the cover)
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderImagesInput'
+      responses:
+        '200':
+          description: Images reordered
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListingImage'
+
   /listings/{listingId}/images/{imageId}:
     delete:
       tags: [Listings]
@@ -2878,6 +2905,15 @@ components:
           type: string
         position:
           type: integer
+    ReorderImagesInput:
+      type: object
+      required: [imageIds]
+      properties:
+        imageIds:
+          type: array
+          description: Image ids in the desired order; index 0 becomes the cover.
+          items:
+            type: integer
 
     # ── Programmes & Documents ──
     Program:

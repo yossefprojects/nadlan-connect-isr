@@ -7,8 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImagePlus } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
+import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
+
+interface PendingPhoto extends PhotoItem {
+  file: File;
+}
 
 export default function DashboardListingsNew() {
   const [, setLocation] = useLocation();
@@ -35,7 +40,7 @@ export default function DashboardListingsNew() {
     type: "resale" as "resale" | "new_development"
   });
 
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [photos, setPhotos] = useState<PendingPhoto[]>([]);
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => {
@@ -45,6 +50,30 @@ export default function DashboardListingsNew() {
       toast({ title: t("listingForm.uploadError"), variant: "destructive" });
     }
   });
+
+  const handleAddPhotos = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const added = Array.from(files).map((file, i) => ({
+      key: `${Date.now()}-${i}-${file.name}`,
+      url: URL.createObjectURL(file),
+      file
+    }));
+    setPhotos((prev) => [...prev, ...added]);
+  };
+
+  const handleReorder = (next: PhotoItem[]) => {
+    setPhotos((prev) =>
+      next.map((p) => prev.find((x) => x.key === p.key)!).filter(Boolean)
+    );
+  };
+
+  const handleDeletePhoto = (key: string) => {
+    setPhotos((prev) => {
+      const target = prev.find((p) => p.key === key);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((p) => p.key !== key);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,14 +98,15 @@ export default function DashboardListingsNew() {
         }
       });
 
-      if (coverFile) {
-        const uploadRes = await uploadFile(coverFile);
+      let position = 0;
+      for (const photo of photos) {
+        const uploadRes = await uploadFile(photo.file);
         if (uploadRes?.objectPath) {
           await addListingImage.mutateAsync({
             listingId: listing.id,
             data: {
               url: uploadRes.objectPath,
-              position: 0
+              position: position++
             }
           });
         }
@@ -187,12 +217,35 @@ export default function DashboardListingsNew() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t("listingForm.fieldCover")}</label>
-          <Input 
-            type="file" 
-            accept="image/*"
-            onChange={e => setCoverFile(e.target.files?.[0] || null)}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">{t("listingForm.fieldPhotos")}</label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("add-photos-input")?.click()}
+            >
+              <ImagePlus className="me-2 h-4 w-4" />
+              {t("listingForm.addPhotos")}
+            </Button>
+            <input
+              id="add-photos-input"
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                handleAddPhotos(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">{t("listingForm.photosHint")}</p>
+          <ListingPhotoGrid
+            photos={photos}
+            onReorder={handleReorder}
+            onDelete={handleDeletePhoto}
           />
         </div>
 

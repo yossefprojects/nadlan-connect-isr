@@ -21,3 +21,18 @@ controls). The detail gallery must build its image list from `detail.images`
 (`pnpm --filter @workspace/api-server run seed:images`) — it's idempotent and
 listings ship with no photos by default. A future task may unify these two
 endpoints onto one field.
+
+## Cover = position 0; reorder convention
+
+The cover photo is **whichever image has the lowest `position`** (index 0 after
+sorting). There is no separate "isCover" flag. To change the cover you reorder.
+
+`PATCH /api/listings/:listingId/images/order` takes `{imageIds: number[]}` and
+assigns `position = index`; **first id becomes the cover**. The handler is
+owner/admin-guarded, ignores ids not on the listing, and appends any existing
+images missing from the payload so a partial list never orphans photos.
+
+**Why:** the cover drives the card and the SEO/social preview, so "set as cover"
+in the Pro editor is just "move to front". The Pro photo editor
+(`ListingPhotoGrid` component) reorders optimistically then persists; the
+new-listing page reorders local `File`s and uploads them in order on create.

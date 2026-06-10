@@ -17,6 +17,8 @@ import {
   DeleteListingParams,
   AddListingImageParams,
   AddListingImageBody,
+  ReorderListingImagesParams,
+  ReorderListingImagesBody,
   DeleteListingImageParams,
   PublishListingParams,
   AdminListListingsQueryParams,
@@ -501,6 +503,84 @@ router.post("/listings/:listingId/images", async (req, res): Promise<void> => {
     .returning();
 
   res.status(201).json({ id: img.id, listingId: img.listingId, url: img.url, position: img.position });
+});
+
+// PATCH /listings/:listingId/images/order
+router.patch("/listings/:listingId/images/order", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  const params = ReorderListingImagesParams.safeParse(req.params);
+  const parsed = ReorderListingImagesBody.safeParse(req.body);
+  if (!params.success || !parsed.success) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, params.data.listingId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+
+  if (existing.ownerId !== req.user!.id) {
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.id)).limit(1);
+    if (user[0]?.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+  }
+
+  // Load this listing's images and reorder them according to the provided ids.
+  // Any ids not belonging to this listing are ignored; any existing images not
+  // listed are appended after the requested order to avoid orphaning them.
+  const current = await db
+    .select()
+    .from(listingImagesTable)
+    .where(eq(listingImagesTable.listingId, params.data.listingId))
+    .orderBy(listingImagesTable.position);
+
+  const byId = new Map(current.map((img) => [img.id, img]));
+  const orderedIds = parsed.data.imageIds.filter((id) => byId.has(id));
+  const remaining = current
+    .filter((img) => !orderedIds.includes(img.id))
+    .map((img) => img.id);
+  const finalOrder = [...orderedIds, ...remaining];
+
+  await Promise.all(
+    finalOrder.map((id, index) =>
+      db
+        .update(listingImagesTable)
+        .set({ position: index })
+        .where(
+          and(
+            eq(listingImagesTable.id, id),
+            eq(listingImagesTable.listingId, params.data.listingId)
+          )
+        )
+    )
+  );
+
+  const updated = await db
+    .select()
+    .from(listingImagesTable)
+    .where(eq(listingImagesTable.listingId, params.data.listingId))
+    .orderBy(listingImagesTable.position);
+
+  res.json(
+    updated.map((img) => ({
+      id: img.id,
+      listingId: img.listingId,
+      url: img.url,
+      position: img.position,
+    }))
+  );
 });
 
 // DELETE /listings/:listingId/images/:imageId

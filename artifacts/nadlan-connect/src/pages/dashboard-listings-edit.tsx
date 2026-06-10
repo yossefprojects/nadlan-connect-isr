@@ -5,6 +5,8 @@ import {
   getGetListingQueryKey,
   useUpdateListing,
   useAddListingImage,
+  useDeleteListingImage,
+  useReorderListingImages,
   useDeleteListing
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -13,9 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, ImagePlus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/components/layout/language-provider";
+import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
 
 export default function DashboardListingsEdit() {
   const [, params] = useRoute("/dashboard/listings/:id/edit");
@@ -32,6 +35,8 @@ export default function DashboardListingsEdit() {
   
   const updateListing = useUpdateListing();
   const addListingImage = useAddListingImage();
+  const deleteListingImage = useDeleteListingImage();
+  const reorderListingImages = useReorderListingImages();
   const deleteListing = useDeleteListing();
 
   const [formData, setFormData] = useState({
@@ -46,6 +51,8 @@ export default function DashboardListingsEdit() {
     type: "resale" as any,
     status: "draft" as any
   });
+
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
 
   useEffect(() => {
     if (detail?.listing) {
@@ -62,14 +69,65 @@ export default function DashboardListingsEdit() {
         status: detail.listing.status
       });
     }
+    if (detail?.images) {
+      setPhotos(
+        [...detail.images]
+          .sort((a, b) => a.position - b.position)
+          .map((img) => ({ key: String(img.id), url: img.url }))
+      );
+    }
   }, [detail]);
-
-  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => console.log("Uploaded successfully", res),
     onError: () => toast({ title: t("listingForm.uploadError"), variant: "destructive" })
   });
+
+  const persistOrder = async (next: PhotoItem[]) => {
+    const previous = photos;
+    setPhotos(next);
+    try {
+      await reorderListingImages.mutateAsync({
+        listingId,
+        data: { imageIds: next.map((p) => Number(p.key)) }
+      });
+      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
+    } catch {
+      setPhotos(previous);
+      toast({ title: t("listingForm.reorderError"), variant: "destructive" });
+    }
+  };
+
+  const handleDeletePhoto = async (key: string) => {
+    const previous = photos;
+    setPhotos(photos.filter((p) => p.key !== key));
+    try {
+      await deleteListingImage.mutateAsync({ listingId, imageId: Number(key) });
+      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
+    } catch {
+      setPhotos(previous);
+      toast({ title: t("listingForm.deletePhotoError"), variant: "destructive" });
+    }
+  };
+
+  const handleAddPhotos = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    try {
+      let position = photos.length;
+      for (const file of Array.from(files)) {
+        const uploadRes = await uploadFile(file);
+        if (uploadRes?.objectPath) {
+          await addListingImage.mutateAsync({
+            listingId,
+            data: { url: uploadRes.objectPath, position: position++ }
+          });
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
+    } catch {
+      toast({ title: t("listingForm.uploadError"), variant: "destructive" });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,19 +152,6 @@ export default function DashboardListingsEdit() {
           status: formData.status
         }
       });
-
-      if (coverFile) {
-        const uploadRes = await uploadFile(coverFile);
-        if (uploadRes?.objectPath) {
-          await addListingImage.mutateAsync({
-            listingId,
-            data: {
-              url: uploadRes.objectPath,
-              position: 0
-            }
-          });
-        }
-      }
 
       queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
       toast({ title: t("listingForm.updated") });
@@ -246,12 +291,41 @@ export default function DashboardListingsEdit() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t("listingForm.fieldNewCover")}</label>
-          <Input 
-            type="file" 
-            accept="image/*"
-            onChange={e => setCoverFile(e.target.files?.[0] || null)}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">{t("listingForm.fieldPhotos")}</label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading || addListingImage.isPending}
+              onClick={() => document.getElementById("add-photos-input")?.click()}
+            >
+              {isUploading || addListingImage.isPending ? (
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ImagePlus className="me-2 h-4 w-4" />
+              )}
+              {t("listingForm.addPhotos")}
+            </Button>
+            <input
+              id="add-photos-input"
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                handleAddPhotos(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">{t("listingForm.photosHint")}</p>
+          <ListingPhotoGrid
+            photos={photos}
+            onReorder={persistOrder}
+            onDelete={handleDeletePhoto}
+            disabled={reorderListingImages.isPending || deleteListingImage.isPending}
           />
         </div>
 

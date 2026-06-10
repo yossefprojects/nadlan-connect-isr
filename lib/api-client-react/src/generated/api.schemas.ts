@@ -903,6 +903,11 @@ export interface ListingImageInput {
   position: number;
 }
 
+export interface ReorderImagesInput {
+  /** Image ids in the desired order; index 0 becomes the cover. */
+  imageIds: number[];
+}
+
 export type ProgramStatus = typeof ProgramStatus[keyof typeof ProgramStatus];
 
 
