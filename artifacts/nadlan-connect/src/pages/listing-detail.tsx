@@ -29,8 +29,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star, Scale } from "lucide-react";
+import { useState, useRef } from "react";
+import { MapPin, Maximize, Home, Heart, Send, Bot, ExternalLink, Check, Handshake, FileText, Star, Scale, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SIMULATOR_URL = "https://simmoisrael.com/";
@@ -58,7 +58,7 @@ export default function ListingDetail() {
   
   const { isAuthenticated } = useAuth();
   const { role } = useUserRole();
-  const { t, locale } = useLanguage();
+  const { t, locale, dir } = useLanguage();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -151,6 +151,53 @@ export default function ListingDetail() {
   const [exclusive, setExclusive] = useState(false);
   const [mandateNote, setMandateNote] = useState("");
   const [justificationUrl, setJustificationUrl] = useState("");
+
+  // Gallery state — prefer the detail `images` array (sorted by position),
+  // then fall back to the summary `galleryImageUrls`, then the cover image.
+  const galleryImages =
+    detail?.images && detail.images.length > 0
+      ? [...detail.images].sort((a, b) => a.position - b.position).map((img) => img.url)
+      : detail?.listing.galleryImageUrls && detail.listing.galleryImageUrls.length > 0
+        ? detail.listing.galleryImageUrls
+        : detail?.listing.coverImageUrl
+          ? [detail.listing.coverImageUrl]
+          : [];
+  const [activeImage, setActiveImage] = useState(0);
+  const hasMultipleImages = galleryImages.length > 1;
+  const currentImage = galleryImages[Math.min(activeImage, galleryImages.length - 1)];
+
+  const stepImage = (delta: number) => {
+    const count = galleryImages.length;
+    if (count === 0) return;
+    setActiveImage((prev) => (((prev + delta) % count) + count) % count);
+  };
+
+  const goToImage = (index: number) => {
+    const count = galleryImages.length;
+    if (count === 0) return;
+    setActiveImage(((index % count) + count) % count);
+  };
+
+  const galleryTouchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const GALLERY_SWIPE_THRESHOLD = 40;
+
+  const handleGalleryTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    galleryTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleGalleryTouchEnd = (e: React.TouchEvent) => {
+    const start = galleryTouchStartRef.current;
+    galleryTouchStartRef.current = null;
+    if (!start || !hasMultipleImages) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < GALLERY_SWIPE_THRESHOLD) return;
+    const swipeLeft = dx < 0;
+    const forward = dir === "rtl" ? !swipeLeft : swipeLeft;
+    stepImage(forward ? 1 : -1);
+  };
 
   const optimisticAddFavorite = (listingToAdd: Listing) => {
     const queryKey = getGetMyFavoritesQueryKey();
@@ -366,13 +413,56 @@ export default function ListingDetail() {
         
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="rounded-xl overflow-hidden aspect-video bg-muted relative">
-            {listing.coverImageUrl ? (
-              <img src={`/api/storage${listing.coverImageUrl}`} alt={listing.title} className="w-full h-full object-cover" />
+          <div
+            className="rounded-xl overflow-hidden aspect-video bg-muted relative touch-pan-y"
+            onTouchStart={hasMultipleImages ? handleGalleryTouchStart : undefined}
+            onTouchEnd={hasMultipleImages ? handleGalleryTouchEnd : undefined}
+          >
+            {currentImage ? (
+              <img src={`/api/storage${currentImage}`} alt={listing.title} draggable={false} className="w-full h-full object-cover select-none" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                 <Home className="h-12 w-12 opacity-20" />
               </div>
+            )}
+            {hasMultipleImages && (
+              <>
+                <button
+                  type="button"
+                  aria-label={t("card.prevPhoto")}
+                  title={t("card.prevPhoto")}
+                  onClick={() => goToImage(activeImage - 1)}
+                  className="absolute top-1/2 left-3 rtl:left-auto rtl:right-3 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-primary shadow-sm backdrop-blur-sm transition-opacity hover:bg-white"
+                >
+                  <ChevronLeft className="h-5 w-5 rtl:hidden" />
+                  <ChevronRight className="h-5 w-5 hidden rtl:block" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("card.nextPhoto")}
+                  title={t("card.nextPhoto")}
+                  onClick={() => goToImage(activeImage + 1)}
+                  className="absolute top-1/2 right-3 rtl:right-auto rtl:left-3 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-primary shadow-sm backdrop-blur-sm transition-opacity hover:bg-white"
+                >
+                  <ChevronRight className="h-5 w-5 rtl:hidden" />
+                  <ChevronLeft className="h-5 w-5 hidden rtl:block" />
+                </button>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                  {galleryImages.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      aria-label={t("card.goToPhoto").replace("{n}", String(i + 1))}
+                      onClick={() => goToImage(i)}
+                      className={`h-1.5 rounded-full transition-all ${
+                        i === Math.min(activeImage, galleryImages.length - 1)
+                          ? "w-4 bg-white"
+                          : "w-1.5 bg-white/60 hover:bg-white/90"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
             )}
             <div className="absolute top-4 right-4">
               <Button variant="secondary" size="icon" className="rounded-full bg-white/90 hover:bg-white text-primary" onClick={toggleFavorite}>

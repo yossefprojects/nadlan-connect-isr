@@ -13,3 +13,5 @@
 - [Demolition offer scoring](demolition-offer-scoring.md) — weighted 40/30/20/10 relative score; lower-is-better metrics MUST use min-max so startDelay=0 (immediate) is rewarded, not penalized.
 - [NadlanConnect header layout](nadlan-navbar-layout.md) — global navbar position is route-conditional (fixed on home for transparent-over-hero, sticky elsewhere); never make it globally fixed (overlays all pages).
 - [Testing @react-pdf documents](react-pdf-testing.md) — react-test-renderer toJSON returns null for @react-pdf string primitives under React 19; walk the element tree manually instead.
+- [Dev-only blank on hard-loaded deep links](nadlan-vite-preamble-deeplink.md) — `/listings/:slug` blanks on direct load (Vite preamble error, dev-only); verify non-home routes via client-side nav, not screenshot/hard-load.
+- [Listing detail photos source](nadlan-listing-detail-images.md) — detail endpoint returns photos in `images[]` with `galleryImageUrls` empty; list endpoint populates `galleryImageUrls`. Read `images` on detail.
