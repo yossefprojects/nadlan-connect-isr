@@ -41,14 +41,17 @@ export default function DemolitionDetail() {
     },
   });
 
-  const isOwner =
-    isAuthenticated && detail?.listing.ownerEmail != null; // owner-only fields only returned to owner/admin
+  // The server returns owner contact fields only to the listing owner or an admin,
+  // and the offers endpoint authorizes exactly those two roles — so this flag gates
+  // the offers panel for "owner or admin", not the owner alone.
+  const canViewOffers =
+    isAuthenticated && detail?.listing.ownerEmail != null;
   const isDeveloper = role === "developer";
 
   const { data: offers } = useListDemolitionOffers(listingId, {
     query: {
       queryKey: getListDemolitionOffersQueryKey(listingId),
-      enabled: Number.isFinite(listingId) && Boolean(isOwner),
+      enabled: Number.isFinite(listingId) && Boolean(canViewOffers),
     },
   });
 
@@ -196,8 +199,8 @@ export default function DemolitionDetail() {
             )}
           </section>
 
-          {/* Offers (owner only) */}
-          {isOwner && (
+          {/* Offers (owner or admin only) */}
+          {canViewOffers && (
             <section className="rounded-2xl border bg-card p-6 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-[#0F2235]">
                 {t("demo.detail.offersReceived")} ({offers?.length ?? 0})
@@ -316,7 +319,7 @@ export default function DemolitionDetail() {
                 </Button>
               </form>
             </section>
-          ) : !isOwner ? (
+          ) : !canViewOffers ? (
             <section className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground shadow-sm">
               {isAuthenticated ? t("demo.offerForm.devOnly") : t("demo.offerForm.loginRequired")}
             </section>

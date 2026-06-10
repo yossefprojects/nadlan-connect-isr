@@ -256,12 +256,21 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
 
   // Only the owner or an admin may see the owner's private contact details.
   let includeContact = false;
+  let isOwnerOrAdmin = false;
   if (req.isAuthenticated()) {
     if (req.user!.id === listing.ownerId) {
       includeContact = true;
+      isOwnerOrAdmin = true;
     } else if ((await getRole(req.user!.id)) === "admin") {
       includeContact = true;
+      isOwnerOrAdmin = true;
     }
+  }
+
+  // Unmoderated listings (pending/closed) are only visible to their owner or an admin.
+  if (listing.status !== "active" && !isOwnerOrAdmin) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
   }
 
   const [documents, counts] = await Promise.all([
@@ -388,7 +397,7 @@ router.post(
     }
 
     const role = await getRole(req.user!.id);
-    if (role !== "developer" && role !== "admin") {
+    if (role !== "developer") {
       res.status(403).json({ error: "Only promoters can submit offers" });
       return;
     }
@@ -401,6 +410,11 @@ router.post(
 
     if (!listing) {
       res.status(404).json({ error: "Listing not found" });
+      return;
+    }
+
+    if (listing.status !== "active") {
+      res.status(409).json({ error: "Offers can only be submitted on active listings" });
       return;
     }
 
