@@ -5,20 +5,62 @@
  * NadlanConnect API
  * OpenAPI spec version: 0.1.0
  */
+import type { DemolitionStanding } from './demolitionStanding';
 
 export interface DemolitionOfferInput {
-  /** @minimum 0 */
+  /**
+     * NIS offered per current apartment
+     * @minimum 0
+     */
   pricePerUnit: number;
-  /** @minimum 0 */
+  /**
+     * Surface (m²) of the new apartment offered
+     * @minimum 0
+     */
+  newUnitArea: number;
+  /**
+     * Extra apartments offered to owners
+     * @minimum 0
+     */
   newUnitsOffer: number;
   /**
-     * @minLength 1
-     * @maxLength 200
+     * Estimated NIS value of the delivered apartment
+     * @minimum 0
      */
-  timeline: string;
+  estimatedDeliveredValue: number;
+  standing: DemolitionStanding;
   /**
-     * @minLength 1
-     * @maxLength 4000
+     * @maxLength 2000
+     * @nullable
      */
-  message: string;
+  materials?: string | null;
+  /** @minimum 0 */
+  floors: number;
+  /** @minimum 0 */
+  parkingPerUnit: number;
+  elevator?: boolean;
+  bikeStorage?: boolean;
+  gym?: boolean;
+  lobby?: boolean;
+  replacementHousing?: boolean;
+  /**
+     * @maxLength 1000
+     * @nullable
+     */
+  replacementHousingQuality?: string | null;
+  /** @minimum 0 */
+  constructionDurationMonths: number;
+  /** @minimum 0 */
+  startDelayMonths: number;
+  bankGuarantee?: boolean;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  projectReferences?: string | null;
+  /**
+     * @maxLength 4000
+     * @nullable
+     */
+  message?: string | null;
 }

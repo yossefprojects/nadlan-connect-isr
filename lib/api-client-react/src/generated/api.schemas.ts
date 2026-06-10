@@ -1233,21 +1233,71 @@ export interface DemolitionListingDetail {
   documents: DemolitionDocument[];
 }
 
+export type DemolitionStanding = typeof DemolitionStanding[keyof typeof DemolitionStanding];
+
+
+export const DemolitionStanding = {
+  standard: 'standard',
+  high_end: 'high_end',
+  luxury: 'luxury',
+} as const;
+
 export interface DemolitionOfferInput {
-  /** @minimum 0 */
+  /**
+     * NIS offered per current apartment
+     * @minimum 0
+     */
   pricePerUnit: number;
-  /** @minimum 0 */
+  /**
+     * Surface (m²) of the new apartment offered
+     * @minimum 0
+     */
+  newUnitArea: number;
+  /**
+     * Extra apartments offered to owners
+     * @minimum 0
+     */
   newUnitsOffer: number;
   /**
-     * @minLength 1
-     * @maxLength 200
+     * Estimated NIS value of the delivered apartment
+     * @minimum 0
      */
-  timeline: string;
+  estimatedDeliveredValue: number;
+  standing: DemolitionStanding;
   /**
-     * @minLength 1
-     * @maxLength 4000
+     * @maxLength 2000
+     * @nullable
      */
-  message: string;
+  materials?: string | null;
+  /** @minimum 0 */
+  floors: number;
+  /** @minimum 0 */
+  parkingPerUnit: number;
+  elevator?: boolean;
+  bikeStorage?: boolean;
+  gym?: boolean;
+  lobby?: boolean;
+  replacementHousing?: boolean;
+  /**
+     * @maxLength 1000
+     * @nullable
+     */
+  replacementHousingQuality?: string | null;
+  /** @minimum 0 */
+  constructionDurationMonths: number;
+  /** @minimum 0 */
+  startDelayMonths: number;
+  bankGuarantee?: boolean;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  projectReferences?: string | null;
+  /**
+     * @maxLength 4000
+     * @nullable
+     */
+  message?: string | null;
 }
 
 export interface DemolitionOffer {
@@ -1261,9 +1311,38 @@ export interface DemolitionOffer {
   /** @nullable */
   promoterCompany?: string | null;
   pricePerUnit: number;
+  newUnitArea: number;
   newUnitsOffer: number;
-  timeline: string;
-  message: string;
+  estimatedDeliveredValue: number;
+  standing: DemolitionStanding;
+  /** @nullable */
+  materials?: string | null;
+  floors: number;
+  parkingPerUnit: number;
+  elevator: boolean;
+  bikeStorage: boolean;
+  gym: boolean;
+  lobby: boolean;
+  replacementHousing: boolean;
+  /** @nullable */
+  replacementHousingQuality?: string | null;
+  constructionDurationMonths: number;
+  startDelayMonths: number;
+  bankGuarantee: boolean;
+  /** @nullable */
+  projectReferences?: string | null;
+  /** @nullable */
+  message?: string | null;
+  /** @nullable */
+  score?: number | null;
+  /** @nullable */
+  scoreFinancial?: number | null;
+  /** @nullable */
+  scoreQuality?: number | null;
+  /** @nullable */
+  scoreTimeline?: number | null;
+  /** @nullable */
+  scoreReferences?: number | null;
   createdAt: string;
 }
 

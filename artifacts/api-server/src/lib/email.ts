@@ -45,11 +45,19 @@ interface NewOfferEmailData {
   promoterCompany: string | null;
   pricePerUnit: number;
   newUnitsOffer: number;
-  timeline: string;
-  message: string;
+  newUnitArea: number;
+  standing: string;
+  constructionDurationMonths: number;
+  message: string | null;
 }
 
 const NIS = (n: number) => `${new Intl.NumberFormat("fr-FR").format(n)} ₪`;
+
+const STANDING_LABEL: Record<string, string> = {
+  standard: "Standard",
+  high_end: "Haut de gamme",
+  luxury: "Luxe",
+};
 
 /**
  * Notify the building owner that a promoter submitted a new offer.
@@ -74,13 +82,19 @@ export async function sendNewOfferEmail(data: NewOfferEmailData): Promise<void> 
       <p style="font-size:15px;">Vous avez reçu une <strong>nouvelle offre</strong> de la part de <strong>${promoter}</strong> pour votre immeuble situé au <strong>${data.buildingAddress}, ${data.buildingCity}</strong>.</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;">
         <tr><td style="padding:8px 0;color:#6b7280;">Prix par appartement</td><td style="padding:8px 0;text-align:right;font-weight:600;">${NIS(data.pricePerUnit)}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;">Surface du nouveau logement</td><td style="padding:8px 0;text-align:right;font-weight:600;">${data.newUnitArea} m²</td></tr>
         <tr><td style="padding:8px 0;color:#6b7280;">Nouveaux logements proposés</td><td style="padding:8px 0;text-align:right;font-weight:600;">${data.newUnitsOffer}</td></tr>
-        <tr><td style="padding:8px 0;color:#6b7280;">Délai estimé</td><td style="padding:8px 0;text-align:right;font-weight:600;">${data.timeline}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;">Standing</td><td style="padding:8px 0;text-align:right;font-weight:600;">${STANDING_LABEL[data.standing] ?? data.standing}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;">Durée de construction</td><td style="padding:8px 0;text-align:right;font-weight:600;">${data.constructionDurationMonths} mois</td></tr>
       </table>
-      <div style="background:#F8F7F4;border-radius:8px;padding:16px;font-size:14px;">
+      ${
+        data.message
+          ? `<div style="background:#F8F7F4;border-radius:8px;padding:16px;font-size:14px;">
         <p style="margin:0 0 6px;color:#6b7280;">Message du promoteur :</p>
         <p style="margin:0;white-space:pre-wrap;">${data.message}</p>
-      </div>
+      </div>`
+          : ""
+      }
       <p style="font-size:13px;color:#6b7280;margin-top:24px;">Connectez-vous à votre espace NadlanConnect pour consulter et comparer toutes les offres reçues.</p>
     </div>
   </div>`;
@@ -90,12 +104,11 @@ export async function sendNewOfferEmail(data: NewOfferEmailData): Promise<void> 
 Vous avez reçu une nouvelle offre de ${promoter} pour votre immeuble situé au ${data.buildingAddress}, ${data.buildingCity}.
 
 Prix par appartement : ${NIS(data.pricePerUnit)}
+Surface du nouveau logement : ${data.newUnitArea} m²
 Nouveaux logements proposés : ${data.newUnitsOffer}
-Délai estimé : ${data.timeline}
-
-Message du promoteur :
-${data.message}
-
+Standing : ${STANDING_LABEL[data.standing] ?? data.standing}
+Durée de construction : ${data.constructionDurationMonths} mois
+${data.message ? `\nMessage du promoteur :\n${data.message}\n` : ""}
 Connectez-vous à votre espace NadlanConnect pour consulter toutes les offres.`;
 
   try {

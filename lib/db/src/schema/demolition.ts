@@ -48,6 +48,9 @@ export const demolitionDocumentsTable = pgTable("demolition_documents", {
 });
 
 // Offers submitted by promoters (role = developer) on a building.
+// An offer is far more than a price: it captures financial terms, the quality of
+// the delivered building, timeline/security guarantees, and the promoter's track
+// record. A weighted comparison score is computed server-side at read time.
 export const demolitionOffersTable = pgTable("demolition_offers", {
   id: serial("id").primaryKey(),
   listingId: integer("listing_id")
@@ -56,10 +59,39 @@ export const demolitionOffersTable = pgTable("demolition_offers", {
   promoterId: text("promoter_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+
+  // --- Financial ---
   pricePerUnit: integer("price_per_unit").notNull(), // NIS per current apartment
-  newUnitsOffer: integer("new_units_offer").notNull(), // number of new apartments offered
-  timeline: text("timeline").notNull(), // estimated project duration
-  message: text("message").notNull(),
+  newUnitArea: integer("new_unit_area").notNull().default(0), // m² of the new apartment offered
+  newUnitsOffer: integer("new_units_offer").notNull(), // extra apartments offered to owners
+  estimatedDeliveredValue: integer("estimated_delivered_value")
+    .notNull()
+    .default(0), // NIS estimated value of the delivered apartment
+
+  // --- Qualitative ---
+  standing: text("standing").notNull().default("standard"), // 'standard' | 'high_end' | 'luxury'
+  materials: text("materials"), // free text: materials & finishes
+  floors: integer("floors").notNull().default(0), // number of floors of the new building
+  parkingPerUnit: integer("parking_per_unit").notNull().default(0), // parking spots per apartment
+  elevator: boolean("elevator").notNull().default(false),
+  bikeStorage: boolean("bike_storage").notNull().default(false),
+  gym: boolean("gym").notNull().default(false),
+  lobby: boolean("lobby").notNull().default(false),
+  replacementHousing: boolean("replacement_housing").notNull().default(false), // housing during works
+  replacementHousingQuality: text("replacement_housing_quality"), // free text quality note
+
+  // --- Timeline & security ---
+  constructionDurationMonths: integer("construction_duration_months")
+    .notNull()
+    .default(0),
+  startDelayMonths: integer("start_delay_months").notNull().default(0),
+  bankGuarantee: boolean("bank_guarantee").notNull().default(false),
+  projectReferences: text("project_references"), // names / links to past projects
+
+  // Deprecated: superseded by constructionDurationMonths/startDelayMonths.
+  // Kept nullable for backward compatibility; no longer part of the API contract.
+  timeline: text("timeline"),
+  message: text("message"), // optional free note to the owner
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

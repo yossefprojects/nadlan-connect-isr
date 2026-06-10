@@ -5,6 +5,7 @@
  * NadlanConnect API
  * OpenAPI spec version: 0.1.0
  */
+import type { DemolitionStanding } from './demolitionStanding';
 
 export interface DemolitionOffer {
   id: number;
@@ -17,8 +18,37 @@ export interface DemolitionOffer {
   /** @nullable */
   promoterCompany?: string | null;
   pricePerUnit: number;
+  newUnitArea: number;
   newUnitsOffer: number;
-  timeline: string;
-  message: string;
+  estimatedDeliveredValue: number;
+  standing: DemolitionStanding;
+  /** @nullable */
+  materials?: string | null;
+  floors: number;
+  parkingPerUnit: number;
+  elevator: boolean;
+  bikeStorage: boolean;
+  gym: boolean;
+  lobby: boolean;
+  replacementHousing: boolean;
+  /** @nullable */
+  replacementHousingQuality?: string | null;
+  constructionDurationMonths: number;
+  startDelayMonths: number;
+  bankGuarantee: boolean;
+  /** @nullable */
+  projectReferences?: string | null;
+  /** @nullable */
+  message?: string | null;
+  /** @nullable */
+  score?: number | null;
+  /** @nullable */
+  scoreFinancial?: number | null;
+  /** @nullable */
+  scoreQuality?: number | null;
+  /** @nullable */
+  scoreTimeline?: number | null;
+  /** @nullable */
+  scoreReferences?: number | null;
   createdAt: Date;
 }

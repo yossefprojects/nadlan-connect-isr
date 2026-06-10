@@ -40,6 +40,7 @@ export * from './demolitionListingProjectType';
 export * from './demolitionListingStatus';
 export * from './demolitionOffer';
 export * from './demolitionOfferInput';
+export * from './demolitionStanding';
 export * from './demolitionStatusUpdate';
 export * from './demolitionStatusUpdateStatus';
 export * from './document';

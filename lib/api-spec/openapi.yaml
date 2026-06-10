@@ -3153,23 +3153,78 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DemolitionDocument'
+    DemolitionStanding:
+      type: string
+      enum: [standard, high_end, luxury]
     DemolitionOfferInput:
       type: object
-      required: [pricePerUnit, newUnitsOffer, timeline, message]
+      required:
+        - pricePerUnit
+        - newUnitArea
+        - newUnitsOffer
+        - estimatedDeliveredValue
+        - standing
+        - floors
+        - parkingPerUnit
+        - constructionDurationMonths
+        - startDelayMonths
       properties:
+        # --- Financial ---
         pricePerUnit:
           type: integer
           minimum: 0
+          description: NIS offered per current apartment
+        newUnitArea:
+          type: integer
+          minimum: 0
+          description: Surface (m²) of the new apartment offered
         newUnitsOffer:
           type: integer
           minimum: 0
-        timeline:
-          type: string
-          minLength: 1
-          maxLength: 200
+          description: Extra apartments offered to owners
+        estimatedDeliveredValue:
+          type: integer
+          minimum: 0
+          description: Estimated NIS value of the delivered apartment
+        # --- Qualitative ---
+        standing:
+          $ref: '#/components/schemas/DemolitionStanding'
+        materials:
+          type: [string, 'null']
+          maxLength: 2000
+        floors:
+          type: integer
+          minimum: 0
+        parkingPerUnit:
+          type: integer
+          minimum: 0
+        elevator:
+          type: boolean
+        bikeStorage:
+          type: boolean
+        gym:
+          type: boolean
+        lobby:
+          type: boolean
+        replacementHousing:
+          type: boolean
+        replacementHousingQuality:
+          type: [string, 'null']
+          maxLength: 1000
+        # --- Timeline & security ---
+        constructionDurationMonths:
+          type: integer
+          minimum: 0
+        startDelayMonths:
+          type: integer
+          minimum: 0
+        bankGuarantee:
+          type: boolean
+        projectReferences:
+          type: [string, 'null']
+          maxLength: 2000
         message:
-          type: string
-          minLength: 1
+          type: [string, 'null']
           maxLength: 4000
     DemolitionOffer:
       type: object
@@ -3178,9 +3233,20 @@ components:
         - listingId
         - promoterId
         - pricePerUnit
+        - newUnitArea
         - newUnitsOffer
-        - timeline
-        - message
+        - estimatedDeliveredValue
+        - standing
+        - floors
+        - parkingPerUnit
+        - elevator
+        - bikeStorage
+        - gym
+        - lobby
+        - replacementHousing
+        - constructionDurationMonths
+        - startDelayMonths
+        - bankGuarantee
         - createdAt
       properties:
         id:
@@ -3195,14 +3261,58 @@ components:
           type: [string, 'null']
         promoterCompany:
           type: [string, 'null']
+        # --- Financial ---
         pricePerUnit:
+          type: integer
+        newUnitArea:
           type: integer
         newUnitsOffer:
           type: integer
-        timeline:
-          type: string
+        estimatedDeliveredValue:
+          type: integer
+        # --- Qualitative ---
+        standing:
+          $ref: '#/components/schemas/DemolitionStanding'
+        materials:
+          type: [string, 'null']
+        floors:
+          type: integer
+        parkingPerUnit:
+          type: integer
+        elevator:
+          type: boolean
+        bikeStorage:
+          type: boolean
+        gym:
+          type: boolean
+        lobby:
+          type: boolean
+        replacementHousing:
+          type: boolean
+        replacementHousingQuality:
+          type: [string, 'null']
+        # --- Timeline & security ---
+        constructionDurationMonths:
+          type: integer
+        startDelayMonths:
+          type: integer
+        bankGuarantee:
+          type: boolean
+        projectReferences:
+          type: [string, 'null']
         message:
-          type: string
+          type: [string, 'null']
+        # --- Computed comparison score (0-100), present only on list responses ---
+        score:
+          type: [integer, 'null']
+        scoreFinancial:
+          type: [integer, 'null']
+        scoreQuality:
+          type: [integer, 'null']
+        scoreTimeline:
+          type: [integer, 'null']
+        scoreReferences:
+          type: [integer, 'null']
         createdAt:
           type: string
           format: date-time

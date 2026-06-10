@@ -18,6 +18,11 @@ description: Sharp edges discovered while building the NadlanConnect platform �
 **Why:** PostCSS requires all `@import` statements to precede other rules. tw-animate-css inlines CSS that ends up before the Google Fonts import, triggering a PostCSS error.
 **How to apply:** When adding font imports or any `@import url(...)`, place them at the top of `index.css` before all other imports.
 
+## Orval `type: integer` does not generate `.int()` zod validation
+**Rule:** OpenAPI `type: integer` fields generate `zod.number()` (no `.int()`), so decimal input passes validation and only fails at the INTEGER DB column → HTTP 500, not 400.
+**Why:** This Orval zod codegen behavior is project-wide (e.g. `units`, `buildYear`, demolition offer `floors`/`parkingPerUnit`). Out-of-contract decimals reach the DB and throw.
+**How to apply:** Enforce integers at the UI (`step="1"` on number inputs) as the practical backstop. Don't add `.int()` to only some fields — it's inconsistent with the rest of the codebase. Accept that direct-API decimal posts 500 (systemic, pre-existing).
+
 ## DB seeding with FK constraints
 **Rule:** When seeding `listings`, always insert the seed user into `users` first. The `owner_id` column has a FK to `users.id`.
 **Why:** PostgreSQL enforces FK constraints even during seeding — inserting a listing with a non-existent `owner_id` throws an FK violation.

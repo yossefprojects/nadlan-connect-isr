@@ -55,7 +55,19 @@ function serializeDocument(doc: DocumentRow) {
   };
 }
 
-function serializeOffer(offer: OfferRow, promoter?: UserRow | null) {
+interface OfferScores {
+  score: number;
+  scoreFinancial: number;
+  scoreQuality: number;
+  scoreTimeline: number;
+  scoreReferences: number;
+}
+
+function serializeOffer(
+  offer: OfferRow,
+  promoter?: UserRow | null,
+  scores?: OfferScores | null,
+) {
   return {
     id: offer.id,
     listingId: offer.listingId,
@@ -68,12 +80,131 @@ function serializeOffer(offer: OfferRow, promoter?: UserRow | null) {
       : null,
     promoterEmail: promoter?.email ?? null,
     promoterCompany: promoter?.company ?? null,
+    // Financial
     pricePerUnit: offer.pricePerUnit,
+    newUnitArea: offer.newUnitArea,
     newUnitsOffer: offer.newUnitsOffer,
-    timeline: offer.timeline,
+    estimatedDeliveredValue: offer.estimatedDeliveredValue,
+    // Qualitative
+    standing: offer.standing,
+    materials: offer.materials,
+    floors: offer.floors,
+    parkingPerUnit: offer.parkingPerUnit,
+    elevator: offer.elevator,
+    bikeStorage: offer.bikeStorage,
+    gym: offer.gym,
+    lobby: offer.lobby,
+    replacementHousing: offer.replacementHousing,
+    replacementHousingQuality: offer.replacementHousingQuality,
+    // Timeline & security
+    constructionDurationMonths: offer.constructionDurationMonths,
+    startDelayMonths: offer.startDelayMonths,
+    bankGuarantee: offer.bankGuarantee,
+    projectReferences: offer.projectReferences,
     message: offer.message,
+    // Computed comparison score (only present when computed across a listing's offers)
+    score: scores?.score ?? null,
+    scoreFinancial: scores?.scoreFinancial ?? null,
+    scoreQuality: scores?.scoreQuality ?? null,
+    scoreTimeline: scores?.scoreTimeline ?? null,
+    scoreReferences: scores?.scoreReferences ?? null,
     createdAt: offer.createdAt.toISOString(),
   };
+}
+
+const STANDING_SCORE: Record<string, number> = {
+  standard: 0.34,
+  high_end: 0.67,
+  luxury: 1,
+};
+
+/**
+ * Compute a weighted comparison score (0-100) for every offer on a listing.
+ * Weights: 40% financial, 30% quality, 20% timeline, 10% references.
+ *
+ * Each criterion is normalized *relative to the other offers on the same listing*
+ * so the score answers "how does this offer compare to its competitors?". For
+ * "higher is better" metrics we divide by the best value; for "lower is better"
+ * delays we use min-max normalization so the fastest offer scores 1 and the
+ * slowest 0 (a start delay of 0 = "immediate" is therefore rewarded, not
+ * penalized). When every offer ties on a metric it scores 1. With a single
+ * offer every relative metric is 1, so the score reflects only its absolute
+ * boolean/standing merits scaled against a lone competitor.
+ */
+function computeOfferScores(offers: OfferRow[]): Map<number, OfferScores> {
+  const result = new Map<number, OfferScores>();
+  if (offers.length === 0) return result;
+
+  const max = (fn: (o: OfferRow) => number) =>
+    Math.max(0, ...offers.map(fn));
+  const min = (fn: (o: OfferRow) => number) =>
+    Math.min(...offers.map(fn));
+
+  const maxPrice = max((o) => o.pricePerUnit);
+  const maxArea = max((o) => o.newUnitArea);
+  const maxUnits = max((o) => o.newUnitsOffer);
+  const maxValue = max((o) => o.estimatedDeliveredValue);
+  const maxFloors = max((o) => o.floors);
+  const maxParking = max((o) => o.parkingPerUnit);
+  const minDuration = min((o) => o.constructionDurationMonths);
+  const maxDuration = max((o) => o.constructionDurationMonths);
+  const minStart = min((o) => o.startDelayMonths);
+  const maxStart = max((o) => o.startDelayMonths);
+
+  const ratio = (v: number, m: number) => (m > 0 ? v / m : 0);
+  // Lower-is-better via min-max: smallest value scores 1, largest 0; all-equal scores 1.
+  const lowerBetter = (v: number, lo: number, hi: number) =>
+    hi > lo ? (hi - v) / (hi - lo) : 1;
+
+  for (const o of offers) {
+    // Financial (avg of 4 normalized metrics)
+    const financial =
+      (ratio(o.pricePerUnit, maxPrice) +
+        ratio(o.newUnitArea, maxArea) +
+        ratio(o.newUnitsOffer, maxUnits) +
+        ratio(o.estimatedDeliveredValue, maxValue)) /
+      4;
+
+    // Quality (standing + floors + parking + amenities + replacement housing)
+    const amenities =
+      (Number(o.elevator) +
+        Number(o.bikeStorage) +
+        Number(o.gym) +
+        Number(o.lobby)) /
+      4;
+    const quality =
+      ((STANDING_SCORE[o.standing] ?? 0.34) +
+        ratio(o.floors, maxFloors) +
+        ratio(o.parkingPerUnit, maxParking) +
+        amenities +
+        Number(o.replacementHousing)) /
+      5;
+
+    // Timeline & security (shorter duration + shorter start delay + bank guarantee)
+    const timeline =
+      (lowerBetter(o.constructionDurationMonths, minDuration, maxDuration) +
+        lowerBetter(o.startDelayMonths, minStart, maxStart) +
+        Number(o.bankGuarantee)) /
+      3;
+
+    // References (presence of past-project references)
+    const references = o.projectReferences && o.projectReferences.trim() ? 1 : 0;
+
+    const scoreFinancial = Math.round(financial * 40);
+    const scoreQuality = Math.round(quality * 30);
+    const scoreTimeline = Math.round(timeline * 20);
+    const scoreReferences = Math.round(references * 10);
+
+    result.set(o.id, {
+      scoreFinancial,
+      scoreQuality,
+      scoreTimeline,
+      scoreReferences,
+      score: scoreFinancial + scoreQuality + scoreTimeline + scoreReferences,
+    });
+  }
+
+  return result;
 }
 
 async function countOffers(listingIds: number[]): Promise<Map<number, number>> {
@@ -379,8 +510,16 @@ router.get(
           .where(or(...promoterIds.map((id) => eq(usersTable.id, id))))
       : [];
     const promoterMap = new Map(promoters.map((p) => [p.id, p]));
+    const scores = computeOfferScores(offers);
 
-    res.json(offers.map((o) => serializeOffer(o, promoterMap.get(o.promoterId))));
+    // Return best score first so the comparative view is pre-ranked.
+    const serialized = offers
+      .map((o) =>
+        serializeOffer(o, promoterMap.get(o.promoterId), scores.get(o.id)),
+      )
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+    res.json(serialized);
   },
 );
 
@@ -418,15 +557,34 @@ router.post(
       return;
     }
 
+    const d = parsed.data;
     const [offer] = await db
       .insert(demolitionOffersTable)
       .values({
         listingId: listing.id,
         promoterId: req.user!.id,
-        pricePerUnit: parsed.data.pricePerUnit,
-        newUnitsOffer: parsed.data.newUnitsOffer,
-        timeline: parsed.data.timeline,
-        message: parsed.data.message,
+        // Financial
+        pricePerUnit: d.pricePerUnit,
+        newUnitArea: d.newUnitArea,
+        newUnitsOffer: d.newUnitsOffer,
+        estimatedDeliveredValue: d.estimatedDeliveredValue,
+        // Qualitative
+        standing: d.standing,
+        materials: d.materials ?? null,
+        floors: d.floors,
+        parkingPerUnit: d.parkingPerUnit,
+        elevator: d.elevator ?? false,
+        bikeStorage: d.bikeStorage ?? false,
+        gym: d.gym ?? false,
+        lobby: d.lobby ?? false,
+        replacementHousing: d.replacementHousing ?? false,
+        replacementHousingQuality: d.replacementHousingQuality ?? null,
+        // Timeline & security
+        constructionDurationMonths: d.constructionDurationMonths,
+        startDelayMonths: d.startDelayMonths,
+        bankGuarantee: d.bankGuarantee ?? false,
+        projectReferences: d.projectReferences ?? null,
+        message: d.message ?? null,
       })
       .returning();
 
@@ -451,7 +609,9 @@ router.post(
       promoterCompany: promoter?.company ?? null,
       pricePerUnit: offer.pricePerUnit,
       newUnitsOffer: offer.newUnitsOffer,
-      timeline: offer.timeline,
+      newUnitArea: offer.newUnitArea,
+      standing: offer.standing,
+      constructionDurationMonths: offer.constructionDurationMonths,
       message: offer.message,
     });
 

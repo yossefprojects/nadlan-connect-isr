@@ -2028,9 +2028,29 @@ export const ListDemolitionOffersResponseItem = zod.object({
   "promoterEmail": zod.string().nullish(),
   "promoterCompany": zod.string().nullish(),
   "pricePerUnit": zod.number(),
+  "newUnitArea": zod.number(),
   "newUnitsOffer": zod.number(),
-  "timeline": zod.string(),
-  "message": zod.string(),
+  "estimatedDeliveredValue": zod.number(),
+  "standing": zod.enum(['standard', 'high_end', 'luxury']),
+  "materials": zod.string().nullish(),
+  "floors": zod.number(),
+  "parkingPerUnit": zod.number(),
+  "elevator": zod.boolean(),
+  "bikeStorage": zod.boolean(),
+  "gym": zod.boolean(),
+  "lobby": zod.boolean(),
+  "replacementHousing": zod.boolean(),
+  "replacementHousingQuality": zod.string().nullish(),
+  "constructionDurationMonths": zod.number(),
+  "startDelayMonths": zod.number(),
+  "bankGuarantee": zod.boolean(),
+  "projectReferences": zod.string().nullish(),
+  "message": zod.string().nullish(),
+  "score": zod.number().nullish(),
+  "scoreFinancial": zod.number().nullish(),
+  "scoreQuality": zod.number().nullish(),
+  "scoreTimeline": zod.number().nullish(),
+  "scoreReferences": zod.number().nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListDemolitionOffersResponse = zod.array(ListDemolitionOffersResponseItem)
@@ -2049,19 +2069,50 @@ export const CreateDemolitionOfferHeader = zod.object({
 
 export const createDemolitionOfferBodyPricePerUnitMin = 0;
 
+export const createDemolitionOfferBodyNewUnitAreaMin = 0;
+
 export const createDemolitionOfferBodyNewUnitsOfferMin = 0;
 
-export const createDemolitionOfferBodyTimelineMax = 200;
+export const createDemolitionOfferBodyEstimatedDeliveredValueMin = 0;
+
+export const createDemolitionOfferBodyMaterialsMax = 2000;
+
+export const createDemolitionOfferBodyFloorsMin = 0;
+
+export const createDemolitionOfferBodyParkingPerUnitMin = 0;
+
+export const createDemolitionOfferBodyReplacementHousingQualityMax = 1000;
+
+export const createDemolitionOfferBodyConstructionDurationMonthsMin = 0;
+
+export const createDemolitionOfferBodyStartDelayMonthsMin = 0;
+
+export const createDemolitionOfferBodyProjectReferencesMax = 2000;
 
 export const createDemolitionOfferBodyMessageMax = 4000;
 
 
 
 export const CreateDemolitionOfferBody = zod.object({
-  "pricePerUnit": zod.number().min(createDemolitionOfferBodyPricePerUnitMin),
-  "newUnitsOffer": zod.number().min(createDemolitionOfferBodyNewUnitsOfferMin),
-  "timeline": zod.string().min(1).max(createDemolitionOfferBodyTimelineMax),
-  "message": zod.string().min(1).max(createDemolitionOfferBodyMessageMax)
+  "pricePerUnit": zod.number().min(createDemolitionOfferBodyPricePerUnitMin).describe('NIS offered per current apartment'),
+  "newUnitArea": zod.number().min(createDemolitionOfferBodyNewUnitAreaMin).describe('Surface (m²) of the new apartment offered'),
+  "newUnitsOffer": zod.number().min(createDemolitionOfferBodyNewUnitsOfferMin).describe('Extra apartments offered to owners'),
+  "estimatedDeliveredValue": zod.number().min(createDemolitionOfferBodyEstimatedDeliveredValueMin).describe('Estimated NIS value of the delivered apartment'),
+  "standing": zod.enum(['standard', 'high_end', 'luxury']),
+  "materials": zod.string().max(createDemolitionOfferBodyMaterialsMax).nullish(),
+  "floors": zod.number().min(createDemolitionOfferBodyFloorsMin),
+  "parkingPerUnit": zod.number().min(createDemolitionOfferBodyParkingPerUnitMin),
+  "elevator": zod.boolean().optional(),
+  "bikeStorage": zod.boolean().optional(),
+  "gym": zod.boolean().optional(),
+  "lobby": zod.boolean().optional(),
+  "replacementHousing": zod.boolean().optional(),
+  "replacementHousingQuality": zod.string().max(createDemolitionOfferBodyReplacementHousingQualityMax).nullish(),
+  "constructionDurationMonths": zod.number().min(createDemolitionOfferBodyConstructionDurationMonthsMin),
+  "startDelayMonths": zod.number().min(createDemolitionOfferBodyStartDelayMonthsMin),
+  "bankGuarantee": zod.boolean().optional(),
+  "projectReferences": zod.string().max(createDemolitionOfferBodyProjectReferencesMax).nullish(),
+  "message": zod.string().max(createDemolitionOfferBodyMessageMax).nullish()
 })
 
 
