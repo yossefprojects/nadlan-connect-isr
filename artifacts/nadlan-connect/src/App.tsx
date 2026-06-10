@@ -30,6 +30,7 @@ import Favorites from "@/pages/favorites";
 import Leads from "@/pages/leads";
 import LeadDetail from "@/pages/lead-detail";
 import Admin from "@/pages/admin";
+import Promoteurs from "@/pages/promoteurs";
 import DemolitionListings from "@/pages/demolition-listings";
 import DemolitionNew from "@/pages/demolition-new";
 import DemolitionDetail from "@/pages/demolition-detail";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
       <Route path="/programme/:slug" component={ProgrammeDetail} />
+      <Route path="/promoteurs" component={Promoteurs} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
       <Route path="/outils/mes-rapports" component={Reports} />
 

@@ -830,6 +830,8 @@ const fr: Dict = {
   "report.status.orange": "À SURVEILLER",
   "report.status.red": "RISQUÉ",
 
+  "nav.developers": "Promoteurs",
+
   // Demolition marketplace (Tama 38 / Pinui-Binui)
   "nav.demolition": "Tama / Pinui-Binui",
   "demo.title": "Marché Tama 38 / Pinui-Binui",
@@ -1777,6 +1779,8 @@ const en: Dict = {
   "report.status.orange": "TO MONITOR",
   "report.status.red": "RISKY",
 
+  "nav.developers": "Developers",
+
   // Demolition marketplace (Tama 38 / Pinui-Binui)
   "nav.demolition": "Tama / Pinui-Binui",
   "demo.title": "Tama 38 / Pinui-Binui Marketplace",
@@ -2720,6 +2724,8 @@ const he: Dict = {
   "report.status.green": "חיובי",
   "report.status.orange": "לבדיקה",
   "report.status.red": "מסוכן",
+
+  "nav.developers": "יזמים",
 
   // Demolition marketplace (Tama 38 / Pinui-Binui)
   "nav.demolition": "תמא / פינוי-בינוי",

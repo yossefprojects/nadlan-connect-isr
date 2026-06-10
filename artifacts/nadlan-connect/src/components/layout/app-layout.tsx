@@ -1,5 +1,6 @@
 import { Navbar } from "./navbar";
 import { MarketBar } from "./market-bar";
+import { PartnersMarquee } from "./partners-marquee";
 import { useLanguage } from "./language-provider";
 import { IsraelFlag } from "./israel-flag";
 import { Link, useLocation } from "wouter";
@@ -29,6 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <Calculator className="h-5 w-5" />
         <span>{t("nav.simulator")}</span>
       </a>
+      <PartnersMarquee />
       <footer className="bg-[#0A1628] text-white/60">
         <div className="mx-6 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent md:mx-12" />
         <div className="container grid max-w-6xl grid-cols-1 gap-12 py-14 md:grid-cols-[2fr_1fr_1fr]">

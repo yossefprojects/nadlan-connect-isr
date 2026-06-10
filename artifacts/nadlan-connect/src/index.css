@@ -239,3 +239,9 @@
   padding-inline-start: 0.75rem;
   color: #475569;
 }
+
+/* Bandeau défilant des promoteurs (partners marquee) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

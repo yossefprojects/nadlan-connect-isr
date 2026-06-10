@@ -33,6 +33,7 @@ export function Navbar() {
   const navItems = [
     { label: t("nav.home"), href: "/" },
     { label: t("nav.properties"), href: "/listings" },
+    { label: t("nav.developers"), href: "/promoteurs" },
     { label: t("nav.demolition"), href: "/demolition/listings" },
     { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
   ];
@@ -59,7 +60,7 @@ export function Navbar() {
           <Link
             key={item.href}
             href={item.href}
-            className={`relative text-sm font-medium transition-colors hover:text-white px-1 py-2 ${
+            className={`relative whitespace-nowrap text-sm font-medium transition-colors hover:text-white px-1 py-2 ${
               isActive ? "text-white" : (scrolled || !isHome ? "text-white/70" : "text-white/80")
             }`}
           >
@@ -102,7 +103,7 @@ export function Navbar() {
               <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
             </span>
           </Link>
-          <nav className="hidden md:flex gap-8">
+          <nav className="hidden lg:flex gap-8">
             <NavLinks />
           </nav>
         </div>
@@ -128,7 +129,7 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -155,7 +156,7 @@ export function Navbar() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden text-white/80 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
+              <Button variant="ghost" size="icon" className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">{t("nav.menu")}</span>
               </Button>
