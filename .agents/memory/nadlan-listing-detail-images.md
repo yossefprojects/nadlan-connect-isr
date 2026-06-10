@@ -3,24 +3,27 @@ name: NadlanConnect listing detail photo source
 description: Which field holds a listing's photos differs between the detail and list endpoints.
 ---
 
-# Listing photos: detail vs list endpoint
+# Listing photos: unified on `galleryImageUrls`
 
-The listing **detail** endpoint (`GET /api/listings/:slug`) returns photos in a
-separate `images` array (`{id, listingId, url, position}`) and leaves
-`listing.galleryImageUrls` **empty**. The **list/summary** endpoint (used by the
-grid cards) populates `listing.galleryImageUrls` instead.
+Both the **list/summary** endpoint and the **detail** endpoint
+(`GET /api/listings/:slug`) now populate `listing.galleryImageUrls` (ordered by
+`position`). `galleryImageUrls` is **required** in the OpenAPI `Listing` schema,
+so every listing-returning endpoint guarantees it (empty array when no photos).
+Read `galleryImageUrls` everywhere for display — both `listing-card` and
+`listing-detail` use it.
 
-**Why this matters:** reading `galleryImageUrls` on a detail response silently
-yields no photos (the gallery falls back to a single cover image and hides its
-controls). The detail gallery must build its image list from `detail.images`
-(sort by `position`, map to `url`), then fall back to `galleryImageUrls` then
-`coverImageUrl`.
+The detail response **also** still returns a richer `images` array
+(`{id, listingId, url, position}`). That array is only for **photo management**
+(reorder/delete need the image id) — used by `dashboard-listings-edit`. Do not
+use `images` for plain display; use `galleryImageUrls`.
 
-**How to apply:** on the detail page use `detail.images`; image `src` is
-`/api/storage<url>`. Seed demo photos with the api-server `seed:images` script
+**Caveat:** the list endpoint caps `galleryImageUrls` at `GALLERY_LIMIT` (6) as a
+summary; the detail endpoint returns all photos. Same field/shape, different cap.
+
+**How to apply:** image `src` is `/api/storage<url>`. Seed demo photos with the
+api-server `seed:images` script
 (`pnpm --filter @workspace/api-server run seed:images`) — it's idempotent and
-listings ship with no photos by default. A future task may unify these two
-endpoints onto one field.
+listings ship with no photos by default.
 
 ## Cover = position 0; reorder convention
 

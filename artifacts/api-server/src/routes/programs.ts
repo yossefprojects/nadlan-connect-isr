@@ -223,24 +223,27 @@ router.get("/programs/:programId", async (req, res): Promise<void> => {
       .orderBy(documentsTable.createdAt),
   ]);
 
-  // Cover images for projets
+  // Gallery images for projets (all photos, ordered by position; cover = first)
   const projetIds = projets.map((l) => l.id);
-  let coverImages: Array<{ listingId: number; url: string }> = [];
+  let projetImages: Array<{ listingId: number; url: string }> = [];
   if (projetIds.length > 0) {
-    coverImages = await db
+    projetImages = await db
       .select({
         listingId: listingImagesTable.listingId,
         url: listingImagesTable.url,
       })
       .from(listingImagesTable)
       .where(
-        and(
-          sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(projetIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`,
-          eq(listingImagesTable.position, 0)
-        )
-      );
+        sql`${listingImagesTable.listingId} = ANY(ARRAY[${sql.join(projetIds.map((id) => sql`${id}`), sql`, `)}]::integer[])`
+      )
+      .orderBy(listingImagesTable.listingId, listingImagesTable.position);
   }
-  const coverMap = new Map(coverImages.map((c) => [c.listingId, c.url]));
+  const galleryMap = new Map<number, string[]>();
+  for (const img of projetImages) {
+    const existing = galleryMap.get(img.listingId);
+    if (existing) existing.push(img.url);
+    else galleryMap.set(img.listingId, [img.url]);
+  }
 
   const visibleDocs = docs.filter(
     (d) => d.visibility === "public" || canSeePrivate
@@ -269,7 +272,8 @@ router.get("/programs/:programId", async (req, res): Promise<void> => {
       estimatedPrice: l.estimatedPrice ?? null,
       investmentScore: l.investmentScore ?? null,
       status: l.status,
-      coverImageUrl: coverMap.get(l.id) ?? null,
+      coverImageUrl: galleryMap.get(l.id)?.[0] ?? null,
+      galleryImageUrls: galleryMap.get(l.id) ?? [],
       createdAt: l.createdAt.toISOString(),
     })),
     documents: visibleDocs.map(serializeDocument),

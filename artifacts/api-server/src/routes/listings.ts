@@ -297,10 +297,11 @@ router.get("/listings/:listingId", async (req, res): Promise<void> => {
     isFavorited = fav.length > 0;
   }
 
-  const coverImageUrl = images[0]?.url ?? null;
+  const galleryImageUrls = images.map((img) => img.url);
+  const coverImageUrl = galleryImageUrls[0] ?? null;
 
   res.json({
-    listing: serializeListing(listing, owner, coverImageUrl),
+    listing: serializeListing(listing, owner, coverImageUrl, galleryImageUrls),
     images: images.map((img) => ({
       id: img.id,
       listingId: img.listingId,

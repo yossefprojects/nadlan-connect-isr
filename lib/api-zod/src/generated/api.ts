@@ -382,7 +382,7 @@ export const ListListingsResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })),
   "total": zod.number()
@@ -436,7 +436,7 @@ export const GetFeaturedListingsResponseItem = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 export const GetFeaturedListingsResponse = zod.array(GetFeaturedListingsResponseItem)
@@ -487,7 +487,7 @@ export const GetListingResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 }),
   "images": zod.array(zod.object({
@@ -552,7 +552,7 @@ export const UpdateListingResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 
@@ -642,7 +642,7 @@ export const PublishListingResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 
@@ -729,7 +729,7 @@ export const GetProgramResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })),
   "documents": zod.array(zod.object({
@@ -925,7 +925,7 @@ export const GetMyFavoritesResponseItem = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 export const GetMyFavoritesResponse = zod.array(GetMyFavoritesResponseItem)
@@ -1228,7 +1228,7 @@ export const AdminListListingsResponseItem = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 export const AdminListListingsResponse = zod.array(AdminListListingsResponseItem)
@@ -1265,7 +1265,7 @@ export const AdminUpdateListingStatusResponse = zod.object({
   "investmentScore": zod.number().nullish(),
   "status": zod.enum(['draft', 'published', 'sold', 'archived']),
   "coverImageUrl": zod.string().nullish(),
-  "galleryImageUrls": zod.array(zod.string()).optional(),
+  "galleryImageUrls": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
 

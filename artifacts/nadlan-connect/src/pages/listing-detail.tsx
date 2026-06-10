@@ -152,16 +152,15 @@ export default function ListingDetail() {
   const [mandateNote, setMandateNote] = useState("");
   const [justificationUrl, setJustificationUrl] = useState("");
 
-  // Gallery state — prefer the detail `images` array (sorted by position),
-  // then fall back to the summary `galleryImageUrls`, then the cover image.
+  // Gallery state — read `galleryImageUrls` (same field as the listing card),
+  // falling back to the cover image. The detail endpoint populates
+  // `galleryImageUrls` with all photos ordered by position.
   const galleryImages =
-    detail?.images && detail.images.length > 0
-      ? [...detail.images].sort((a, b) => a.position - b.position).map((img) => img.url)
-      : detail?.listing.galleryImageUrls && detail.listing.galleryImageUrls.length > 0
-        ? detail.listing.galleryImageUrls
-        : detail?.listing.coverImageUrl
-          ? [detail.listing.coverImageUrl]
-          : [];
+    detail?.listing.galleryImageUrls && detail.listing.galleryImageUrls.length > 0
+      ? detail.listing.galleryImageUrls
+      : detail?.listing.coverImageUrl
+        ? [detail.listing.coverImageUrl]
+        : [];
   const [activeImage, setActiveImage] = useState(0);
   const hasMultipleImages = galleryImages.length > 1;
   const currentImage = galleryImages[Math.min(activeImage, galleryImages.length - 1)];

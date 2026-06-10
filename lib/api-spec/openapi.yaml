@@ -2714,7 +2714,7 @@ components:
     # ── Listings ──
     Listing:
       type: object
-      required: [id, slug, ownerId, type, title, ville, surface, nbPieces, price, status, createdAt]
+      required: [id, slug, ownerId, type, title, ville, surface, nbPieces, price, status, galleryImageUrls, createdAt]
       properties:
         id:
           type: integer
