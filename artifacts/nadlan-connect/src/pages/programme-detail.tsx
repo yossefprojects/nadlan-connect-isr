@@ -110,6 +110,7 @@ export default function ProgrammeDetail() {
   }
 
   const { program, projets } = detail;
+  const photos = detail.documents.filter((d) => d.category === "photo");
 
   return (
     <div className="container py-8 max-w-5xl space-y-8">
@@ -126,6 +127,27 @@ export default function ProgrammeDetail() {
           </div>
         )}
       </div>
+
+      {photos.length > 1 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {photos.map((photo) => (
+            <a
+              key={photo.id}
+              href={photo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl overflow-hidden bg-muted aspect-square"
+            >
+              <img
+                src={photo.url}
+                alt={photo.fileName ?? program.title}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform hover:scale-105"
+              />
+            </a>
+          ))}
+        </div>
+      )}
 
       <div>
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">

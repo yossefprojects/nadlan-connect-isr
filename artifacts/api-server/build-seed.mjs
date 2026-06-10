@@ -15,6 +15,7 @@ async function buildSeed() {
   await esbuild({
     entryPoints: [
       path.resolve(artifactDir, "src/scripts/seed-listing-images.ts"),
+      path.resolve(artifactDir, "src/scripts/seed-program-images.ts"),
     ],
     platform: "node",
     bundle: true,
