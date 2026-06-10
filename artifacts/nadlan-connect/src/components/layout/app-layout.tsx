@@ -37,7 +37,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
               <span className="relative inline-block font-serif text-xl text-white">
                 Nadlan<span className="text-[#C9A84C]">Connect</span>
-                <IsraelFlag className="absolute -bottom-1 -right-3.5 h-3 w-[18px] rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
+                <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
               </span>
             </div>
             <p className="mb-6 max-w-xs text-sm leading-relaxed text-white/40">
