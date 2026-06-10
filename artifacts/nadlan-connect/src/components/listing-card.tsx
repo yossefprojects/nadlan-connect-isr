@@ -91,6 +91,19 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!hasMultiple) return;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      e.stopPropagation();
+      stepImage(dir === "rtl" ? 1 : -1);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      e.stopPropagation();
+      stepImage(dir === "rtl" ? -1 : 1);
+    }
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("he-IL", {
       style: "currency",
@@ -105,11 +118,16 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
     <Link href={`/listings/${listing.slug}`}>
       <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-[10px] border-[0.5px] border-[#E5E7EB] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:border-[#C9A84C] hover:shadow-[0_4px_16px_rgba(26,58,92,0.12)]">
         <div
-          className="relative aspect-[4/3] overflow-hidden bg-muted touch-pan-y"
+          className="relative aspect-[4/3] overflow-hidden bg-muted touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C9A84C]"
+          role={hasMultiple ? "group" : undefined}
+          aria-label={hasMultiple ? listing.title : undefined}
+          aria-roledescription={hasMultiple ? "carousel" : undefined}
+          tabIndex={hasMultiple ? 0 : undefined}
           onTouchStart={hasMultiple ? handleTouchStart : undefined}
           onTouchMove={hasMultiple ? handleTouchMove : undefined}
           onTouchEnd={hasMultiple ? handleTouchEnd : undefined}
           onClickCapture={hasMultiple ? handleClickCapture : undefined}
+          onKeyDown={hasMultiple ? handleKeyDown : undefined}
         >
           {currentImage ? (
             <img

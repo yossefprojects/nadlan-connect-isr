@@ -198,6 +198,17 @@ export default function ListingDetail() {
     stepImage(forward ? 1 : -1);
   };
 
+  const handleGalleryKeyDown = (e: React.KeyboardEvent) => {
+    if (!hasMultipleImages) return;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      stepImage(dir === "rtl" ? 1 : -1);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      stepImage(dir === "rtl" ? -1 : 1);
+    }
+  };
+
   const optimisticAddFavorite = (listingToAdd: Listing) => {
     const queryKey = getGetMyFavoritesQueryKey();
     queryClient.setQueryData<Listing[]>(queryKey, old => {
@@ -413,9 +424,14 @@ export default function ListingDetail() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           <div
-            className="rounded-xl overflow-hidden aspect-video bg-muted relative touch-pan-y"
+            className="rounded-xl overflow-hidden aspect-video bg-muted relative touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#C9A84C]"
+            role={hasMultipleImages ? "group" : undefined}
+            aria-label={hasMultipleImages ? listing.title : undefined}
+            aria-roledescription={hasMultipleImages ? "carousel" : undefined}
+            tabIndex={hasMultipleImages ? 0 : undefined}
             onTouchStart={hasMultipleImages ? handleGalleryTouchStart : undefined}
             onTouchEnd={hasMultipleImages ? handleGalleryTouchEnd : undefined}
+            onKeyDown={hasMultipleImages ? handleGalleryKeyDown : undefined}
           >
             {currentImage ? (
               <img src={`/api/storage${currentImage}`} alt={listing.title} draggable={false} className="w-full h-full object-cover select-none" />
