@@ -240,8 +240,8 @@ export default function AnalyseIA() {
       const composed = [
         titre,
         [ville, quartier].filter(Boolean).join(" / "),
-        surface ? `${surface} m²` : "",
-        etage ? `étage ${etage}` : "",
+        surface ? `${surface} ${t("analyse.qfComposeSqm")}` : "",
+        etage ? `${t("analyse.qfComposeFloor")} ${etage}` : "",
       ]
         .filter(Boolean)
         .join(", ");
