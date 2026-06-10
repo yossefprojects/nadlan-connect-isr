@@ -1,0 +1,82 @@
+Tu es un développeur full-stack expert. 
+Ajoute un nouveau module à mon site NadlanConnect (Next.js + Prisma + PostgreSQL) 
+hébergé sur Replit. Ce module s'appelle "Tama / Pinui-Binui Marketplace".
+
+=== CONCEPT ===
+Les propriétaires d'immeubles éligibles à la démolition-reconstruction 
+(projets Tama 38 ou Pinui-Binui en Israël) inscrivent leur bien sur la plateforme.
+Les promoteurs enregistrés peuvent consulter ces biens et soumettre des offres.
+NadlanConnect perçoit une commission à l'inscription et/ou à la mise en relation.
+
+=== PAGES À CRÉER ===
+
+1. /demolition/nouveau (pour les propriétaires)
+   - Formulaire d'inscription du bien :
+     * Adresse complète + ville
+     * Nombre d'appartements actuels
+     * Année de construction
+     * Type de projet souhaité : Tama 38 / Pinui-Binui / Les deux
+     * Nom du propriétaire (ou syndic)
+     * Email + téléphone
+     * Documents uploadables (plans, titre de propriété)
+     * Checkbox : accepter les conditions + payer la commission d'inscription
+   - Paiement d'une commission fixe à l'inscription (ex: 500 NIS)
+   - Statut du bien : "En attente de validation" → "Actif" → "Offre acceptée"
+
+2. /demolition/listings (pour les promoteurs)
+   - Liste des immeubles actifs avec filtres :
+     * Ville / région
+     * Type de projet
+     * Nombre d'appartements
+     * Date d'inscription
+   - Carte interactive des biens
+   - Bouton "Soumettre une offre" (réservé aux promoteurs vérifiés)
+
+3. /demolition/[id] (fiche détaillée d'un immeuble)
+   - Toutes les infos du bien
+   - Galerie de photos / documents
+   - Section "Offres reçues" (visible uniquement pour le propriétaire)
+   - Formulaire de soumission d'offre pour les promoteurs :
+     * Montant proposé par appartement
+     * Nombre de nouveaux appartements offerts
+     * Délai estimé du projet
+     * Message libre
+   - Bouton "Contacter le propriétaire" (débloqué après paiement de mise en relation)
+
+=== BASE DE DONNÉES (Prisma) ===
+Ajoute ces modèles :
+
+model DemolitionListing {
+  id            String   @id @default(cuid())
+  address       String
+  city          String
+  units         Int
+  buildYear     Int
+  projectType   String   // "tama38" | "pinui_binui" | "both"
+  ownerName     String
+  ownerEmail    String
+  ownerPhone    String
+  status        String   @default("pending") // pending | active | closed
+  isPaid        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  offers        DemolitionOffer[]
+}
+
+model DemolitionOffer {
+  id            String   @id @default(cuid())
+  listingId     String
+  listing       DemolitionListing @relation(fields: [listingId], references: [id])
+  promoterId    String
+  pricePerUnit  Float
+  newUnitsOffer Int
+  timeline      String
+  message       String
+  createdAt     DateTime @default(now())
+}
+
+=== LOGIQUE MÉTIER ===
+- Seuls les utilisateurs avec role="promoter" peuvent soumettre des offres
+- Le propriétaire reçoit un email à chaque nouvelle offre
+- NadlanConnect peut valider/invalider un listing depuis l'admin
+- Commission d'inscription : montant fixe configurable dans .env
+- Commission de m
