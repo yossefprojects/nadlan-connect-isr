@@ -10,12 +10,30 @@ import type { DemolitionListingStatus } from './demolitionListingStatus';
 
 export interface DemolitionListing {
   id: number;
-  address: string;
+  /** @nullable */
+  address?: string | null;
   city: string;
+  /** @nullable */
+  neighborhood?: string | null;
+  /** @nullable */
+  lat?: number | null;
+  /** @nullable */
+  lng?: number | null;
+  /** @nullable */
+  approxLat?: number | null;
+  /** @nullable */
+  approxLng?: number | null;
+  /** Radius (meters) of the approximate-location circle. */
+  approxRadiusM: number;
+  /** Whether the requester may see the exact address & coordinates. */
+  isAddressRevealed: boolean;
+  /** Whether the authenticated requester is the listing owner. */
+  isOwner: boolean;
   units: number;
   buildYear: number;
   projectType: DemolitionListingProjectType;
-  ownerName: string;
+  /** @nullable */
+  ownerName?: string | null;
   /** @nullable */
   ownerEmail?: string | null;
   /** @nullable */

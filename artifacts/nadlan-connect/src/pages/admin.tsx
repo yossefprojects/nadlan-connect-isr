@@ -1,4 +1,4 @@
-import { useGetAdminStats, useAdminListListings, useAdminUpdateListingStatus, getAdminListListingsQueryKey, getGetAdminStatsQueryKey, useAdminListProfiles, useAdminUpdateLicenceStatut, getAdminListProfilesQueryKey, useListAllDemolitionListings, useUpdateDemolitionListingStatus, getListAllDemolitionListingsQueryKey, type DemolitionStatusUpdate } from "@workspace/api-client-react";
+import { useGetAdminStats, useAdminListListings, useAdminUpdateListingStatus, getAdminListListingsQueryKey, getGetAdminStatsQueryKey, useAdminListProfiles, useAdminUpdateLicenceStatut, getAdminListProfilesQueryKey, useListAllDemolitionListings, useUpdateDemolitionListingStatus, getListAllDemolitionListingsQueryKey, useListAllDemolitionConnections, useUpdateDemolitionConnectionStatus, getListAllDemolitionConnectionsQueryKey, type DemolitionStatusUpdate, type DemolitionConnectionStatusUpdate } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,12 @@ export default function Admin() {
   const { data: promoteurs, isLoading: isPromoteursLoading } = useAdminListProfiles({ role: "developer" });
 
   const { data: demoListings, isLoading: isDemoLoading } = useListAllDemolitionListings();
+  const { data: demoConnections, isLoading: isConnectionsLoading } = useListAllDemolitionConnections();
 
   const updateStatus = useAdminUpdateListingStatus();
   const updateLicence = useAdminUpdateLicenceStatut();
   const updateDemoStatus = useUpdateDemolitionListingStatus();
+  const updateConnection = useUpdateDemolitionConnectionStatus();
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -31,6 +33,16 @@ export default function Admin() {
         toast({ title: t("demo.admin.updated") });
       },
       onError: () => toast({ title: t("demo.admin.updateError"), variant: "destructive" }),
+    });
+  };
+
+  const handleConnectionUpdate = (id: number, data: DemolitionConnectionStatusUpdate) => {
+    updateConnection.mutate({ connectionId: id, data }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAllDemolitionConnectionsQueryKey() });
+        toast({ title: t("demo.admin.connectionUpdated") });
+      },
+      onError: () => toast({ title: t("demo.admin.connectionError"), variant: "destructive" }),
     });
   };
 
@@ -383,6 +395,84 @@ export default function Admin() {
                         onClick={() => handleDemoUpdate(d.id, { isPaid: !d.isPaid })}>
                         {d.isPaid ? t("demo.admin.markUnpaid") : t("demo.admin.markPaid")}
                       </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <ShieldCheck className="h-6 w-6 text-primary" />
+          <h2 className="font-serif text-2xl font-bold text-primary">{t("demo.admin.connectionsTitle")}</h2>
+        </div>
+
+        <div className="bg-card border rounded-xl overflow-hidden">
+          <table className="w-full text-sm text-start">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("demo.detail.building")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("demo.admin.colPromoter")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colOwner")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colStatus")}</th>
+                <th className="px-6 py-4 font-medium text-muted-foreground text-end">{t("admin.colActions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {isConnectionsLoading ? (
+                <tr><td colSpan={6} className="text-center py-8">{t("common.loading")}</td></tr>
+              ) : !demoConnections || demoConnections.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">{t("demo.admin.noConnections")}</td></tr>
+              ) : demoConnections.map((c) => (
+                <tr key={c.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4 font-mono text-xs">{c.id}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-medium" dir="auto">{c.listingNeighborhood || c.listingCity || `#${c.listingId}`}</div>
+                    <div className="text-xs text-muted-foreground" dir="auto">{c.listingCity}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="font-medium">{c.promoterCompany || c.promoterName || c.promoterId}</div>
+                    <div className="text-xs text-muted-foreground">{c.promoterEmail}</div>
+                  </td>
+                  <td className="px-6 py-4 text-muted-foreground" dir="auto">{c.ownerName || "—"}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      <Badge variant="secondary" className={
+                        c.status === "validated" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" :
+                        c.status === "rejected" ? "bg-red-100 text-red-700 hover:bg-red-100" :
+                        "bg-amber-100 text-amber-700 hover:bg-amber-100"
+                      }>
+                        {t(`demo.connection.${c.status}`)}
+                      </Badge>
+                      {c.commissionStatus !== "none" && (
+                        <Badge variant="secondary" className={
+                          c.commissionStatus === "paid" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-[#C9A84C]/15 text-[#8a7330] hover:bg-[#C9A84C]/15"
+                        }>
+                          {t(`demo.commission.${c.commissionStatus}`)}
+                        </Badge>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-end">
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      {c.status !== "validated" && (
+                        <Button size="sm" className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          disabled={updateConnection.isPending}
+                          onClick={() => handleConnectionUpdate(c.id, { status: "validated" })}>
+                          {t("demo.admin.validateConnection")}
+                        </Button>
+                      )}
+                      {c.status !== "rejected" && (
+                        <Button size="sm" variant="outline" className="h-8 text-red-700 border-red-200 hover:bg-red-50"
+                          disabled={updateConnection.isPending}
+                          onClick={() => handleConnectionUpdate(c.id, { status: "rejected" })}>
+                          {t("demo.admin.rejectConnection")}
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

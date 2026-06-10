@@ -5,6 +5,8 @@ import {
   integer,
   boolean,
   timestamp,
+  doublePrecision,
+  unique,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -12,6 +14,12 @@ import { usersTable } from "./auth";
 
 // Buildings eligible for demolition-reconstruction (Tama 38 / Pinui-Binui),
 // registered by owners (or building committees / syndics).
+//
+// ADDRESS CONFIDENTIALITY: the exact `address` and precise coordinates (`lat`,
+// `lng`) are PRIVATE. They are never exposed to promoters before an official
+// connection (see demolition_connections) has been validated. Public views only
+// expose `neighborhood` and the fuzzed center (`approxLat`/`approxLng`) used to
+// draw an approximate circle on the map.
 export const demolitionListingsTable = pgTable("demolition_listings", {
   id: serial("id").primaryKey(),
   ownerId: text("owner_id")
@@ -19,6 +27,13 @@ export const demolitionListingsTable = pgTable("demolition_listings", {
     .references(() => usersTable.id, { onDelete: "cascade" }),
   address: text("address").notNull(),
   city: text("city").notNull(),
+  neighborhood: text("neighborhood"), // general quarter shown publicly (e.g. "Florentin")
+  // Exact coordinates (geocoded from address) — PRIVATE, revealed-only.
+  lat: doublePrecision("lat"),
+  lng: doublePrecision("lng"),
+  // Fuzzed center used to draw the public approximate-location circle.
+  approxLat: doublePrecision("approx_lat"),
+  approxLng: doublePrecision("approx_lng"),
   units: integer("units").notNull(), // current number of apartments
   buildYear: integer("build_year").notNull(),
   projectType: text("project_type").notNull(), // 'tama38' | 'pinui_binui' | 'both'
@@ -97,6 +112,35 @@ export const demolitionOffersTable = pgTable("demolition_offers", {
     .defaultNow(),
 });
 
+// Official "mise en relation" between an owner and a chosen promoter.
+// The owner selects a promoter (via their offer); NadlanConnect (admin) validates
+// the connection; only then is the building's exact address revealed to that
+// promoter and the introduction commission marked as due.
+export const demolitionConnectionsTable = pgTable(
+  "demolition_connections",
+  {
+    id: serial("id").primaryKey(),
+    listingId: integer("listing_id")
+      .notNull()
+      .references(() => demolitionListingsTable.id, { onDelete: "cascade" }),
+    promoterId: text("promoter_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    offerId: integer("offer_id").references(() => demolitionOffersTable.id, {
+      onDelete: "set null",
+    }),
+    // 'requested' (owner chose, awaiting admin) | 'validated' (address revealed) | 'rejected'
+    status: text("status").notNull().default("requested"),
+    // 'none' | 'due' (set when validated) | 'paid'
+    commissionStatus: text("commission_status").notNull().default("none"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    validatedAt: timestamp("validated_at", { withTimezone: true }),
+  },
+  (table) => [unique().on(table.listingId, table.promoterId)],
+);
+
 export const insertDemolitionListingSchema = createInsertSchema(
   demolitionListingsTable,
 ).omit({
@@ -121,9 +165,21 @@ export const insertDemolitionOfferSchema = createInsertSchema(
   createdAt: true,
 });
 
+export const insertDemolitionConnectionSchema = createInsertSchema(
+  demolitionConnectionsTable,
+).omit({
+  id: true,
+  status: true,
+  commissionStatus: true,
+  createdAt: true,
+  validatedAt: true,
+});
+
 export type InsertDemolitionListing = z.infer<
   typeof insertDemolitionListingSchema
 >;
 export type DemolitionListing = typeof demolitionListingsTable.$inferSelect;
 export type DemolitionDocument = typeof demolitionDocumentsTable.$inferSelect;
 export type DemolitionOffer = typeof demolitionOffersTable.$inferSelect;
+export type DemolitionConnection =
+  typeof demolitionConnectionsTable.$inferSelect;

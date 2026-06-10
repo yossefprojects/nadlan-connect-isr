@@ -1166,6 +1166,12 @@ export interface DemolitionListingInput {
      * @maxLength 120
      */
   city: string;
+  /**
+     * General quarter shown publicly (e.g. "Florentin")
+     * @maxLength 120
+     * @nullable
+     */
+  neighborhood?: string | null;
   /** @minimum 1 */
   units: number;
   /**
@@ -1212,12 +1218,30 @@ export const DemolitionListingStatus = {
 
 export interface DemolitionListing {
   id: number;
-  address: string;
+  /** @nullable */
+  address?: string | null;
   city: string;
+  /** @nullable */
+  neighborhood?: string | null;
+  /** @nullable */
+  lat?: number | null;
+  /** @nullable */
+  lng?: number | null;
+  /** @nullable */
+  approxLat?: number | null;
+  /** @nullable */
+  approxLng?: number | null;
+  /** Radius (meters) of the approximate-location circle. */
+  approxRadiusM: number;
+  /** Whether the requester may see the exact address & coordinates. */
+  isAddressRevealed: boolean;
+  /** Whether the authenticated requester is the listing owner. */
+  isOwner: boolean;
   units: number;
   buildYear: number;
   projectType: DemolitionListingProjectType;
-  ownerName: string;
+  /** @nullable */
+  ownerName?: string | null;
   /** @nullable */
   ownerEmail?: string | null;
   /** @nullable */
@@ -1300,6 +1324,18 @@ export interface DemolitionOfferInput {
   message?: string | null;
 }
 
+/**
+ * @nullable
+ */
+export type DemolitionOfferConnectionStatus = typeof DemolitionOfferConnectionStatus[keyof typeof DemolitionOfferConnectionStatus] | null;
+
+
+export const DemolitionOfferConnectionStatus = {
+  requested: 'requested',
+  validated: 'validated',
+  rejected: 'rejected',
+} as const;
+
 export interface DemolitionOffer {
   id: number;
   listingId: number;
@@ -1343,7 +1379,71 @@ export interface DemolitionOffer {
   scoreTimeline?: number | null;
   /** @nullable */
   scoreReferences?: number | null;
+  /** @nullable */
+  connectionStatus?: DemolitionOfferConnectionStatus;
   createdAt: string;
+}
+
+export type DemolitionConnectionStatus = typeof DemolitionConnectionStatus[keyof typeof DemolitionConnectionStatus];
+
+
+export const DemolitionConnectionStatus = {
+  requested: 'requested',
+  validated: 'validated',
+  rejected: 'rejected',
+} as const;
+
+export type DemolitionConnectionCommissionStatus = typeof DemolitionConnectionCommissionStatus[keyof typeof DemolitionConnectionCommissionStatus];
+
+
+export const DemolitionConnectionCommissionStatus = {
+  none: 'none',
+  due: 'due',
+  paid: 'paid',
+} as const;
+
+export interface DemolitionConnection {
+  id: number;
+  listingId: number;
+  promoterId: string;
+  /** @nullable */
+  offerId?: number | null;
+  status: DemolitionConnectionStatus;
+  commissionStatus: DemolitionConnectionCommissionStatus;
+  /** @nullable */
+  validatedAt?: string | null;
+  createdAt: string;
+  /** @nullable */
+  promoterName?: string | null;
+  /** @nullable */
+  promoterEmail?: string | null;
+  /** @nullable */
+  promoterCompany?: string | null;
+  /** @nullable */
+  listingCity?: string | null;
+  /** @nullable */
+  listingNeighborhood?: string | null;
+  /** @nullable */
+  listingAddress?: string | null;
+  /** @nullable */
+  ownerName?: string | null;
+}
+
+export interface CreateDemolitionConnectionInput {
+  /** The offer (and thus promoter) the owner chooses to connect with. */
+  offerId: number;
+}
+
+export type DemolitionConnectionStatusUpdateStatus = typeof DemolitionConnectionStatusUpdateStatus[keyof typeof DemolitionConnectionStatusUpdateStatus];
+
+
+export const DemolitionConnectionStatusUpdateStatus = {
+  validated: 'validated',
+  rejected: 'rejected',
+} as const;
+
+export interface DemolitionConnectionStatusUpdate {
+  status: DemolitionConnectionStatusUpdateStatus;
 }
 
 export type DemolitionStatusUpdateStatus = typeof DemolitionStatusUpdateStatus[keyof typeof DemolitionStatusUpdateStatus];

@@ -19,6 +19,12 @@ export interface DemolitionListingInput {
      * @maxLength 120
      */
   city: string;
+  /**
+     * General quarter shown publicly (e.g. "Florentin")
+     * @maxLength 120
+     * @nullable
+     */
+  neighborhood?: string | null;
   /** @minimum 1 */
   units: number;
   /**

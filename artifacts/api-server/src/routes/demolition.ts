@@ -4,9 +4,10 @@ import {
   demolitionListingsTable,
   demolitionDocumentsTable,
   demolitionOffersTable,
+  demolitionConnectionsTable,
   usersTable,
 } from "@workspace/db";
-import { eq, and, desc, or, sql } from "drizzle-orm";
+import { eq, and, desc, or, sql, ne } from "drizzle-orm";
 import {
   CreateDemolitionListingBody,
   GetDemolitionListingParams,
@@ -16,32 +17,96 @@ import {
   CreateDemolitionOfferParams,
   CreateDemolitionOfferBody,
   ListDemolitionListingsQueryParams,
+  ListDemolitionConnectionsParams,
+  CreateDemolitionConnectionParams,
+  CreateDemolitionConnectionBody,
+  UpdateDemolitionConnectionStatusParams,
+  UpdateDemolitionConnectionStatusBody,
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin } from "../middlewares/authMiddleware";
-import { sendNewOfferEmail } from "../lib/email";
+import { sendNewOfferEmail, sendConnectionValidatedEmail } from "../lib/email";
+import { geocodeAddress, fuzzCoords, APPROX_RADIUS_M } from "../lib/geocode";
 
 const router = Router();
 
 type ListingRow = typeof demolitionListingsTable.$inferSelect;
 type DocumentRow = typeof demolitionDocumentsTable.$inferSelect;
 type OfferRow = typeof demolitionOffersTable.$inferSelect;
+type ConnectionRow = typeof demolitionConnectionsTable.$inferSelect;
 type UserRow = typeof usersTable.$inferSelect;
 
-function serializeListing(listing: ListingRow, offerCount = 0, includeContact = false) {
+/**
+ * Serialize a listing. `reveal` controls disclosure of the PRIVATE address,
+ * exact coordinates, and owner identity/contact: true only for the owner, an
+ * admin, or a promoter whose connection has been validated. Everyone else sees
+ * the neighborhood + fuzzed approximate circle, never the exact location.
+ */
+function serializeListing(
+  listing: ListingRow,
+  offerCount = 0,
+  reveal = false,
+  isOwner = false,
+) {
   return {
     id: listing.id,
-    address: listing.address,
+    address: reveal ? listing.address : null,
     city: listing.city,
+    neighborhood: listing.neighborhood,
+    lat: reveal ? listing.lat : null,
+    lng: reveal ? listing.lng : null,
+    approxLat: listing.approxLat,
+    approxLng: listing.approxLng,
+    approxRadiusM: APPROX_RADIUS_M,
+    isAddressRevealed: reveal,
+    isOwner,
     units: listing.units,
     buildYear: listing.buildYear,
     projectType: listing.projectType,
-    ownerName: listing.ownerName,
-    ownerEmail: includeContact ? listing.ownerEmail : null,
-    ownerPhone: includeContact ? listing.ownerPhone : null,
+    ownerName: reveal ? listing.ownerName : null,
+    ownerEmail: reveal ? listing.ownerEmail : null,
+    ownerPhone: reveal ? listing.ownerPhone : null,
     status: listing.status,
     isPaid: listing.isPaid,
     offerCount,
     createdAt: listing.createdAt.toISOString(),
+  };
+}
+
+function promoterDisplayName(promoter?: UserRow | null): string | null {
+  if (!promoter) return null;
+  return (
+    promoter.fullName ??
+    (promoter.firstName && promoter.lastName
+      ? `${promoter.firstName} ${promoter.lastName}`
+      : promoter.firstName ?? null)
+  );
+}
+
+function serializeConnection(
+  conn: ConnectionRow,
+  opts: {
+    promoter?: UserRow | null;
+    listing?: ListingRow | null;
+    includeAddress?: boolean;
+  } = {},
+) {
+  const { promoter, listing, includeAddress } = opts;
+  return {
+    id: conn.id,
+    listingId: conn.listingId,
+    promoterId: conn.promoterId,
+    offerId: conn.offerId,
+    status: conn.status,
+    commissionStatus: conn.commissionStatus,
+    validatedAt: conn.validatedAt ? conn.validatedAt.toISOString() : null,
+    createdAt: conn.createdAt.toISOString(),
+    promoterName: promoterDisplayName(promoter),
+    promoterEmail: promoter?.email ?? null,
+    promoterCompany: promoter?.company ?? null,
+    listingCity: listing?.city ?? null,
+    listingNeighborhood: listing?.neighborhood ?? null,
+    listingAddress: includeAddress ? listing?.address ?? null : null,
+    ownerName: listing?.ownerName ?? null,
   };
 }
 
@@ -67,17 +132,13 @@ function serializeOffer(
   offer: OfferRow,
   promoter?: UserRow | null,
   scores?: OfferScores | null,
+  connectionStatus: string | null = null,
 ) {
   return {
     id: offer.id,
     listingId: offer.listingId,
     promoterId: offer.promoterId,
-    promoterName: promoter
-      ? promoter.fullName ??
-        (promoter.firstName && promoter.lastName
-          ? `${promoter.firstName} ${promoter.lastName}`
-          : promoter.firstName ?? null)
-      : null,
+    promoterName: promoterDisplayName(promoter),
     promoterEmail: promoter?.email ?? null,
     promoterCompany: promoter?.company ?? null,
     // Financial
@@ -108,6 +169,7 @@ function serializeOffer(
     scoreQuality: scores?.scoreQuality ?? null,
     scoreTimeline: scores?.scoreTimeline ?? null,
     scoreReferences: scores?.scoreReferences ?? null,
+    connectionStatus,
     createdAt: offer.createdAt.toISOString(),
   };
 }
@@ -297,7 +359,7 @@ router.get("/demolition/mine", requireAuth, async (req, res): Promise<void> => {
 
   res.json(
     listings.map((l) => ({
-      listing: serializeListing(l, counts.get(l.id) ?? 0, true),
+      listing: serializeListing(l, counts.get(l.id) ?? 0, true, true),
       documents: (docMap.get(l.id) ?? []).map(serializeDocument),
     })),
   );
@@ -328,12 +390,19 @@ router.post("/demolition/listings", requireAuth, async (req, res): Promise<void>
 
   const { documents, ...listingData } = parsed.data;
 
-  const [listing] = await db
+  // Best-effort geocode of the exact address. Geocoding failures must never
+  // block listing creation.
+  const exact = await geocodeAddress(listingData.address, listingData.city);
+
+  let [listing] = await db
     .insert(demolitionListingsTable)
     .values({
       ownerId: req.user!.id,
       address: listingData.address,
       city: listingData.city,
+      neighborhood: listingData.neighborhood ?? null,
+      lat: exact?.lat ?? null,
+      lng: exact?.lng ?? null,
       units: listingData.units,
       buildYear: listingData.buildYear,
       projectType: listingData.projectType,
@@ -344,6 +413,17 @@ router.post("/demolition/listings", requireAuth, async (req, res): Promise<void>
       isPaid: false,
     })
     .returning();
+
+  // Derive the public fuzzed center using the listing id as a deterministic seed.
+  if (exact) {
+    const approx = fuzzCoords(exact.lat, exact.lng, listing.id);
+    const [withApprox] = await db
+      .update(demolitionListingsTable)
+      .set({ approxLat: approx.lat, approxLng: approx.lng })
+      .where(eq(demolitionListingsTable.id, listing.id))
+      .returning();
+    if (withApprox) listing = withApprox;
+  }
 
   let docRows: DocumentRow[] = [];
   if (documents && documents.length > 0) {
@@ -361,7 +441,7 @@ router.post("/demolition/listings", requireAuth, async (req, res): Promise<void>
   }
 
   res.status(201).json({
-    listing: serializeListing(listing, 0, true),
+    listing: serializeListing(listing, 0, true, true),
     documents: docRows.map(serializeDocument),
   });
 });
@@ -374,7 +454,7 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     return;
   }
 
-  const [listing] = await db
+  let [listing] = await db
     .select()
     .from(demolitionListingsTable)
     .where(eq(demolitionListingsTable.id, params.data.listingId))
@@ -385,16 +465,32 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     return;
   }
 
-  // Only the owner or an admin may see the owner's private contact details.
-  let includeContact = false;
+  // The exact address, coordinates, and owner identity are revealed ONLY to the
+  // owner, an admin, or a promoter whose connection has been validated by admin.
+  let reveal = false;
   let isOwnerOrAdmin = false;
+  let isViewerOwner = false;
   if (req.isAuthenticated()) {
     if (req.user!.id === listing.ownerId) {
-      includeContact = true;
+      reveal = true;
       isOwnerOrAdmin = true;
+      isViewerOwner = true;
     } else if ((await getRole(req.user!.id)) === "admin") {
-      includeContact = true;
+      reveal = true;
       isOwnerOrAdmin = true;
+    } else {
+      const [conn] = await db
+        .select()
+        .from(demolitionConnectionsTable)
+        .where(
+          and(
+            eq(demolitionConnectionsTable.listingId, listing.id),
+            eq(demolitionConnectionsTable.promoterId, req.user!.id),
+            eq(demolitionConnectionsTable.status, "validated"),
+          ),
+        )
+        .limit(1);
+      if (conn) reveal = true;
     }
   }
 
@@ -402,6 +498,25 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
   if (listing.status !== "active" && !isOwnerOrAdmin) {
     res.status(404).json({ error: "Listing not found" });
     return;
+  }
+
+  // Lazy geocode backfill for listings created before coordinates existed.
+  if (listing.approxLat == null || listing.approxLng == null) {
+    const exact = await geocodeAddress(listing.address, listing.city);
+    if (exact) {
+      const approx = fuzzCoords(exact.lat, exact.lng, listing.id);
+      const [refreshed] = await db
+        .update(demolitionListingsTable)
+        .set({
+          lat: exact.lat,
+          lng: exact.lng,
+          approxLat: approx.lat,
+          approxLng: approx.lng,
+        })
+        .where(eq(demolitionListingsTable.id, listing.id))
+        .returning();
+      if (refreshed) listing = refreshed;
+    }
   }
 
   const [documents, counts] = await Promise.all([
@@ -414,7 +529,7 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
   ]);
 
   res.json({
-    listing: serializeListing(listing, counts.get(listing.id) ?? 0, includeContact),
+    listing: serializeListing(listing, counts.get(listing.id) ?? 0, reveal, isViewerOwner),
     documents: documents.map(serializeDocument),
   });
 });
@@ -512,10 +627,23 @@ router.get(
     const promoterMap = new Map(promoters.map((p) => [p.id, p]));
     const scores = computeOfferScores(offers);
 
+    // Connection status per promoter (so the owner sees which promoter they've
+    // already picked and whether admin has validated the introduction).
+    const connections = await db
+      .select()
+      .from(demolitionConnectionsTable)
+      .where(eq(demolitionConnectionsTable.listingId, listing.id));
+    const connByPromoter = new Map(connections.map((c) => [c.promoterId, c.status]));
+
     // Return best score first so the comparative view is pre-ranked.
     const serialized = offers
       .map((o) =>
-        serializeOffer(o, promoterMap.get(o.promoterId), scores.get(o.id)),
+        serializeOffer(
+          o,
+          promoterMap.get(o.promoterId),
+          scores.get(o.id),
+          connByPromoter.get(o.promoterId) ?? null,
+        ),
       )
       .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
@@ -616,6 +744,302 @@ router.post(
     });
 
     res.status(201).json(serializeOffer(offer, promoter));
+  },
+);
+
+// GET /demolition/listings/:listingId/connections — owner or admin only
+router.get(
+  "/demolition/listings/:listingId/connections",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const params = ListDemolitionConnectionsParams.safeParse(req.params);
+    if (!params.success) {
+      res.status(400).json({ error: "Invalid listing ID" });
+      return;
+    }
+
+    const [listing] = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.id, params.data.listingId))
+      .limit(1);
+
+    if (!listing) {
+      res.status(404).json({ error: "Listing not found" });
+      return;
+    }
+
+    const isOwner = listing.ownerId === req.user!.id;
+    const isAdmin = (await getRole(req.user!.id)) === "admin";
+    if (!isOwner && !isAdmin) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    const connections = await db
+      .select()
+      .from(demolitionConnectionsTable)
+      .where(eq(demolitionConnectionsTable.listingId, listing.id))
+      .orderBy(desc(demolitionConnectionsTable.createdAt));
+
+    const promoterIds = [...new Set(connections.map((c) => c.promoterId))];
+    const promoters = promoterIds.length
+      ? await db
+          .select()
+          .from(usersTable)
+          .where(or(...promoterIds.map((id) => eq(usersTable.id, id))))
+      : [];
+    const promoterMap = new Map(promoters.map((p) => [p.id, p]));
+
+    res.json(
+      connections.map((c) =>
+        serializeConnection(c, {
+          promoter: promoterMap.get(c.promoterId),
+          listing,
+          // Owner/admin always know the address; expose it for context.
+          includeAddress: true,
+        }),
+      ),
+    );
+  },
+);
+
+// POST /demolition/listings/:listingId/connections — owner selects a promoter
+router.post(
+  "/demolition/listings/:listingId/connections",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const params = CreateDemolitionConnectionParams.safeParse(req.params);
+    const parsed = CreateDemolitionConnectionBody.safeParse(req.body);
+    if (!params.success || !parsed.success) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+
+    const [listing] = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.id, params.data.listingId))
+      .limit(1);
+
+    if (!listing) {
+      res.status(404).json({ error: "Listing not found" });
+      return;
+    }
+
+    // Only the listing owner may initiate an introduction.
+    if (listing.ownerId !== req.user!.id) {
+      res.status(403).json({ error: "Only the listing owner can choose a promoter" });
+      return;
+    }
+
+    // Derive the promoter from the chosen offer (must belong to this listing).
+    const [offer] = await db
+      .select()
+      .from(demolitionOffersTable)
+      .where(
+        and(
+          eq(demolitionOffersTable.id, parsed.data.offerId),
+          eq(demolitionOffersTable.listingId, listing.id),
+        ),
+      )
+      .limit(1);
+
+    if (!offer) {
+      res.status(404).json({ error: "Offer not found for this listing" });
+      return;
+    }
+
+    // Upsert: re-selecting the same promoter is idempotent (keeps existing status).
+    const [conn] = await db
+      .insert(demolitionConnectionsTable)
+      .values({
+        listingId: listing.id,
+        promoterId: offer.promoterId,
+        offerId: offer.id,
+        status: "requested",
+        commissionStatus: "none",
+      })
+      .onConflictDoUpdate({
+        target: [
+          demolitionConnectionsTable.listingId,
+          demolitionConnectionsTable.promoterId,
+        ],
+        // Re-selecting resets the connection back to "requested" so a previously
+        // rejected promoter can be re-proposed for admin validation.
+        set: {
+          offerId: offer.id,
+          status: "requested",
+          commissionStatus: "none",
+          validatedAt: null,
+        },
+      })
+      .returning();
+
+    const [promoter] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, offer.promoterId))
+      .limit(1);
+
+    res.status(201).json(
+      serializeConnection(conn, { promoter, listing, includeAddress: true }),
+    );
+  },
+);
+
+// GET /demolition/admin/connections — moderation queue (admin)
+router.get(
+  "/demolition/admin/connections",
+  requireAdmin,
+  async (_req, res): Promise<void> => {
+    const connections = await db
+      .select()
+      .from(demolitionConnectionsTable)
+      .orderBy(desc(demolitionConnectionsTable.createdAt))
+      .limit(500);
+
+    const promoterIds = [...new Set(connections.map((c) => c.promoterId))];
+    const listingIds = [...new Set(connections.map((c) => c.listingId))];
+    const [promoters, listings] = await Promise.all([
+      promoterIds.length
+        ? db
+            .select()
+            .from(usersTable)
+            .where(or(...promoterIds.map((id) => eq(usersTable.id, id))))
+        : Promise.resolve([] as UserRow[]),
+      listingIds.length
+        ? db
+            .select()
+            .from(demolitionListingsTable)
+            .where(or(...listingIds.map((id) => eq(demolitionListingsTable.id, id))))
+        : Promise.resolve([] as ListingRow[]),
+    ]);
+    const promoterMap = new Map(promoters.map((p) => [p.id, p]));
+    const listingMap = new Map(listings.map((l) => [l.id, l]));
+
+    res.json(
+      connections.map((c) =>
+        serializeConnection(c, {
+          promoter: promoterMap.get(c.promoterId),
+          listing: listingMap.get(c.listingId),
+          includeAddress: true,
+        }),
+      ),
+    );
+  },
+);
+
+// PATCH /demolition/admin/connections/:connectionId — validate/reject (admin)
+router.patch(
+  "/demolition/admin/connections/:connectionId",
+  requireAdmin,
+  async (req, res): Promise<void> => {
+    const params = UpdateDemolitionConnectionStatusParams.safeParse(req.params);
+    const parsed = UpdateDemolitionConnectionStatusBody.safeParse(req.body);
+    if (!params.success || !parsed.success) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+
+    // Look up the target connection first so we know its listing — validation
+    // must be exclusive per listing (only ONE promoter may ever be revealed).
+    const [existing] = await db
+      .select()
+      .from(demolitionConnectionsTable)
+      .where(eq(demolitionConnectionsTable.id, params.data.connectionId))
+      .limit(1);
+
+    if (!existing) {
+      res.status(404).json({ error: "Connection not found" });
+      return;
+    }
+
+    // CONFIDENTIALITY INVARIANT: at most one validated connection per listing.
+    // If another promoter is already validated for this listing, refuse — the
+    // admin must reject the current holder before revealing the address to
+    // someone else, so the exact address is never disclosed to two promoters.
+    if (parsed.data.status === "validated") {
+      const [otherValidated] = await db
+        .select({ id: demolitionConnectionsTable.id })
+        .from(demolitionConnectionsTable)
+        .where(
+          and(
+            eq(demolitionConnectionsTable.listingId, existing.listingId),
+            eq(demolitionConnectionsTable.status, "validated"),
+            ne(demolitionConnectionsTable.id, existing.id),
+          ),
+        )
+        .limit(1);
+      if (otherValidated) {
+        res.status(409).json({
+          error:
+            "Another promoter is already validated for this listing. Reject it first.",
+        });
+        return;
+      }
+    }
+
+    const updates: Partial<typeof demolitionConnectionsTable.$inferInsert> = {
+      status: parsed.data.status,
+    };
+    // Validation reveals the address to the promoter and marks the commission due.
+    if (parsed.data.status === "validated") {
+      updates.validatedAt = new Date();
+      updates.commissionStatus = "due";
+    }
+
+    const [conn] = await db
+      .update(demolitionConnectionsTable)
+      .set(updates)
+      .where(eq(demolitionConnectionsTable.id, params.data.connectionId))
+      .returning();
+
+    if (!conn) {
+      res.status(404).json({ error: "Connection not found" });
+      return;
+    }
+
+    // On validation, auto-reject every other still-pending connection for this
+    // listing so the chosen promoter is unambiguous and no other promoter can
+    // later be revealed without an explicit new admin action.
+    if (conn.status === "validated") {
+      await db
+        .update(demolitionConnectionsTable)
+        .set({ status: "rejected" })
+        .where(
+          and(
+            eq(demolitionConnectionsTable.listingId, conn.listingId),
+            eq(demolitionConnectionsTable.status, "requested"),
+            ne(demolitionConnectionsTable.id, conn.id),
+          ),
+        );
+    }
+
+    const [[promoter], [listing]] = await Promise.all([
+      db.select().from(usersTable).where(eq(usersTable.id, conn.promoterId)).limit(1),
+      db
+        .select()
+        .from(demolitionListingsTable)
+        .where(eq(demolitionListingsTable.id, conn.listingId))
+        .limit(1),
+    ]);
+
+    // Best-effort notification on validation — never block the response on email.
+    if (conn.status === "validated" && listing) {
+      void sendConnectionValidatedEmail({
+        promoterName: promoterDisplayName(promoter),
+        promoterEmail: promoter?.email ?? null,
+        ownerName: listing.ownerName,
+        ownerEmail: listing.ownerEmail,
+        buildingAddress: listing.address,
+        buildingCity: listing.city,
+      });
+    }
+
+    res.json(
+      serializeConnection(conn, { promoter, listing, includeAddress: true }),
+    );
   },
 );
 

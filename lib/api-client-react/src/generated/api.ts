@@ -28,10 +28,13 @@ import type {
   AnalyzePropertyInput,
   AnalyzePropertyResult,
   AuthUserEnvelope,
+  CreateDemolitionConnectionInput,
   CreateReportInput,
   DashboardStats,
   DeleteReportResult,
   DeleteSuccess,
+  DemolitionConnection,
+  DemolitionConnectionStatusUpdate,
   DemolitionListing,
   DemolitionListingDetail,
   DemolitionListingInput,
@@ -5298,5 +5301,303 @@ export const useCreateDemolitionOffer = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getCreateDemolitionOfferMutationOptions(options));
+    }
+
+export const getListDemolitionConnectionsUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}/connections`
+}
+
+/**
+ * @summary List connections for a building (owner or admin only)
+ */
+export const listDemolitionConnections = async (listingId: number, options?: RequestInit): Promise<DemolitionConnection[]> => {
+
+  return customFetch<DemolitionConnection[]>(getListDemolitionConnectionsUrl(listingId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDemolitionConnectionsQueryKey = (listingId: number,) => {
+    return [
+    `/api/demolition/listings/${listingId}/connections`
+    ] as const;
+    }
+
+
+export const getListDemolitionConnectionsQueryOptions = <TData = Awaited<ReturnType<typeof listDemolitionConnections>>, TError = ErrorType<ErrorEnvelope>>(listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionConnections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDemolitionConnectionsQueryKey(listingId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDemolitionConnections>>> = ({ signal }) => listDemolitionConnections(listingId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(listingId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDemolitionConnections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDemolitionConnectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listDemolitionConnections>>>
+export type ListDemolitionConnectionsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List connections for a building (owner or admin only)
+ */
+
+export function useListDemolitionConnections<TData = Awaited<ReturnType<typeof listDemolitionConnections>>, TError = ErrorType<ErrorEnvelope>>(
+ listingId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDemolitionConnections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDemolitionConnectionsQueryOptions(listingId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateDemolitionConnectionUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/demolition/listings/${listingId}/connections`
+}
+
+/**
+ * @summary Owner selects a promoter to connect with (awaits admin validation)
+ */
+export const createDemolitionConnection = async (listingId: number,
+    createDemolitionConnectionInput: CreateDemolitionConnectionInput, options?: RequestInit): Promise<DemolitionConnection> => {
+
+  return customFetch<DemolitionConnection>(getCreateDemolitionConnectionUrl(listingId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createDemolitionConnectionInput,)
+  }
+);}
+
+
+
+
+export const getCreateDemolitionConnectionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionConnection>>, TError,{listingId: number;data: BodyType<CreateDemolitionConnectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDemolitionConnection>>, TError,{listingId: number;data: BodyType<CreateDemolitionConnectionInput>}, TContext> => {
+
+const mutationKey = ['createDemolitionConnection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDemolitionConnection>>, {listingId: number;data: BodyType<CreateDemolitionConnectionInput>}> = (props) => {
+          const {listingId,data} = props ?? {};
+
+          return  createDemolitionConnection(listingId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDemolitionConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof createDemolitionConnection>>>
+    export type CreateDemolitionConnectionMutationBody = BodyType<CreateDemolitionConnectionInput>
+    export type CreateDemolitionConnectionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Owner selects a promoter to connect with (awaits admin validation)
+ */
+export const useCreateDemolitionConnection = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDemolitionConnection>>, TError,{listingId: number;data: BodyType<CreateDemolitionConnectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createDemolitionConnection>>,
+        TError,
+        {listingId: number;data: BodyType<CreateDemolitionConnectionInput>},
+        TContext
+      > => {
+      return useMutation(getCreateDemolitionConnectionMutationOptions(options));
+    }
+
+export const getListAllDemolitionConnectionsUrl = () => {
+
+
+
+
+  return `/api/demolition/admin/connections`
+}
+
+/**
+ * @summary List connections awaiting moderation (admin)
+ */
+export const listAllDemolitionConnections = async ( options?: RequestInit): Promise<DemolitionConnection[]> => {
+
+  return customFetch<DemolitionConnection[]>(getListAllDemolitionConnectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllDemolitionConnectionsQueryKey = () => {
+    return [
+    `/api/demolition/admin/connections`
+    ] as const;
+    }
+
+
+export const getListAllDemolitionConnectionsQueryOptions = <TData = Awaited<ReturnType<typeof listAllDemolitionConnections>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionConnections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllDemolitionConnectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllDemolitionConnections>>> = ({ signal }) => listAllDemolitionConnections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionConnections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllDemolitionConnectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllDemolitionConnections>>>
+export type ListAllDemolitionConnectionsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List connections awaiting moderation (admin)
+ */
+
+export function useListAllDemolitionConnections<TData = Awaited<ReturnType<typeof listAllDemolitionConnections>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllDemolitionConnections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllDemolitionConnectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateDemolitionConnectionStatusUrl = (connectionId: number,) => {
+
+
+
+
+  return `/api/demolition/admin/connections/${connectionId}`
+}
+
+/**
+ * @summary Validate or reject a connection (admin) — validation reveals the address
+ */
+export const updateDemolitionConnectionStatus = async (connectionId: number,
+    demolitionConnectionStatusUpdate: DemolitionConnectionStatusUpdate, options?: RequestInit): Promise<DemolitionConnection> => {
+
+  return customFetch<DemolitionConnection>(getUpdateDemolitionConnectionStatusUrl(connectionId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      demolitionConnectionStatusUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateDemolitionConnectionStatusMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>, TError,{connectionId: number;data: BodyType<DemolitionConnectionStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>, TError,{connectionId: number;data: BodyType<DemolitionConnectionStatusUpdate>}, TContext> => {
+
+const mutationKey = ['updateDemolitionConnectionStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>, {connectionId: number;data: BodyType<DemolitionConnectionStatusUpdate>}> = (props) => {
+          const {connectionId,data} = props ?? {};
+
+          return  updateDemolitionConnectionStatus(connectionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDemolitionConnectionStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>>
+    export type UpdateDemolitionConnectionStatusMutationBody = BodyType<DemolitionConnectionStatusUpdate>
+    export type UpdateDemolitionConnectionStatusMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Validate or reject a connection (admin) — validation reveals the address
+ */
+export const useUpdateDemolitionConnectionStatus = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>, TError,{connectionId: number;data: BodyType<DemolitionConnectionStatusUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDemolitionConnectionStatus>>,
+        TError,
+        {connectionId: number;data: BodyType<DemolitionConnectionStatusUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDemolitionConnectionStatusMutationOptions(options));
     }
 

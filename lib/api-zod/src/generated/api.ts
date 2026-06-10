@@ -1814,12 +1814,20 @@ export const ListDemolitionListingsQueryParams = zod.object({
 
 export const ListDemolitionListingsResponseItem = zod.object({
   "id": zod.number(),
-  "address": zod.string(),
+  "address": zod.string().nullish(),
   "city": zod.string(),
+  "neighborhood": zod.string().nullish(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "approxLat": zod.number().nullish(),
+  "approxLng": zod.number().nullish(),
+  "approxRadiusM": zod.number().describe('Radius (meters) of the approximate-location circle.'),
+  "isAddressRevealed": zod.boolean().describe('Whether the requester may see the exact address & coordinates.'),
+  "isOwner": zod.boolean().describe('Whether the authenticated requester is the listing owner.'),
   "units": zod.number(),
   "buildYear": zod.number(),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
-  "ownerName": zod.string(),
+  "ownerName": zod.string().nullish(),
   "ownerEmail": zod.string().nullish(),
   "ownerPhone": zod.string().nullish(),
   "status": zod.enum(['pending', 'active', 'closed']),
@@ -1841,6 +1849,8 @@ export const createDemolitionListingBodyAddressMax = 300;
 
 export const createDemolitionListingBodyCityMax = 120;
 
+export const createDemolitionListingBodyNeighborhoodMax = 120;
+
 
 export const createDemolitionListingBodyBuildYearMin = 1850;
 export const createDemolitionListingBodyBuildYearMax = 2100;
@@ -1857,6 +1867,7 @@ export const createDemolitionListingBodyDocumentsItemPositionDefault = 0;
 export const CreateDemolitionListingBody = zod.object({
   "address": zod.string().min(1).max(createDemolitionListingBodyAddressMax),
   "city": zod.string().min(1).max(createDemolitionListingBodyCityMax),
+  "neighborhood": zod.string().max(createDemolitionListingBodyNeighborhoodMax).nullish().describe('General quarter shown publicly (e.g. \"Florentin\")'),
   "units": zod.number().min(1),
   "buildYear": zod.number().min(createDemolitionListingBodyBuildYearMin).max(createDemolitionListingBodyBuildYearMax),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
@@ -1881,12 +1892,20 @@ export const ListMyDemolitionListingsHeader = zod.object({
 export const ListMyDemolitionListingsResponseItem = zod.object({
   "listing": zod.object({
   "id": zod.number(),
-  "address": zod.string(),
+  "address": zod.string().nullish(),
   "city": zod.string(),
+  "neighborhood": zod.string().nullish(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "approxLat": zod.number().nullish(),
+  "approxLng": zod.number().nullish(),
+  "approxRadiusM": zod.number().describe('Radius (meters) of the approximate-location circle.'),
+  "isAddressRevealed": zod.boolean().describe('Whether the requester may see the exact address & coordinates.'),
+  "isOwner": zod.boolean().describe('Whether the authenticated requester is the listing owner.'),
   "units": zod.number(),
   "buildYear": zod.number(),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
-  "ownerName": zod.string(),
+  "ownerName": zod.string().nullish(),
   "ownerEmail": zod.string().nullish(),
   "ownerPhone": zod.string().nullish(),
   "status": zod.enum(['pending', 'active', 'closed']),
@@ -1914,12 +1933,20 @@ export const ListAllDemolitionListingsHeader = zod.object({
 
 export const ListAllDemolitionListingsResponseItem = zod.object({
   "id": zod.number(),
-  "address": zod.string(),
+  "address": zod.string().nullish(),
   "city": zod.string(),
+  "neighborhood": zod.string().nullish(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "approxLat": zod.number().nullish(),
+  "approxLng": zod.number().nullish(),
+  "approxRadiusM": zod.number().describe('Radius (meters) of the approximate-location circle.'),
+  "isAddressRevealed": zod.boolean().describe('Whether the requester may see the exact address & coordinates.'),
+  "isOwner": zod.boolean().describe('Whether the authenticated requester is the listing owner.'),
   "units": zod.number(),
   "buildYear": zod.number(),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
-  "ownerName": zod.string(),
+  "ownerName": zod.string().nullish(),
   "ownerEmail": zod.string().nullish(),
   "ownerPhone": zod.string().nullish(),
   "status": zod.enum(['pending', 'active', 'closed']),
@@ -1944,12 +1971,20 @@ export const GetDemolitionListingHeader = zod.object({
 export const GetDemolitionListingResponse = zod.object({
   "listing": zod.object({
   "id": zod.number(),
-  "address": zod.string(),
+  "address": zod.string().nullish(),
   "city": zod.string(),
+  "neighborhood": zod.string().nullish(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "approxLat": zod.number().nullish(),
+  "approxLng": zod.number().nullish(),
+  "approxRadiusM": zod.number().describe('Radius (meters) of the approximate-location circle.'),
+  "isAddressRevealed": zod.boolean().describe('Whether the requester may see the exact address & coordinates.'),
+  "isOwner": zod.boolean().describe('Whether the authenticated requester is the listing owner.'),
   "units": zod.number(),
   "buildYear": zod.number(),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
-  "ownerName": zod.string(),
+  "ownerName": zod.string().nullish(),
   "ownerEmail": zod.string().nullish(),
   "ownerPhone": zod.string().nullish(),
   "status": zod.enum(['pending', 'active', 'closed']),
@@ -1986,12 +2021,20 @@ export const UpdateDemolitionListingStatusBody = zod.object({
 export const UpdateDemolitionListingStatusResponse = zod.object({
   "listing": zod.object({
   "id": zod.number(),
-  "address": zod.string(),
+  "address": zod.string().nullish(),
   "city": zod.string(),
+  "neighborhood": zod.string().nullish(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "approxLat": zod.number().nullish(),
+  "approxLng": zod.number().nullish(),
+  "approxRadiusM": zod.number().describe('Radius (meters) of the approximate-location circle.'),
+  "isAddressRevealed": zod.boolean().describe('Whether the requester may see the exact address & coordinates.'),
+  "isOwner": zod.boolean().describe('Whether the authenticated requester is the listing owner.'),
   "units": zod.number(),
   "buildYear": zod.number(),
   "projectType": zod.enum(['tama38', 'pinui_binui', 'both']),
-  "ownerName": zod.string(),
+  "ownerName": zod.string().nullish(),
   "ownerEmail": zod.string().nullish(),
   "ownerPhone": zod.string().nullish(),
   "status": zod.enum(['pending', 'active', 'closed']),
@@ -2051,6 +2094,7 @@ export const ListDemolitionOffersResponseItem = zod.object({
   "scoreQuality": zod.number().nullish(),
   "scoreTimeline": zod.number().nullish(),
   "scoreReferences": zod.number().nullish(),
+  "connectionStatus": zod.union([zod.literal('requested'),zod.literal('validated'),zod.literal('rejected'),zod.literal(null)]).nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListDemolitionOffersResponse = zod.array(ListDemolitionOffersResponseItem)
@@ -2113,6 +2157,114 @@ export const CreateDemolitionOfferBody = zod.object({
   "bankGuarantee": zod.boolean().optional(),
   "projectReferences": zod.string().max(createDemolitionOfferBodyProjectReferencesMax).nullish(),
   "message": zod.string().max(createDemolitionOfferBodyMessageMax).nullish()
+})
+
+
+/**
+ * @summary List connections for a building (owner or admin only)
+ */
+export const ListDemolitionConnectionsParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const ListDemolitionConnectionsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const ListDemolitionConnectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "promoterId": zod.string(),
+  "offerId": zod.number().nullish(),
+  "status": zod.enum(['requested', 'validated', 'rejected']),
+  "commissionStatus": zod.enum(['none', 'due', 'paid']),
+  "validatedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "promoterName": zod.string().nullish(),
+  "promoterEmail": zod.string().nullish(),
+  "promoterCompany": zod.string().nullish(),
+  "listingCity": zod.string().nullish(),
+  "listingNeighborhood": zod.string().nullish(),
+  "listingAddress": zod.string().nullish(),
+  "ownerName": zod.string().nullish()
+})
+export const ListDemolitionConnectionsResponse = zod.array(ListDemolitionConnectionsResponseItem)
+
+
+/**
+ * @summary Owner selects a promoter to connect with (awaits admin validation)
+ */
+export const CreateDemolitionConnectionParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const CreateDemolitionConnectionHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const CreateDemolitionConnectionBody = zod.object({
+  "offerId": zod.number().describe('The offer (and thus promoter) the owner chooses to connect with.')
+})
+
+
+/**
+ * @summary List connections awaiting moderation (admin)
+ */
+export const ListAllDemolitionConnectionsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const ListAllDemolitionConnectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "promoterId": zod.string(),
+  "offerId": zod.number().nullish(),
+  "status": zod.enum(['requested', 'validated', 'rejected']),
+  "commissionStatus": zod.enum(['none', 'due', 'paid']),
+  "validatedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "promoterName": zod.string().nullish(),
+  "promoterEmail": zod.string().nullish(),
+  "promoterCompany": zod.string().nullish(),
+  "listingCity": zod.string().nullish(),
+  "listingNeighborhood": zod.string().nullish(),
+  "listingAddress": zod.string().nullish(),
+  "ownerName": zod.string().nullish()
+})
+export const ListAllDemolitionConnectionsResponse = zod.array(ListAllDemolitionConnectionsResponseItem)
+
+
+/**
+ * @summary Validate or reject a connection (admin) — validation reveals the address
+ */
+export const UpdateDemolitionConnectionStatusParams = zod.object({
+  "connectionId": zod.coerce.number()
+})
+
+export const UpdateDemolitionConnectionStatusHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const UpdateDemolitionConnectionStatusBody = zod.object({
+  "status": zod.enum(['validated', 'rejected'])
+})
+
+export const UpdateDemolitionConnectionStatusResponse = zod.object({
+  "id": zod.number(),
+  "listingId": zod.number(),
+  "promoterId": zod.string(),
+  "offerId": zod.number().nullish(),
+  "status": zod.enum(['requested', 'validated', 'rejected']),
+  "commissionStatus": zod.enum(['none', 'due', 'paid']),
+  "validatedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "promoterName": zod.string().nullish(),
+  "promoterEmail": zod.string().nullish(),
+  "promoterCompany": zod.string().nullish(),
+  "listingCity": zod.string().nullish(),
+  "listingNeighborhood": zod.string().nullish(),
+  "listingAddress": zod.string().nullish(),
+  "ownerName": zod.string().nullish()
 })
 
 

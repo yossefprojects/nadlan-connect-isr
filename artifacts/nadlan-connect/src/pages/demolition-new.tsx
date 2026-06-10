@@ -23,6 +23,7 @@ export default function DemolitionNew() {
   const [form, setForm] = useState({
     address: "",
     city: "",
+    neighborhood: "",
     units: "",
     buildYear: "",
     projectType: "tama38" as "tama38" | "pinui_binui" | "both",
@@ -70,6 +71,7 @@ export default function DemolitionNew() {
         data: {
           address: form.address,
           city: form.city,
+          neighborhood: form.neighborhood.trim() || null,
           units: Number(form.units),
           buildYear: Number(form.buildYear),
           projectType: form.projectType,
@@ -108,12 +110,18 @@ export default function DemolitionNew() {
           <div className="space-y-2">
             <label className="text-sm font-medium">{t("demo.new.address")} *</label>
             <Input dir="auto" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            <p className="text-xs text-muted-foreground">{t("demo.new.addressPrivacy")}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">{t("demo.new.city")} *</label>
               <Input dir="auto" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("demo.new.neighborhood")}</label>
+              <Input dir="auto" value={form.neighborhood} onChange={(e) => setForm({ ...form, neighborhood: e.target.value })} placeholder={t("demo.new.neighborhoodPlaceholder")} />
+              <p className="text-xs text-muted-foreground">{t("demo.new.neighborhoodHelp")}</p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t("demo.new.projectType")} *</label>

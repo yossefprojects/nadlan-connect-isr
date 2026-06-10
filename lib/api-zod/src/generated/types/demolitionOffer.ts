@@ -5,6 +5,7 @@
  * NadlanConnect API
  * OpenAPI spec version: 0.1.0
  */
+import type { DemolitionOfferConnectionStatus } from './demolitionOfferConnectionStatus';
 import type { DemolitionStanding } from './demolitionStanding';
 
 export interface DemolitionOffer {
@@ -50,5 +51,7 @@ export interface DemolitionOffer {
   scoreTimeline?: number | null;
   /** @nullable */
   scoreReferences?: number | null;
+  /** @nullable */
+  connectionStatus?: DemolitionOfferConnectionStatus;
   createdAt: Date;
 }

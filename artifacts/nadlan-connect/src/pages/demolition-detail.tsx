@@ -4,6 +4,7 @@ import {
   useGetDemolitionListing,
   useListDemolitionOffers,
   useCreateDemolitionOffer,
+  useCreateDemolitionConnection,
   getGetDemolitionListingQueryKey,
   getListDemolitionOffersQueryKey,
 } from "@workspace/api-client-react";
@@ -18,9 +19,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "@/components/layout/language-provider";
+import { ListingLocationMap } from "@/components/listing-location-map";
 import {
   Building2, MapPin, Calendar, Layers, FileText, Mail, Phone, User,
   Loader2, ArrowLeft, Coins, Clock, Send, Award, ShieldCheck, Trophy,
+  Lock, Handshake, CheckCircle2,
 } from "lucide-react";
 
 function projectTypeLabel(t: (k: string) => string, pt: string) {
@@ -66,11 +69,12 @@ export default function DemolitionDetail() {
     },
   });
 
-  // The server returns owner contact fields only to the listing owner or an admin,
-  // and the offers endpoint authorizes exactly those two roles — so this flag gates
-  // the offers panel for "owner or admin", not the owner alone.
-  const canViewOffers =
-    isAuthenticated && detail?.listing.ownerEmail != null;
+  // The offers endpoint authorizes exactly the owner or an admin. A validated
+  // promoter also gets contact details revealed, so gate offers on owner/admin
+  // explicitly (via isOwner) rather than on the presence of contact fields.
+  const isOwner = Boolean(detail?.listing.isOwner);
+  const isAdmin = role === "admin";
+  const canViewOffers = isAuthenticated && (isOwner || isAdmin);
   const isDeveloper = role === "developer";
 
   const { data: offers } = useListDemolitionOffers(listingId, {
@@ -81,6 +85,19 @@ export default function DemolitionDetail() {
   });
 
   const createOffer = useCreateDemolitionOffer();
+  const createConnection = useCreateDemolitionConnection();
+
+  const choosePromoter = async (offerId: number) => {
+    try {
+      await createConnection.mutateAsync({ listingId, data: { offerId } });
+      toast({ title: t("demo.connection.requested.toast") });
+      queryClient.invalidateQueries({ queryKey: getListDemolitionOffersQueryKey(listingId) });
+      queryClient.invalidateQueries({ queryKey: getGetDemolitionListingQueryKey(listingId) });
+    } catch {
+      toast({ title: t("demo.connection.error"), variant: "destructive" });
+    }
+  };
+
   const [offerForm, setOfferForm] = useState({
     // Financial
     pricePerUnit: "",
@@ -213,11 +230,23 @@ export default function DemolitionDetail() {
             <Building2 className="h-3.5 w-3.5" />
             {projectTypeLabel(t, listing.projectType)}
           </div>
-          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-4xl" dir="auto">{listing.address}</h1>
+          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-4xl" dir="auto">
+            {listing.isAddressRevealed && listing.address
+              ? listing.address
+              : listing.neighborhood
+                ? `${listing.neighborhood}, ${listing.city}`
+                : listing.city}
+          </h1>
           <div className="mt-2 flex items-center gap-1.5 text-white/60" dir="auto">
             <MapPin className="h-4 w-4" />
             {listing.city}
           </div>
+          {!listing.isAddressRevealed && (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/70">
+              <Lock className="h-3 w-3" />
+              {t("demo.privacy.addressHidden")}
+            </div>
+          )}
         </div>
       </div>
 
@@ -256,6 +285,46 @@ export default function DemolitionDetail() {
               </div>
             </div>
           </section>
+
+          {/* Location */}
+          {(listing.approxLat != null && listing.approxLng != null) && (
+            <section className="rounded-2xl border bg-card p-6 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-serif text-xl font-bold text-[#0F2235]">{t("demo.detail.location")}</h2>
+                {listing.isAddressRevealed ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-800">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    {t("demo.privacy.exactShown")}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2235]/5 px-3 py-1 text-[11px] font-semibold text-[#0F2235]/70">
+                    <Lock className="h-3.5 w-3.5" />
+                    {t("demo.privacy.approxOnly")}
+                  </span>
+                )}
+              </div>
+              {listing.neighborhood && (
+                <p className="mt-2 text-sm text-muted-foreground" dir="auto">
+                  {t("demo.neighborhood")}: <span className="font-medium text-[#0F2235]">{listing.neighborhood}</span>
+                </p>
+              )}
+              <div className="mt-4">
+                <ListingLocationMap
+                  lat={listing.lat}
+                  lng={listing.lng}
+                  approxLat={listing.approxLat}
+                  approxLng={listing.approxLng}
+                  approxRadiusM={listing.approxRadiusM}
+                  revealed={listing.isAddressRevealed}
+                  exactLabel={listing.address ?? listing.city}
+                  approxLabel={t("demo.privacy.approxOnly")}
+                />
+              </div>
+              {!listing.isAddressRevealed && (
+                <p className="mt-3 text-xs text-muted-foreground">{t("demo.privacy.mapNotice")}</p>
+              )}
+            </section>
+          )}
 
           {/* Documents */}
           <section className="rounded-2xl border bg-card p-6 shadow-sm">
@@ -425,6 +494,37 @@ export default function DemolitionDetail() {
                               <Mail className="h-4 w-4" />
                               {o.promoterEmail}
                             </a>
+                          )}
+
+                          {/* Connection (owner action) — choose this promoter for an introduction */}
+                          {isOwner && (
+                            <div className="mt-4 border-t pt-3">
+                              {o.connectionStatus === "validated" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                                  <CheckCircle2 className="h-4 w-4" />
+                                  {t("demo.connection.validated")}
+                                </span>
+                              ) : o.connectionStatus === "requested" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C]/15 px-3 py-1.5 text-xs font-semibold text-[#8a6f1f]">
+                                  <Clock className="h-4 w-4" />
+                                  {t("demo.connection.pending")}
+                                </span>
+                              ) : o.connectionStatus === "rejected" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1.5 text-xs font-semibold text-orange-800">
+                                  {t("demo.connection.rejected")}
+                                </span>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  disabled={createConnection.isPending}
+                                  onClick={() => choosePromoter(o.id)}
+                                  className="bg-[#1A3A5C] text-white hover:bg-[#2A5080]"
+                                >
+                                  <Handshake className="me-2 h-4 w-4" />
+                                  {t("demo.connection.choose")}
+                                </Button>
+                              )}
+                            </div>
                           )}
                         </div>
                       );

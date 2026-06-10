@@ -117,3 +117,69 @@ Connectez-vous à votre espace NadlanConnect pour consulter toutes les offres.`;
     logger.error({ err }, "Failed to send new-offer notification email");
   }
 }
+
+interface ConnectionValidatedEmailData {
+  promoterName: string | null;
+  promoterEmail: string | null;
+  ownerName: string;
+  ownerEmail: string;
+  buildingAddress: string;
+  buildingCity: string;
+}
+
+/**
+ * Notify both parties that an introduction has been validated by NadlanConnect,
+ * and that the exact address is now shared with the chosen promoter.
+ * Best-effort: callers should not block their HTTP response on this.
+ */
+export async function sendConnectionValidatedEmail(
+  data: ConnectionValidatedEmailData,
+): Promise<void> {
+  const location = `${data.buildingAddress}, ${data.buildingCity}`;
+  const promoterName = data.promoterName ?? "le promoteur";
+
+  const shell = (greeting: string, body: string) => `
+  <div style="font-family: Arial, Helvetica, sans-serif; color: #0F2235; max-width: 560px; margin: 0 auto;">
+    <div style="background:#0F2235;padding:24px 28px;border-radius:12px 12px 0 0;">
+      <h1 style="color:#C9A84C;margin:0;font-size:20px;">NadlanConnect</h1>
+      <p style="color:#F8F7F4;margin:6px 0 0;font-size:14px;">Marché Tama 38 / Pinui-Binui</p>
+    </div>
+    <div style="border:1px solid #e5e2da;border-top:none;border-radius:0 0 12px 12px;padding:28px;">
+      <p style="font-size:15px;">${greeting}</p>
+      ${body}
+      <p style="font-size:13px;color:#6b7280;margin-top:24px;">Connectez-vous à votre espace NadlanConnect pour poursuivre les échanges.</p>
+    </div>
+  </div>`;
+
+  // Notify the promoter — they can now see the exact address.
+  if (data.promoterEmail) {
+    try {
+      await sendEmail({
+        to: data.promoterEmail,
+        subject: `Mise en relation validée — ${location}`,
+        html: shell(
+          `Bonjour ${promoterName},`,
+          `<p style="font-size:15px;">Votre mise en relation pour l'immeuble <strong>${location}</strong> a été <strong>validée</strong> par NadlanConnect. L'adresse exacte et les coordonnées du propriétaire sont désormais visibles dans votre espace.</p>`,
+        ),
+        text: `Bonjour ${promoterName},\n\nVotre mise en relation pour l'immeuble ${location} a été validée par NadlanConnect. L'adresse exacte et les coordonnées du propriétaire sont désormais visibles dans votre espace.`,
+      });
+    } catch (err) {
+      logger.error({ err }, "Failed to send connection-validated email to promoter");
+    }
+  }
+
+  // Notify the owner — their chosen promoter has been put in touch.
+  try {
+    await sendEmail({
+      to: data.ownerEmail,
+      subject: `Mise en relation validée — ${location}`,
+      html: shell(
+        `Bonjour ${data.ownerName},`,
+        `<p style="font-size:15px;">La mise en relation avec <strong>${promoterName}</strong> pour votre immeuble <strong>${location}</strong> a été <strong>validée</strong>. Le promoteur dispose maintenant de vos coordonnées pour vous contacter.</p>`,
+      ),
+      text: `Bonjour ${data.ownerName},\n\nLa mise en relation avec ${promoterName} pour votre immeuble ${location} a été validée. Le promoteur dispose maintenant de vos coordonnées pour vous contacter.`,
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to send connection-validated email to owner");
+  }
+}

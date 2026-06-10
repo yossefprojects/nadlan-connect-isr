@@ -1812,6 +1812,171 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorEnvelope'
 
+  /demolition/listings/{listingId}/connections:
+    get:
+      tags: [Demolition]
+      operationId: listDemolitionConnections
+      summary: List connections for a building (owner or admin only)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Connections on the building.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionConnection'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [Demolition]
+      operationId: createDemolitionConnection
+      summary: Owner selects a promoter to connect with (awaits admin validation)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDemolitionConnectionInput'
+      responses:
+        '201':
+          description: Connection requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionConnection'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden (only the listing owner).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/admin/connections:
+    get:
+      tags: [Demolition]
+      operationId: listAllDemolitionConnections
+      summary: List connections awaiting moderation (admin)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Connections across all buildings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DemolitionConnection'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /demolition/admin/connections/{connectionId}:
+    patch:
+      tags: [Demolition]
+      operationId: updateDemolitionConnectionStatus
+      summary: Validate or reject a connection (admin) — validation reveals the address
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemolitionConnectionStatusUpdate'
+      responses:
+        '200':
+          description: Updated connection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemolitionConnection'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -3073,6 +3238,10 @@ components:
           type: string
           minLength: 1
           maxLength: 120
+        neighborhood:
+          type: [string, 'null']
+          maxLength: 120
+          description: General quarter shown publicly (e.g. "Florentin")
         units:
           type: integer
           minimum: 1
@@ -3103,23 +3272,47 @@ components:
       type: object
       required:
         - id
-        - address
         - city
         - units
         - buildYear
         - projectType
-        - ownerName
         - status
         - isPaid
         - offerCount
+        - isAddressRevealed
+        - isOwner
+        - approxRadiusM
         - createdAt
       properties:
         id:
           type: integer
+        # PRIVATE — present (non-null) only when the address is revealed to the
+        # requester (owner, admin, or a validated promoter). Otherwise null.
         address:
-          type: string
+          type: [string, 'null']
         city:
           type: string
+        neighborhood:
+          type: [string, 'null']
+        # Exact coordinates — present only when isAddressRevealed is true.
+        lat:
+          type: [number, 'null']
+        lng:
+          type: [number, 'null']
+        # Fuzzed approximate center for the public map circle (never the exact point).
+        approxLat:
+          type: [number, 'null']
+        approxLng:
+          type: [number, 'null']
+        approxRadiusM:
+          type: integer
+          description: Radius (meters) of the approximate-location circle.
+        isAddressRevealed:
+          type: boolean
+          description: Whether the requester may see the exact address & coordinates.
+        isOwner:
+          type: boolean
+          description: Whether the authenticated requester is the listing owner.
         units:
           type: integer
         buildYear:
@@ -3127,8 +3320,9 @@ components:
         projectType:
           type: string
           enum: [tama38, pinui_binui, both]
+        # PRIVATE — owner identity, present only when the address is revealed.
         ownerName:
-          type: string
+          type: [string, 'null']
         ownerEmail:
           type: [string, 'null']
         ownerPhone:
@@ -3313,9 +3507,67 @@ components:
           type: [integer, 'null']
         scoreReferences:
           type: [integer, 'null']
+        # Connection status of this promoter for the listing (owner/admin view):
+        # null = none, 'requested', 'validated', 'rejected'.
+        connectionStatus:
+          type: [string, 'null']
+          enum: [requested, validated, rejected, null]
         createdAt:
           type: string
           format: date-time
+    DemolitionConnection:
+      type: object
+      required: [id, listingId, promoterId, status, commissionStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        listingId:
+          type: integer
+        promoterId:
+          type: string
+        offerId:
+          type: [integer, 'null']
+        status:
+          type: string
+          enum: [requested, validated, rejected]
+        commissionStatus:
+          type: string
+          enum: [none, due, paid]
+        validatedAt:
+          type: [string, 'null']
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        # Enriched context (populated where available for owner/admin views).
+        promoterName:
+          type: [string, 'null']
+        promoterEmail:
+          type: [string, 'null']
+        promoterCompany:
+          type: [string, 'null']
+        listingCity:
+          type: [string, 'null']
+        listingNeighborhood:
+          type: [string, 'null']
+        listingAddress:
+          type: [string, 'null']
+        ownerName:
+          type: [string, 'null']
+    CreateDemolitionConnectionInput:
+      type: object
+      required: [offerId]
+      properties:
+        offerId:
+          type: integer
+          description: The offer (and thus promoter) the owner chooses to connect with.
+    DemolitionConnectionStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [validated, rejected]
     DemolitionStatusUpdate:
       type: object
       properties:
