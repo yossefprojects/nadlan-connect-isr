@@ -6,6 +6,7 @@ import {
   useGetMyFavorites,
   useApplyForMandate, getGetMyMandatesQueryKey,
   useGetMyMandates,
+  type Listing,
 } from "@workspace/api-client-react";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useJsonLd } from "@/hooks/use-json-ld";
@@ -151,41 +152,68 @@ export default function ListingDetail() {
   const [mandateNote, setMandateNote] = useState("");
   const [justificationUrl, setJustificationUrl] = useState("");
 
+  const optimisticAddFavorite = (listingToAdd: Listing) => {
+    const queryKey = getGetMyFavoritesQueryKey();
+    queryClient.setQueryData<Listing[]>(queryKey, old => {
+      if (!old) return [listingToAdd];
+      if (old.some(l => l.id === listingToAdd.id)) return old;
+      return [listingToAdd, ...old];
+    });
+    addFavorite.mutate(
+      { listingId: listingToAdd.id },
+      {
+        onError: () => {
+          queryClient.setQueryData<Listing[]>(queryKey, old =>
+            old?.filter(l => l.id !== listingToAdd.id)
+          );
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey });
+        },
+      }
+    );
+  };
+
   const toggleFavorite = () => {
     if (!isAuthenticated) {
       toast({ title: t("detail.loginFavorite"), variant: "destructive" });
       return;
     }
+    if (!detail) return;
+    const listingToToggle = detail.listing;
+    const queryKey = getGetMyFavoritesQueryKey();
+
     if (isFavorited) {
-      removeFavorite.mutate({ listingId }, {
+      const previous = queryClient.getQueryData<Listing[]>(queryKey);
+      queryClient.setQueryData<Listing[]>(queryKey, old =>
+        old?.filter(l => l.id !== listingToToggle.id)
+      );
+      removeFavorite.mutate({ listingId: listingToToggle.id }, {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
           toast({
             title: t("favorites.removed"),
             action: (
               <ToastAction
                 altText={t("favorites.undo")}
-                onClick={() => {
-                  addFavorite.mutate({ listingId }, {
-                    onSuccess: () => {
-                      queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
-                    },
-                  });
-                }}
+                onClick={() => optimisticAddFavorite(listingToToggle)}
               >
                 {t("favorites.undo")}
               </ToastAction>
             ),
           });
-        }
+        },
+        onError: () => {
+          if (previous) {
+            queryClient.setQueryData(queryKey, previous);
+          }
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey });
+        },
       });
     } else {
-      addFavorite.mutate({ listingId }, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetMyFavoritesQueryKey() });
-          toast({ title: t("detail.addedFavorite") });
-        }
-      });
+      optimisticAddFavorite(listingToToggle);
+      toast({ title: t("detail.addedFavorite") });
     }
   };
 
