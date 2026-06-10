@@ -158,6 +158,11 @@ const AUTH_USER = {
   role: "agent",
 };
 
+// The currently "logged in" user for a given request. Tests mutate this to
+// impersonate the owner, a non-owner, an admin, or an anonymous visitor.
+// `null` means the request is unauthenticated.
+let currentUser: typeof AUTH_USER | null = AUTH_USER;
+
 let server: Server;
 let baseUrl: string;
 
@@ -166,9 +171,14 @@ beforeAll(async () => {
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => {
-    (req as unknown as { user: typeof AUTH_USER }).user = AUTH_USER;
+    if (currentUser) {
+      (req as unknown as { user: typeof AUTH_USER }).user = currentUser;
+    } else {
+      (req as unknown as { user: typeof AUTH_USER | undefined }).user =
+        undefined;
+    }
     (req as unknown as { isAuthenticated: () => boolean }).isAuthenticated =
-      () => true;
+      () => currentUser != null;
     next();
   });
   app.use(listingsRouter);
@@ -190,6 +200,7 @@ beforeEach(() => {
   mock.state.userRole = "agent";
   mock.state.lastInsertValues = null;
   mock.state.lastUpdateValues = null;
+  currentUser = AUTH_USER;
 });
 
 describe("POST /listings persists engine outputs", () => {
@@ -305,5 +316,163 @@ describe("PATCH /listings/:listingId recomputes engine outputs", () => {
     expect(mock.state.lastUpdateValues).not.toBeNull();
     expect(mock.state.lastUpdateValues!.estimatedPrice).toBe(estimatedPrice);
     expect(mock.state.lastUpdateValues!.investmentScore).toBe(score);
+  });
+});
+
+// Helper: build a stored listing owned by `ownerId` (defaults to a stranger so
+// authorization tests start from a non-owner state).
+function seedListing(ownerId = "someone-else"): void {
+  mock.state.existingListing = {
+    id: 7,
+    ownerId,
+    programId: null,
+    type: "resale",
+    title: "Bel appartement lumineux",
+    slug: "bel-appartement-lumineux-tel-aviv",
+    description: null,
+    ville: "tlv",
+    quartier: null,
+    surface: 80,
+    nbPieces: 3,
+    etage: 3,
+    price: 4_000_000,
+    estimatedPrice: 4_400_000,
+    investmentScore: 88,
+    status: "draft",
+    createdAt: new Date(),
+  };
+}
+
+describe("PATCH /listings/:listingId authorization", () => {
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent"; // the impersonated user's role lookup
+
+    const res = await fetch(`${baseUrl}/listings/7`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Hijacked title" }),
+    });
+
+    expect(res.status).toBe(403);
+    // No write should have happened.
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 200 for the owner", async () => {
+    seedListing(AUTH_USER.id);
+
+    const res = await fetch(`${baseUrl}/listings/7`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Owner-updated title" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+  });
+
+  it("returns 200 for an admin editing someone else's listing", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin"; // role lookup for the non-owner returns admin
+
+    const res = await fetch(`${baseUrl}/listings/7`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Admin-moderated title" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+  });
+
+  it("returns 401 when unauthenticated", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Anonymous title" }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+});
+
+describe("DELETE /listings/:listingId authorization", () => {
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent";
+
+    const res = await fetch(`${baseUrl}/listings/7`, { method: "DELETE" });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("returns success for the owner", async () => {
+    seedListing(AUTH_USER.id);
+
+    const res = await fetch(`${baseUrl}/listings/7`, { method: "DELETE" });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { success: boolean };
+    expect(json.success).toBe(true);
+  });
+
+  it("returns success for an admin deleting someone else's listing", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin";
+
+    const res = await fetch(`${baseUrl}/listings/7`, { method: "DELETE" });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { success: boolean };
+    expect(json.success).toBe(true);
+  });
+
+  it("returns 401 when unauthenticated", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7`, { method: "DELETE" });
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("Unauthenticated mutations are rejected", () => {
+  it("returns 401 for POST /listings", async () => {
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: "resale",
+        title: "Bel appartement lumineux",
+        ville: "tlv",
+        surface: 80,
+        nbPieces: 3,
+        etage: 3,
+        price: 4_000_000,
+      }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastInsertValues).toBeNull();
+  });
+
+  it("returns 401 for POST /listings/:listingId/publish", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/publish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastUpdateValues).toBeNull();
   });
 });
