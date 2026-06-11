@@ -187,7 +187,7 @@ export default function ProgrammeDetail() {
                 <div className="aspect-video bg-muted">
                   {projet.coverImageUrl ? (
                     <img
-                      src={projet.coverImageUrl}
+                      src={`/api/storage${projet.coverImageUrl}`}
                       alt={projet.title}
                       className="w-full h-full object-cover"
                     />
