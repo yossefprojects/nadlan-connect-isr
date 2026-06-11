@@ -16,10 +16,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
 import { Loader2, Trash2, ImagePlus } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/components/layout/language-provider";
 import { CITIES } from "@/data/villes";
 import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
+
+interface PendingUpload extends PhotoItem {
+  file: File;
+}
 
 export default function DashboardListingsEdit() {
   const [, params] = useRoute("/dashboard/listings/:id/edit");
@@ -54,6 +59,8 @@ export default function DashboardListingsEdit() {
   });
 
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [uploads, setUploads] = useState<PendingUpload[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
   useEffect(() => {
     if (detail?.listing) {
@@ -81,16 +88,16 @@ export default function DashboardListingsEdit() {
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => console.log("Uploaded successfully", res),
-    onError: () => toast({ title: t("listingForm.uploadError"), variant: "destructive" })
   });
 
   const persistOrder = async (next: PhotoItem[]) => {
+    const serverNext = next.filter((p) => !p.key.startsWith("up-"));
     const previous = photos;
-    setPhotos(next);
+    setPhotos(serverNext);
     try {
       await reorderListingImages.mutateAsync({
         listingId,
-        data: { imageIds: next.map((p) => Number(p.key)) }
+        data: { imageIds: serverNext.map((p) => Number(p.key)) }
       });
       queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
     } catch {
@@ -100,6 +107,14 @@ export default function DashboardListingsEdit() {
   };
 
   const handleDeletePhoto = async (key: string) => {
+    if (key.startsWith("up-")) {
+      setUploads((prev) => {
+        const target = prev.find((u) => u.key === key);
+        if (target) URL.revokeObjectURL(target.url);
+        return prev.filter((u) => u.key !== key);
+      });
+      return;
+    }
     const previous = photos;
     setPhotos(photos.filter((p) => p.key !== key));
     try {
@@ -113,22 +128,50 @@ export default function DashboardListingsEdit() {
 
   const handleAddPhotos = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    try {
-      let position = photos.length;
-      for (const file of Array.from(files)) {
-        const uploadRes = await uploadFile(file);
-        if (uploadRes?.objectPath) {
-          await addListingImage.mutateAsync({
-            listingId,
-            data: { url: uploadRes.objectPath, position: position++ }
-          });
-        }
+    const batch: PendingUpload[] = Array.from(files).map((file, i) => ({
+      key: `up-${Date.now()}-${i}`,
+      url: URL.createObjectURL(file),
+      file,
+      status: "uploading"
+    }));
+    setUploads((prev) => [...prev, ...batch]);
+
+    let position = photos.length;
+    let processed = 0;
+    let failures = 0;
+    setUploadProgress({ done: 0, total: batch.length });
+
+    for (const item of batch) {
+      try {
+        const uploadRes = await uploadFile(item.file);
+        if (!uploadRes?.objectPath) throw new Error("upload failed");
+        await addListingImage.mutateAsync({
+          listingId,
+          data: { url: uploadRes.objectPath, position: position++ }
+        });
+        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "done" } : u)));
+      } catch {
+        failures++;
+        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error" } : u)));
+      } finally {
+        processed++;
+        setUploadProgress({ done: processed, total: batch.length });
       }
-      queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
-    } catch {
-      toast({ title: t("listingForm.uploadError"), variant: "destructive" });
+    }
+
+    setUploadProgress(null);
+    await queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
+    setUploads((prev) => {
+      prev.filter((u) => u.status === "done").forEach((u) => URL.revokeObjectURL(u.url));
+      return prev.filter((u) => u.status === "error");
+    });
+
+    if (failures > 0) {
+      toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
     }
   };
+
+  const displayPhotos: PhotoItem[] = [...photos, ...uploads];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,10 +339,10 @@ export default function DashboardListingsEdit() {
               type="button"
               variant="outline"
               size="sm"
-              disabled={isUploading || addListingImage.isPending}
+              disabled={uploadProgress !== null}
               onClick={() => document.getElementById("add-photos-input")?.click()}
             >
-              {isUploading || addListingImage.isPending ? (
+              {uploadProgress !== null ? (
                 <Loader2 className="me-2 h-4 w-4 animate-spin" />
               ) : (
                 <ImagePlus className="me-2 h-4 w-4" />
@@ -319,11 +362,23 @@ export default function DashboardListingsEdit() {
             />
           </div>
           <p className="text-xs text-muted-foreground">{t("listingForm.photosHint")}</p>
+          {uploadProgress && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("listingForm.uploadingProgress")
+                  .replace("{done}", String(uploadProgress.done))
+                  .replace("{total}", String(uploadProgress.total))}
+              </p>
+              <Progress
+                value={uploadProgress.total ? (uploadProgress.done / uploadProgress.total) * 100 : 0}
+              />
+            </div>
+          )}
           <ListingPhotoGrid
-            photos={photos}
+            photos={displayPhotos}
             onReorder={persistOrder}
             onDelete={handleDeletePhoto}
-            disabled={reorderListingImages.isPending || deleteListingImage.isPending}
+            disabled={reorderListingImages.isPending || deleteListingImage.isPending || uploadProgress !== null}
           />
         </div>
 

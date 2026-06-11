@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
 import { Loader2, ImagePlus } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/components/layout/language-provider";
 import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
 import { CITIES } from "@/data/villes";
@@ -42,15 +43,17 @@ export default function DashboardListingsNew() {
   });
 
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
+  const [createdListingId, setCreatedListingId] = useState<number | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => {
       console.log("Uploaded successfully", res);
     },
-    onError: () => {
-      toast({ title: t("listingForm.uploadError"), variant: "destructive" });
-    }
   });
+
+  const setPhotoStatus = (key: string, status: PhotoItem["status"]) =>
+    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, status } : p)));
 
   const handleAddPhotos = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -84,38 +87,62 @@ export default function DashboardListingsNew() {
     }
 
     try {
-      const listing = await createListing.mutateAsync({
-        data: {
-          title: formData.title,
-          description: formData.description,
-          ville: formData.ville,
-          quartier: formData.quartier,
-          surface: Number(formData.surface),
-          nbPieces: Number(formData.nbPieces),
-          etage: formData.etage ? Number(formData.etage) : undefined,
-          price: Number(formData.price),
-          type: formData.type,
-          ...(programId != null ? { programId } : {})
-        }
-      });
+      let listingId = createdListingId;
+      if (listingId == null) {
+        const listing = await createListing.mutateAsync({
+          data: {
+            title: formData.title,
+            description: formData.description,
+            ville: formData.ville,
+            quartier: formData.quartier,
+            surface: Number(formData.surface),
+            nbPieces: Number(formData.nbPieces),
+            etage: formData.etage ? Number(formData.etage) : undefined,
+            price: Number(formData.price),
+            type: formData.type,
+            ...(programId != null ? { programId } : {})
+          }
+        });
+        listingId = listing.id;
+        setCreatedListingId(listingId);
+      }
 
-      let position = 0;
-      for (const photo of photos) {
-        const uploadRes = await uploadFile(photo.file);
-        if (uploadRes?.objectPath) {
+      const toUpload = photos.filter((p) => p.status !== "done");
+      let position = photos.length - toUpload.length;
+      let processed = 0;
+      let failures = 0;
+      setUploadProgress({ done: 0, total: toUpload.length });
+
+      for (const photo of toUpload) {
+        setPhotoStatus(photo.key, "uploading");
+        try {
+          const uploadRes = await uploadFile(photo.file);
+          if (!uploadRes?.objectPath) throw new Error("upload failed");
           await addListingImage.mutateAsync({
-            listingId: listing.id,
-            data: {
-              url: uploadRes.objectPath,
-              position: position++
-            }
+            listingId,
+            data: { url: uploadRes.objectPath, position: position++ }
           });
+          setPhotoStatus(photo.key, "done");
+        } catch {
+          failures++;
+          setPhotoStatus(photo.key, "error");
+        } finally {
+          processed++;
+          setUploadProgress({ done: processed, total: toUpload.length });
         }
+      }
+
+      setUploadProgress(null);
+
+      if (failures > 0) {
+        toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
+        return;
       }
 
       toast({ title: t("listingForm.created") });
       setLocation("/dashboard");
     } catch (err) {
+      setUploadProgress(null);
       toast({ title: t("listingForm.createError"), variant: "destructive" });
     }
   };
@@ -240,17 +267,30 @@ export default function DashboardListingsNew() {
             />
           </div>
           <p className="text-xs text-muted-foreground">{t("listingForm.photosHint")}</p>
+          {uploadProgress && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("listingForm.uploadingProgress")
+                  .replace("{done}", String(uploadProgress.done))
+                  .replace("{total}", String(uploadProgress.total))}
+              </p>
+              <Progress
+                value={uploadProgress.total ? (uploadProgress.done / uploadProgress.total) * 100 : 0}
+              />
+            </div>
+          )}
           <ListingPhotoGrid
             photos={photos}
             onReorder={handleReorder}
             onDelete={handleDeletePhoto}
+            disabled={uploadProgress !== null}
           />
         </div>
 
         <div className="pt-4 border-t flex justify-end gap-4">
           <Button variant="outline" type="button" onClick={() => setLocation("/dashboard")}>{t("listingForm.cancel")}</Button>
-          <Button type="submit" disabled={createListing.isPending || isUploading}>
-            {(createListing.isPending || isUploading) && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+          <Button type="submit" disabled={createListing.isPending || isUploading || uploadProgress !== null}>
+            {(createListing.isPending || isUploading || uploadProgress !== null) && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
             {t("listingForm.create")}
           </Button>
         </div>
