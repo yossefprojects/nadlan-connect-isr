@@ -183,3 +183,87 @@ export async function sendConnectionValidatedEmail(
     logger.error({ err }, "Failed to send connection-validated email to owner");
   }
 }
+
+interface OfferDecisionEmailData {
+  promoterName: string | null;
+  promoterEmail: string | null;
+  buildingCity: string;
+  buildingNeighborhood: string | null;
+}
+
+// Generic branded shell reused by the accept/reject notifications. The exact
+// address is deliberately NOT included — it is revealed only after an admin
+// validates the introduction (commission gate).
+function offerEmailShell(greeting: string, body: string): string {
+  return `
+  <div style="font-family: Arial, Helvetica, sans-serif; color: #0F2235; max-width: 560px; margin: 0 auto;">
+    <div style="background:#0F2235;padding:24px 28px;border-radius:12px 12px 0 0;">
+      <h1 style="color:#C9A84C;margin:0;font-size:20px;">NadlanConnect</h1>
+      <p style="color:#F8F7F4;margin:6px 0 0;font-size:14px;">Marché Tama 38 / Pinui-Binui</p>
+    </div>
+    <div style="border:1px solid #e5e2da;border-top:none;border-radius:0 0 12px 12px;padding:28px;">
+      <p style="font-size:15px;">${greeting}</p>
+      ${body}
+      <p style="font-size:13px;color:#6b7280;margin-top:24px;">Connectez-vous à votre espace NadlanConnect pour suivre vos dossiers.</p>
+    </div>
+  </div>`;
+}
+
+function offerLocationLabel(data: OfferDecisionEmailData): string {
+  return data.buildingNeighborhood
+    ? `${data.buildingNeighborhood}, ${data.buildingCity}`
+    : data.buildingCity;
+}
+
+/**
+ * Notify the winning promoter that the owner accepted their offer. The exact
+ * address is NOT shared yet — it is revealed once NadlanConnect validates the
+ * introduction. Best-effort: callers should not block their HTTP response.
+ */
+export async function sendOfferAcceptedEmail(
+  data: OfferDecisionEmailData,
+): Promise<void> {
+  if (!data.promoterEmail) return;
+  const name = data.promoterName ?? "Cher promoteur";
+  const location = offerLocationLabel(data);
+  try {
+    await sendEmail({
+      to: data.promoterEmail,
+      subject: `Votre offre a été retenue — ${location}`,
+      html: offerEmailShell(
+        `Bonjour ${name},`,
+        `<p style="font-size:15px;">Félicitations — le propriétaire a <strong>retenu votre offre</strong> pour le projet situé à <strong>${location}</strong>.</p>
+         <p style="font-size:15px;">Votre mise en relation est en cours de validation par NadlanConnect. Dès qu'elle est validée, l'<strong>adresse exacte</strong> et les coordonnées du propriétaire vous seront communiquées dans votre espace.</p>`,
+      ),
+      text: `Bonjour ${name},\n\nFélicitations — le propriétaire a retenu votre offre pour le projet situé à ${location}.\n\nVotre mise en relation est en cours de validation par NadlanConnect. Dès qu'elle est validée, l'adresse exacte et les coordonnées du propriétaire vous seront communiquées.`,
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to send offer-accepted email to promoter");
+  }
+}
+
+/**
+ * Notify a non-selected promoter that the project has been awarded to someone
+ * else and is no longer available. Best-effort.
+ */
+export async function sendOfferRejectedEmail(
+  data: OfferDecisionEmailData,
+): Promise<void> {
+  if (!data.promoterEmail) return;
+  const name = data.promoterName ?? "Cher promoteur";
+  const location = offerLocationLabel(data);
+  try {
+    await sendEmail({
+      to: data.promoterEmail,
+      subject: `Projet attribué — ${location}`,
+      html: offerEmailShell(
+        `Bonjour ${name},`,
+        `<p style="font-size:15px;">Le projet situé à <strong>${location}</strong>, pour lequel vous aviez soumis une offre, a été attribué à un autre promoteur. <strong>Ce projet n'est plus disponible.</strong></p>
+         <p style="font-size:15px;">Merci de votre participation. D'autres opportunités de Pinui-Binui / Tama 38 sont régulièrement publiées sur NadlanConnect.</p>`,
+      ),
+      text: `Bonjour ${name},\n\nLe projet situé à ${location}, pour lequel vous aviez soumis une offre, a été attribué à un autre promoteur. Ce projet n'est plus disponible.\n\nMerci de votre participation. D'autres opportunités sont régulièrement publiées sur NadlanConnect.`,
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to send offer-rejected email to promoter");
+  }
+}

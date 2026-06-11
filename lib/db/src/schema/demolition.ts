@@ -40,7 +40,11 @@ export const demolitionListingsTable = pgTable("demolition_listings", {
   ownerName: text("owner_name").notNull(),
   ownerEmail: text("owner_email").notNull(),
   ownerPhone: text("owner_phone").notNull(),
-  status: text("status").notNull().default("pending"), // 'pending' | 'active' | 'closed'
+  // 'pending' (awaiting admin moderation) | 'active' (open to offers) |
+  // 'offer_locked' (owner accepted an offer — no more offers) | 'closed'
+  status: text("status").notNull().default("pending"),
+  // Winning offer once the owner accepts; set together with status='offer_locked'.
+  acceptedOfferId: integer("accepted_offer_id"),
   isPaid: boolean("is_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -74,6 +78,11 @@ export const demolitionOffersTable = pgTable("demolition_offers", {
   promoterId: text("promoter_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+
+  // Lifecycle within the listing's open-bidding flow. All offers start 'pending';
+  // when the owner accepts one it becomes 'accepted' and every other offer on the
+  // same listing is set to 'rejected'.
+  status: text("status").notNull().default("pending"), // 'pending' | 'accepted' | 'rejected'
 
   // --- Financial ---
   pricePerUnit: integer("price_per_unit").notNull(), // NIS per current apartment
@@ -110,6 +119,10 @@ export const demolitionOffersTable = pgTable("demolition_offers", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 // Official "mise en relation" between an owner and a chosen promoter.
@@ -147,6 +160,7 @@ export const insertDemolitionListingSchema = createInsertSchema(
   id: true,
   ownerId: true,
   status: true,
+  acceptedOfferId: true,
   isPaid: true,
   createdAt: true,
   updatedAt: true,
@@ -162,7 +176,9 @@ export const insertDemolitionOfferSchema = createInsertSchema(
   id: true,
   listingId: true,
   promoterId: true,
+  status: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 export const insertDemolitionConnectionSchema = createInsertSchema(

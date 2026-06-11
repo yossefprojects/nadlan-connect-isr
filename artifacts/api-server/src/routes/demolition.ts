@@ -24,7 +24,12 @@ import {
   UpdateDemolitionConnectionStatusBody,
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin } from "../middlewares/authMiddleware";
-import { sendNewOfferEmail, sendConnectionValidatedEmail } from "../lib/email";
+import {
+  sendNewOfferEmail,
+  sendConnectionValidatedEmail,
+  sendOfferAcceptedEmail,
+  sendOfferRejectedEmail,
+} from "../lib/email";
 import { geocodeAddress, fuzzCoords, APPROX_RADIUS_M } from "../lib/geocode";
 
 const router = Router();
@@ -66,6 +71,7 @@ function serializeListing(
     ownerEmail: reveal ? listing.ownerEmail : null,
     ownerPhone: reveal ? listing.ownerPhone : null,
     status: listing.status,
+    acceptedOfferId: listing.acceptedOfferId,
     isPaid: listing.isPaid,
     offerCount,
     createdAt: listing.createdAt.toISOString(),
@@ -138,6 +144,7 @@ function serializeOffer(
     id: offer.id,
     listingId: offer.listingId,
     promoterId: offer.promoterId,
+    status: offer.status, // 'pending' | 'accepted' | 'rejected'
     promoterName: promoterDisplayName(promoter),
     promoterEmail: promoter?.email ?? null,
     promoterCompany: promoter?.company ?? null,
@@ -494,8 +501,10 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     }
   }
 
-  // Unmoderated listings (pending/closed) are only visible to their owner or an admin.
-  if (listing.status !== "active" && !isOwnerOrAdmin) {
+  // Non-active listings (pending / offer_locked / closed) are only visible to
+  // their owner, an admin, or a promoter whose connection is validated (the
+  // winner keeps access to the project — and its revealed address — after lock).
+  if (listing.status !== "active" && !isOwnerOrAdmin && !reveal) {
     res.status(404).json({ error: "Listing not found" });
     return;
   }
@@ -744,6 +753,140 @@ router.post(
     });
 
     res.status(201).json(serializeOffer(offer, promoter));
+  },
+);
+
+// POST /demolition/listings/:listingId/offers/:offerId/accept — the owner accepts
+// an offer (open-bidding lock). Atomically: marks this offer 'accepted' and every
+// other offer on the listing 'rejected', locks the listing ('offer_locked', no
+// more offers), and opens the introduction (connection 'requested') for the
+// winning promoter so an admin can validate it and reveal the exact address.
+// Notifies every participating promoter (winner + losers).
+router.post(
+  "/demolition/listings/:listingId/offers/:offerId/accept",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const listingId = Number(req.params.listingId);
+    const offerId = Number(req.params.offerId);
+    if (
+      !Number.isInteger(listingId) ||
+      listingId <= 0 ||
+      !Number.isInteger(offerId) ||
+      offerId <= 0
+    ) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+
+    const [listing] = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.id, listingId))
+      .limit(1);
+    if (!listing) {
+      res.status(404).json({ error: "Listing not found" });
+      return;
+    }
+    if (listing.ownerId !== req.user!.id) {
+      res.status(403).json({ error: "Only the listing owner can accept an offer" });
+      return;
+    }
+    // Open-bidding invariant: a listing can only be locked from the 'active' state.
+    if (listing.status !== "active") {
+      res.status(409).json({ error: "This listing is no longer open for acceptance" });
+      return;
+    }
+
+    // All offers on the listing — needed to find the winner and notify the losers.
+    const allOffers = await db
+      .select()
+      .from(demolitionOffersTable)
+      .where(eq(demolitionOffersTable.listingId, listingId));
+    const winning = allOffers.find((o) => o.id === offerId);
+    if (!winning) {
+      res.status(404).json({ error: "Offer not found for this listing" });
+      return;
+    }
+
+    // Atomic lock + status transitions + open the winner's introduction.
+    await db.transaction(async (tx) => {
+      await tx
+        .update(demolitionOffersTable)
+        .set({ status: "accepted" })
+        .where(eq(demolitionOffersTable.id, offerId));
+      await tx
+        .update(demolitionOffersTable)
+        .set({ status: "rejected" })
+        .where(
+          and(
+            eq(demolitionOffersTable.listingId, listingId),
+            ne(demolitionOffersTable.id, offerId),
+          ),
+        );
+      await tx
+        .update(demolitionListingsTable)
+        .set({ status: "offer_locked", acceptedOfferId: offerId })
+        .where(eq(demolitionListingsTable.id, listingId));
+      // Open the mise-en-relation for the winner (admin validates → address reveal).
+      await tx
+        .insert(demolitionConnectionsTable)
+        .values({
+          listingId,
+          promoterId: winning.promoterId,
+          offerId,
+          status: "requested",
+          commissionStatus: "none",
+        })
+        .onConflictDoUpdate({
+          target: [
+            demolitionConnectionsTable.listingId,
+            demolitionConnectionsTable.promoterId,
+          ],
+          set: {
+            offerId,
+            status: "requested",
+            commissionStatus: "none",
+            validatedAt: null,
+          },
+        });
+    });
+
+    // Best-effort notifications (after commit — never block the response on email).
+    const promoterIds = [...new Set(allOffers.map((o) => o.promoterId))];
+    const promoters = promoterIds.length
+      ? await db
+          .select()
+          .from(usersTable)
+          .where(or(...promoterIds.map((id) => eq(usersTable.id, id))))
+      : [];
+    const promoterMap = new Map(promoters.map((p) => [p.id, p]));
+
+    const winnerUser = promoterMap.get(winning.promoterId);
+    void sendOfferAcceptedEmail({
+      promoterName: promoterDisplayName(winnerUser),
+      promoterEmail: winnerUser?.email ?? null,
+      buildingCity: listing.city,
+      buildingNeighborhood: listing.neighborhood,
+    });
+    for (const id of promoterIds) {
+      if (id === winning.promoterId) continue;
+      const loser = promoterMap.get(id);
+      if (!loser?.email) continue;
+      void sendOfferRejectedEmail({
+        promoterName: promoterDisplayName(loser),
+        promoterEmail: loser.email,
+        buildingCity: listing.city,
+        buildingNeighborhood: listing.neighborhood,
+      });
+    }
+
+    const [updated] = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.id, listingId))
+      .limit(1);
+    const counts = await countOffers([listingId]);
+    res.json(serializeListing(updated ?? listing, counts.get(listingId) ?? 0, true, true));
   },
 );
 

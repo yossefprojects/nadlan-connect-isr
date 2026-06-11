@@ -4,11 +4,11 @@ import {
   useGetDemolitionListing,
   useListDemolitionOffers,
   useCreateDemolitionOffer,
-  useCreateDemolitionConnection,
   getGetDemolitionListingQueryKey,
   getListDemolitionOffersQueryKey,
+  customFetch,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,17 +85,27 @@ export default function DemolitionDetail() {
   });
 
   const createOffer = useCreateDemolitionOffer();
-  const createConnection = useCreateDemolitionConnection();
 
-  const choosePromoter = async (offerId: number) => {
-    try {
-      await createConnection.mutateAsync({ listingId, data: { offerId } });
-      toast({ title: t("demo.connection.requested.toast") });
+  // Owner accepts an offer → locks the listing, rejects the others and opens the
+  // winner's introduction. Called via customFetch (endpoint not in the generated
+  // client). The connection/address-reveal flow then proceeds via admin.
+  const acceptOffer = useMutation({
+    mutationFn: (offerId: number) =>
+      customFetch(
+        `/demolition/listings/${listingId}/offers/${offerId}/accept`,
+        { method: "POST" },
+      ),
+    onSuccess: () => {
+      toast({ title: t("demo.offer.acceptedToast") });
       queryClient.invalidateQueries({ queryKey: getListDemolitionOffersQueryKey(listingId) });
       queryClient.invalidateQueries({ queryKey: getGetDemolitionListingQueryKey(listingId) });
-    } catch {
-      toast({ title: t("demo.connection.error"), variant: "destructive" });
-    }
+    },
+    onError: () => toast({ title: t("demo.offer.acceptError"), variant: "destructive" }),
+  });
+
+  const handleAcceptOffer = (offerId: number) => {
+    if (!window.confirm(t("demo.offer.confirmAccept"))) return;
+    acceptOffer.mutate(offerId);
   };
 
   const [offerForm, setOfferForm] = useState({
@@ -364,6 +374,8 @@ export default function DemolitionDetail() {
                   <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     {offers.map((o, idx) => {
                       const isTop = idx === 0 && offers.length > 1 && (o.score ?? 0) > 0;
+                      // `status` is set by the accept flow; generated type predates it.
+                      const offerStatus = (o as { status?: string }).status;
                       const yes = t("demo.offerForm.yes");
                       const no = t("demo.offerForm.no");
                       const amenities = [
@@ -496,33 +508,49 @@ export default function DemolitionDetail() {
                             </a>
                           )}
 
-                          {/* Connection (owner action) — choose this promoter for an introduction */}
+                          {/* Owner action — accept this offer (locks the listing) */}
                           {isOwner && (
-                            <div className="mt-4 border-t pt-3">
-                              {o.connectionStatus === "validated" ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  {t("demo.connection.validated")}
+                            <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-3">
+                              {offerStatus === "accepted" ? (
+                                <>
+                                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                                    <Award className="h-4 w-4" />
+                                    {t("demo.offer.accepted")}
+                                  </span>
+                                  {o.connectionStatus === "validated" ? (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                                      <CheckCircle2 className="h-4 w-4" />
+                                      {t("demo.connection.validated")}
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C]/15 px-3 py-1.5 text-xs font-semibold text-[#8a6f1f]">
+                                      <Clock className="h-4 w-4" />
+                                      {t("demo.connection.pending")}
+                                    </span>
+                                  )}
+                                </>
+                              ) : offerStatus === "rejected" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                                  {t("demo.offer.rejected")}
                                 </span>
-                              ) : o.connectionStatus === "requested" ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C]/15 px-3 py-1.5 text-xs font-semibold text-[#8a6f1f]">
-                                  <Clock className="h-4 w-4" />
-                                  {t("demo.connection.pending")}
-                                </span>
-                              ) : o.connectionStatus === "rejected" ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1.5 text-xs font-semibold text-orange-800">
-                                  {t("demo.connection.rejected")}
-                                </span>
-                              ) : (
+                              ) : listing.status === "active" ? (
                                 <Button
                                   size="sm"
-                                  disabled={createConnection.isPending}
-                                  onClick={() => choosePromoter(o.id)}
+                                  disabled={acceptOffer.isPending}
+                                  onClick={() => handleAcceptOffer(o.id)}
                                   className="bg-[#1A3A5C] text-white hover:bg-[#2A5080]"
                                 >
-                                  <Handshake className="me-2 h-4 w-4" />
-                                  {t("demo.connection.choose")}
+                                  {acceptOffer.isPending ? (
+                                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Award className="me-2 h-4 w-4" />
+                                  )}
+                                  {t("demo.offer.accept")}
                                 </Button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                                  {t("demo.offer.closedShort")}
+                                </span>
                               )}
                             </div>
                           )}
@@ -563,8 +591,15 @@ export default function DemolitionDetail() {
             </section>
           )}
 
-          {/* Offer form (developer only) */}
-          {isDeveloper ? (
+          {/* Offer form (developer only) — hidden once the listing is locked/closed */}
+          {isDeveloper && listing.status !== "active" ? (
+            <section className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground shadow-sm">
+              <div className="flex items-center gap-2 font-medium text-[#0F2235]">
+                <Lock className="h-4 w-4" />
+                {t("demo.offerForm.noLongerAvailable")}
+              </div>
+            </section>
+          ) : isDeveloper ? (
             <section className="rounded-2xl border border-[#C9A84C]/40 bg-card p-6 shadow-sm">
               <h2 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.offerForm.title")}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{t("demo.offerForm.subtitle")}</p>
