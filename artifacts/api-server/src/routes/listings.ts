@@ -494,6 +494,25 @@ router.post("/listings/:listingId/images", async (req, res): Promise<void> => {
     return;
   }
 
+  const [existing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, params.data.listingId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+
+  if (existing.ownerId !== req.user!.id) {
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.id)).limit(1);
+    if (user[0]?.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+  }
+
   const [img] = await db
     .insert(listingImagesTable)
     .values({
@@ -594,6 +613,25 @@ router.delete("/listings/:listingId/images/:imageId", async (req, res): Promise<
   if (!params.success) {
     res.status(400).json({ error: "Invalid params" });
     return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, params.data.listingId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+
+  if (existing.ownerId !== req.user!.id) {
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.id)).limit(1);
+    if (user[0]?.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
   }
 
   await db
