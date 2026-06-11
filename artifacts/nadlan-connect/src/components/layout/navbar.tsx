@@ -33,6 +33,7 @@ export function Navbar() {
   const navItems = [
     { label: t("nav.home"), href: "/" },
     { label: t("nav.properties"), href: "/listings" },
+    { label: t("nav.programs"), href: "/programmes" },
     { label: t("nav.developers"), href: "/promoteurs" },
     { label: t("nav.demolition"), href: "/demolition/listings" },
     { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },

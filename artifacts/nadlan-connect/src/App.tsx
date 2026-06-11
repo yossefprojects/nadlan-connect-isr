@@ -21,6 +21,7 @@ import Cgv from "@/pages/cgv";
 import Dashboard from "@/pages/dashboard";
 import DashboardProgrammes from "@/pages/dashboard-programmes";
 import DashboardProgrammeEdit from "@/pages/dashboard-programme-edit";
+import Programmes from "@/pages/programmes";
 import ProgrammeDetail from "@/pages/programme-detail";
 import DashboardListingsNew from "@/pages/dashboard-listings-new";
 import DashboardListingsEdit from "@/pages/dashboard-listings-edit";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/auth/register/agence" component={RegisterAgence} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
+      <Route path="/programmes" component={Programmes} />
       <Route path="/programme/:slug" component={ProgrammeDetail} />
       <Route path="/promoteurs" component={Promoteurs} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
