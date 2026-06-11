@@ -12,10 +12,16 @@ export interface LegalDoc {
   sections: LegalSection[];
 }
 
+// NOTE (juin 2026) — Sections FR enrichies (outils IA / non-conseil, limitation
+// de responsabilité, marché démolition / non-contournement, garanties du
+// déposant, marques de tiers). Ce sont des BROUILLONS à FAIRE VALIDER par un
+// avocat avant de s'y fier (voir LEGAL-DRAFTS.md à la racine du repo). Les
+// versions EN/HE de ces nouvelles sections restent à confier à un traducteur
+// juridique — ne pas traduire automatiquement du texte contraignant.
 export const CGU: Record<Language, LegalDoc> = {
   fr: {
     title: "Conditions Générales d'Utilisation (CGU)",
-    lastUpdated: "4 juin 2026",
+    lastUpdated: "11 juin 2026",
     intro:
       "Les présentes Conditions Générales d'Utilisation régissent l'accès et l'usage de la plateforme NadlanConnect par l'ensemble des utilisateurs (acheteurs, agents immobiliers et promoteurs).",
     sections: [
@@ -61,6 +67,39 @@ export const CGU: Record<Language, LegalDoc> = {
         heading: "Données personnelles",
         paragraphs: [
           "Les données collectées sont traitées dans le respect de la réglementation applicable et utilisées uniquement aux fins de fonctionnement du service et de mise en relation. L'utilisateur dispose d'un droit d'accès, de rectification et de suppression de ses données.",
+        ],
+      },
+      {
+        heading: "Outils d'analyse, d'estimation et d'intelligence artificielle",
+        paragraphs: [
+          "Les estimations, analyses automatisées (« Agent Shamai »), scores d'investissement et simulateurs proposés reposent en partie sur l'intelligence artificielle : l'utilisateur est informé qu'il interagit avec un système automatisé.",
+          "Leurs résultats sont fournis à titre purement indicatif et non contractuel. Ils ne constituent ni un conseil en investissement, fiscal, juridique ou financier, ni une recommandation personnalisée, ni une expertise immobilière réglementée, et ne sauraient se substituer à l'avis d'un professionnel qualifié. NadlanConnect ne garantit pas leur exactitude ; l'utilisateur demeure seul responsable de ses décisions et doit vérifier toute information auprès des sources officielles et des professionnels compétents.",
+        ],
+      },
+      {
+        heading: "Limitation de responsabilité",
+        paragraphs: [
+          "La plateforme est fournie « en l'état » et « selon disponibilité ». NadlanConnect ne garantit ni la véracité des annonces, ni le comportement des utilisateurs, ni l'aboutissement des mises en relation et des transactions.",
+          "Dans la limite permise par la loi, la responsabilité de NadlanConnect est plafonnée aux sommes effectivement versées par l'utilisateur au cours des douze (12) derniers mois et exclut les dommages indirects. Ces limitations ne réduisent pas les droits impératifs des consommateurs. NadlanConnect n'est pas responsable des événements de force majeure.",
+        ],
+      },
+      {
+        heading: "Marché démolition-reconstruction : confidentialité et non-contournement",
+        paragraphs: [
+          "Pour les biens éligibles à la démolition-reconstruction (Tama 38 / Pinui-Binui), l'adresse exacte et les coordonnées du propriétaire restent confidentielles : seuls le quartier et une localisation approximative sont rendus publics. L'adresse exacte n'est révélée au promoteur qu'après acceptation par le propriétaire et validation de la mise en relation par NadlanConnect, le promoteur s'engageant à n'utiliser ces informations que pour le projet concerné.",
+          "Lorsqu'ils ont été mis en relation par la plateforme, le propriétaire et le promoteur s'interdisent de conclure l'opération hors plateforme afin d'éluder la commission de mise en relation. Tout contournement caractérisé rend la commission exigible, sans préjudice de dommages-intérêts. Après acceptation d'une offre, le bien est verrouillé et les autres offres sont automatiquement closes.",
+        ],
+      },
+      {
+        heading: "Garanties du déposant",
+        paragraphs: [
+          "En publiant un bien, le déposant déclare et garantit être propriétaire ou disposer d'un mandat ou pouvoir régulier pour le proposer (y compris, en copropriété pour un projet Pinui-Binui, l'autorisation requise), que les informations et documents fournis sont exacts, et qu'il dispose des droits nécessaires à leur affichage. Il garantit NadlanConnect contre toute réclamation de tiers en résultant. NadlanConnect peut refuser, modérer ou retirer toute annonce.",
+        ],
+      },
+      {
+        heading: "Marques et contenus de tiers",
+        paragraphs: [
+          "Les noms, dénominations et logos de tiers éventuellement cités ou affichés (notamment de promoteurs ou d'institutions) le sont à titre purement informatif et nominatif et n'impliquent aucun partenariat, affiliation, parrainage ou recommandation, sauf mention expresse contraire. Chaque marque demeure la propriété de son titulaire, qui peut demander le retrait de toute mention le concernant.",
         ],
       },
       {
@@ -192,7 +231,7 @@ export const CGU: Record<Language, LegalDoc> = {
 export const CGV: Record<Language, LegalDoc> = {
   fr: {
     title: "Conditions Générales de Vente (CGV)",
-    lastUpdated: "4 juin 2026",
+    lastUpdated: "11 juin 2026",
     intro:
       "Les présentes Conditions Générales de Vente définissent les conditions commerciales applicables entre NadlanConnect et les professionnels (promoteurs et agences immobilières) utilisant la plateforme.",
     sections: [
@@ -233,6 +272,18 @@ export const CGV: Record<Language, LegalDoc> = {
         heading: "Durée et résiliation",
         paragraphs: [
           "Le compte professionnel est conclu pour une durée indéterminée. Chaque partie peut y mettre fin à tout moment ; les commissions dues pour les transactions déjà conclues restent exigibles après la résiliation.",
+        ],
+      },
+      {
+        heading: "Protection de la commission (non-contournement)",
+        paragraphs: [
+          "Les parties mises en relation par la plateforme s'interdisent de réaliser ou de faire réaliser l'opération hors plateforme afin d'éluder la commission due. Tout contournement caractérisé rend la commission exigible, le cas échéant majorée à titre de clause pénale, sans préjudice de tous dommages-intérêts.",
+        ],
+      },
+      {
+        heading: "Consommateurs, rétractation et médiation",
+        paragraphs: [
+          "Lorsqu'un service payant est souscrit par un consommateur, celui-ci bénéficie, le cas échéant, du droit de rétractation prévu par la réglementation applicable, sauf renonciation expresse pour un service pleinement exécuté avant la fin du délai. Tout litige de consommation peut être soumis à un médiateur de la consommation.",
         ],
       },
       {
