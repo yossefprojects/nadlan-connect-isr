@@ -21,12 +21,19 @@ const mock = vi.hoisted(() => {
   const state: {
     existingListing: Record<string, unknown> | null;
     slugRows: Array<{ id: number; slug: string }>;
+    images: Array<{
+      id: number;
+      listingId: number;
+      url: string;
+      position: number;
+    }>;
     userRole: string;
     lastInsertValues: Record<string, unknown> | null;
     lastUpdateValues: Record<string, unknown> | null;
   } = {
     existingListing: null,
     slugRows: [],
+    images: [],
     userRole: "agent",
     lastInsertValues: null,
     lastUpdateValues: null,
@@ -59,6 +66,7 @@ const mock = vi.hoisted(() => {
         if (b._selectArg) return state.slugRows;
         return state.existingListing ? [state.existingListing] : [];
       }
+      if (b._table === tables.listingImagesTable) return state.images;
       if (b._table === tables.usersTable) return [{ role: state.userRole }];
       return [];
     }
@@ -201,6 +209,7 @@ afterAll(async () => {
 beforeEach(() => {
   mock.state.existingListing = null;
   mock.state.slugRows = [];
+  mock.state.images = [];
   mock.state.userRole = "agent";
   mock.state.lastInsertValues = null;
   mock.state.lastUpdateValues = null;
@@ -533,6 +542,59 @@ describe("POST /listings/:listingId/publish authorization", () => {
 
     expect(res.status).toBe(404);
     expect(mock.state.lastUpdateValues).toBeNull();
+  });
+});
+
+describe("Listing photos surface in galleryImageUrls (regression guard)", () => {
+  // Three images in non-trivial position order; the DB returns them ordered by
+  // position (orderBy in the route), so we seed them already ordered to mirror
+  // that contract. The first photo is the cover.
+  const ORDERED_PHOTOS = [
+    { id: 11, listingId: 7, url: "https://cdn.example/cover.jpg", position: 0 },
+    { id: 12, listingId: 7, url: "https://cdn.example/second.jpg", position: 1 },
+    { id: 13, listingId: 7, url: "https://cdn.example/third.jpg", position: 2 },
+  ];
+
+  it("GET /listings/:slug returns the photos in galleryImageUrls with the first as coverImageUrl", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.images = ORDERED_PHOTOS;
+
+    const res = await fetch(
+      `${baseUrl}/listings/bel-appartement-lumineux-tel-aviv`
+    );
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      listing: { galleryImageUrls: string[]; coverImageUrl: string | null };
+    };
+
+    // The detail contract must expose every photo via galleryImageUrls (the
+    // field clients read), ordered by position — not only via images[].
+    expect(json.listing.galleryImageUrls).toEqual(
+      ORDERED_PHOTOS.map((p) => p.url)
+    );
+    expect(json.listing.coverImageUrl).toBe(ORDERED_PHOTOS[0].url);
+  });
+
+  it("GET /listings (list/grid) returns galleryImageUrls for the same listing", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.images = ORDERED_PHOTOS;
+
+    const res = await fetch(`${baseUrl}/listings?ownerId=${AUTH_USER.id}`);
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      listings: Array<{
+        galleryImageUrls: string[];
+        coverImageUrl: string | null;
+      }>;
+    };
+
+    expect(json.listings).toHaveLength(1);
+    expect(json.listings[0].galleryImageUrls).toEqual(
+      ORDERED_PHOTOS.map((p) => p.url)
+    );
+    expect(json.listings[0].coverImageUrl).toBe(ORDERED_PHOTOS[0].url);
   });
 });
 
