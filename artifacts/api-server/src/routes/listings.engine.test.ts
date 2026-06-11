@@ -39,6 +39,7 @@ const mock = vi.hoisted(() => {
     _captured: Record<string, unknown> | null;
     select: (arg?: unknown) => Builder;
     from: (t: unknown) => Builder;
+    $dynamic: () => Builder;
     where: () => Builder;
     limit: () => Builder;
     offset: () => Builder;
@@ -85,6 +86,9 @@ const mock = vi.hoisted(() => {
       },
       from(t) {
         b._table = t;
+        return b;
+      },
+      $dynamic() {
         return b;
       },
       where() {
@@ -474,5 +478,82 @@ describe("Unauthenticated mutations are rejected", () => {
 
     expect(res.status).toBe(401);
     expect(mock.state.lastUpdateValues).toBeNull();
+  });
+});
+
+describe("GET /admin/listings authorization (requireAdmin)", () => {
+  it("returns 401 when unauthenticated", async () => {
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/admin/listings`);
+
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 403 for an authenticated non-admin", async () => {
+    mock.state.userRole = "agent"; // role lookup returns a non-admin
+
+    const res = await fetch(`${baseUrl}/admin/listings`);
+
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 200 for an admin", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin"; // role lookup returns admin
+
+    const res = await fetch(`${baseUrl}/admin/listings`);
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as Array<{ id: number }>;
+    expect(Array.isArray(json)).toBe(true);
+  });
+});
+
+describe("PATCH /admin/listings/:listingId/status authorization (requireAdmin)", () => {
+  it("returns 401 when unauthenticated", async () => {
+    seedListing("someone-else");
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/admin/listings/7/status`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status: "published" }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 403 for an authenticated non-admin", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent"; // role lookup returns a non-admin
+
+    const res = await fetch(`${baseUrl}/admin/listings/7/status`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status: "published" }),
+    });
+
+    expect(res.status).toBe(403);
+    // The guard must reject before any write happens.
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 200 for an admin and writes the new status", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin"; // role lookup returns admin
+
+    const res = await fetch(`${baseUrl}/admin/listings/7/status`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status: "published" }),
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("published");
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+    expect(mock.state.lastUpdateValues!.status).toBe("published");
   });
 });
