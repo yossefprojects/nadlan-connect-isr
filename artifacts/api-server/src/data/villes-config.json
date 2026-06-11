@@ -1,0 +1,204 @@
+{
+  "villes": [
+    {
+      "id": "tel-aviv",
+      "nom_fr": "Tel-Aviv-Jaffa",
+      "nom_he": "תל אביב-יפו",
+      "district": "Tel Aviv",
+      "prix_m2_moyen_ancien": 52000,
+      "prix_m2_moyen_neuf": 65000,
+      "cout_construction_m2": 20000,
+      "type_dominant": "Pinoui Binoui / TAMA 38 / Luxe"
+    },
+    {
+      "id": "herzliya",
+      "nom_fr": "Herzliya",
+      "nom_he": "הרצליה",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 38000,
+      "prix_m2_moyen_neuf": 48000,
+      "cout_construction_m2": 18000,
+      "type_dominant": "Premium / High-Tech Hub"
+    },
+    {
+      "id": "jerusalem",
+      "nom_fr": "Jérusalem",
+      "nom_he": "ירושלים",
+      "district": "Jérusalem",
+      "prix_m2_moyen_ancien": 29000,
+      "prix_m2_moyen_neuf": 36000,
+      "cout_construction_m2": 16000,
+      "type_dominant": "Tours / Institutionnel / Patrimoine"
+    },
+    {
+      "id": "givatayim",
+      "nom_fr": "Givatayim",
+      "nom_he": "גבעתיים",
+      "district": "Tel Aviv",
+      "prix_m2_moyen_ancien": 36000,
+      "prix_m2_moyen_neuf": 44000,
+      "cout_construction_m2": 18000,
+      "type_dominant": "Densification Urbaine Forte (TAMA)"
+    },
+    {
+      "id": "ramat-gan",
+      "nom_fr": "Ramat Gan",
+      "nom_he": "רמת גן",
+      "district": "Tel Aviv",
+      "prix_m2_moyen_ancien": 31000,
+      "prix_m2_moyen_neuf": 38000,
+      "cout_construction_m2": 17000,
+      "type_dominant": "TAMA 38 / Mixte Bureaux-Résidentiel"
+    },
+    {
+      "id": "raanana",
+      "nom_fr": "Ra'anana",
+      "nom_he": "רעננה",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 29000,
+      "prix_m2_moyen_neuf": 35000,
+      "cout_construction_m2": 16500,
+      "type_dominant": "Immeubles Boutique / Quartiers Neufs"
+    },
+    {
+      "id": "netanya",
+      "nom_fr": "Netanya",
+      "nom_he": "נתניה",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 24000,
+      "prix_m2_moyen_neuf": 31000,
+      "cout_construction_m2": 15500,
+      "type_dominant": "Tours de Front de Mer / Olim"
+    },
+    {
+      "id": "rishon-lezion",
+      "nom_fr": "Rishon LeZion",
+      "nom_he": "ראשון לציון",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 26000,
+      "prix_m2_moyen_neuf": 32000,
+      "cout_construction_m2": 16000,
+      "type_dominant": "Grands Complexes Résidentiels"
+    },
+    {
+      "id": "bat-yam",
+      "nom_fr": "Bat Yam",
+      "nom_he": "בת ים",
+      "district": "Tel Aviv",
+      "prix_m2_moyen_ancien": 25000,
+      "prix_m2_moyen_neuf": 33000,
+      "cout_construction_m2": 16000,
+      "type_dominant": "Régénération Bord de Mer / Tramway"
+    },
+    {
+      "id": "petah-tikva",
+      "nom_fr": "Petah Tikva",
+      "nom_he": "פתח תקווה",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 23000,
+      "prix_m2_moyen_neuf": 28000,
+      "cout_construction_m2": 15000,
+      "type_dominant": "Mises en Chantier Massives / Familles"
+    },
+    {
+      "id": "ashdod",
+      "nom_fr": "Ashdod",
+      "nom_he": "אשדוד",
+      "district": "Sud",
+      "prix_m2_moyen_ancien": 19000,
+      "prix_m2_moyen_neuf": 24000,
+      "cout_construction_m2": 14500,
+      "type_dominant": "Tours Saturées / Infrastructures Portuaires"
+    },
+    {
+      "id": "holon",
+      "nom_fr": "Holon",
+      "nom_he": "חולון",
+      "district": "Tel Aviv",
+      "prix_m2_moyen_ancien": 24000,
+      "prix_m2_moyen_neuf": 29000,
+      "cout_construction_m2": 15500,
+      "type_dominant": "Mutation Urbaine / Projets Métro"
+    },
+    {
+      "id": "kfar-saba",
+      "nom_fr": "Kfar Saba",
+      "nom_he": "כפר סבא",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 26000,
+      "prix_m2_moyen_neuf": 32000,
+      "cout_construction_m2": 15500,
+      "type_dominant": "Éco-Quartiers Résidentiels"
+    },
+    {
+      "id": "hod-hasharon",
+      "nom_fr": "Hod HaSharon",
+      "nom_he": "הוד השרון",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 28000,
+      "prix_m2_moyen_neuf": 34000,
+      "cout_construction_m2": 16000,
+      "type_dominant": "Tours Résidentielles Vertes"
+    },
+    {
+      "id": "modiin",
+      "nom_fr": "Modi'in",
+      "nom_he": "מודיעין",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 25000,
+      "prix_m2_moyen_neuf": 30000,
+      "cout_construction_m2": 15000,
+      "type_dominant": "Planification Neuve / Hub Transport"
+    },
+    {
+      "id": "rehovot",
+      "nom_fr": "Rehovot",
+      "nom_he": "רחובות",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 22000,
+      "prix_m2_moyen_neuf": 27000,
+      "cout_construction_m2": 14500,
+      "type_dominant": "Quartiers Scientifiques et Universitaires"
+    },
+    {
+      "id": "rosh-haayin",
+      "nom_fr": "Rosh HaAyin",
+      "nom_he": "ראש העין",
+      "district": "Centre",
+      "prix_m2_moyen_ancien": 18000,
+      "prix_m2_moyen_neuf": 22000,
+      "cout_construction_m2": 13500,
+      "type_dominant": "Extensions Périphériques Massives"
+    },
+    {
+      "id": "haifa",
+      "nom_fr": "Haïfa",
+      "nom_he": "חיפה",
+      "district": "Nord",
+      "prix_m2_moyen_ancien": 16000,
+      "prix_m2_moyen_neuf": 22000,
+      "cout_construction_m2": 13500,
+      "type_dominant": "Rendement Locatif Étudiant / Port"
+    },
+    {
+      "id": "beer-sheva",
+      "nom_fr": "Be'er Sheva",
+      "nom_he": "באר שבע",
+      "district": "Sud",
+      "prix_m2_moyen_ancien": 11000,
+      "prix_m2_moyen_neuf": 15000,
+      "cout_construction_m2": 12000,
+      "type_dominant": "Marché Étudiant / Capitale du Néguev"
+    },
+    {
+      "id": "ashkelon",
+      "nom_fr": "Ashkelon",
+      "nom_he": "אשקלון",
+      "district": "Sud",
+      "prix_m2_moyen_ancien": 14000,
+      "prix_m2_moyen_neuf": 18000,
+      "cout_construction_m2": 13000,
+      "type_dominant": "Volume Neuf Subventionné / Littoral"
+    }
+  ]
+}

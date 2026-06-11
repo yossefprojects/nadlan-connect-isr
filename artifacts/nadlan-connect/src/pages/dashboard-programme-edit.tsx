@@ -24,8 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
 import { DocumentManager } from "@/components/documents/document-manager";
 import { Loader2, ArrowLeft, Trash2, Send, Plus, Edit } from "lucide-react";
-
-const CITIES = ["tlv", "jer", "hfa", "bs", "nat", "ash"];
+import { CITIES } from "@/data/villes";
 
 export default function DashboardProgrammeEdit() {
   const { t } = useLanguage();

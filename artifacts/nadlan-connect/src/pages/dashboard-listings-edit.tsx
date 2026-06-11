@@ -18,6 +18,7 @@ import { useUpload } from "@workspace/object-storage-web";
 import { Loader2, Trash2, ImagePlus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/components/layout/language-provider";
+import { CITIES } from "@/data/villes";
 import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
 
 export default function DashboardListingsEdit() {
@@ -213,12 +214,9 @@ export default function DashboardListingsEdit() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tlv">{t("city.tlv")}</SelectItem>
-                <SelectItem value="jer">{t("city.jer")}</SelectItem>
-                <SelectItem value="hfa">{t("city.hfa")}</SelectItem>
-                <SelectItem value="bs">{t("city.bs")}</SelectItem>
-                <SelectItem value="nat">{t("city.nat")}</SelectItem>
-                <SelectItem value="ash">{t("city.ash")}</SelectItem>
+                {CITIES.map((c) => (
+                  <SelectItem key={c} value={c}>{t(`city.${c}`)}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

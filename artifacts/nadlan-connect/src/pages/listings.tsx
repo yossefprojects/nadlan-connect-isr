@@ -6,6 +6,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Filter, Building2, SlidersHorizontal } from "lucide-react";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { CITIES } from "@/data/villes";
 
 const ALL = "__all__";
 
@@ -67,12 +68,9 @@ export default function Listings() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ALL}>{t("listings.allCities")}</SelectItem>
-                <SelectItem value="tlv">Tel Aviv</SelectItem>
-                <SelectItem value="jer">Jérusalem</SelectItem>
-                <SelectItem value="hfa">Haïfa</SelectItem>
-                <SelectItem value="bs">Beer-Sheva</SelectItem>
-                <SelectItem value="nat">Netanya</SelectItem>
-                <SelectItem value="ash">Ashdod</SelectItem>
+                {CITIES.map((c) => (
+                  <SelectItem key={c} value={c}>{t(`city.${c}`)}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

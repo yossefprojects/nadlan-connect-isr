@@ -8,6 +8,7 @@ import {
   ExtractListingBody,
 } from "@workspace/api-zod";
 import { SHAMAI_SECTION_A } from "../lib/shamaiPrompt";
+import { VILLES_MARKET_REFERENCE } from "../lib/villesContext";
 
 const router = Router();
 
@@ -67,6 +68,8 @@ LANGUE DE SORTIE : tous les champs de texte libre (summary, comment, detail, not
 }
 
 const SYSTEM_PROMPT_BASE = `${SHAMAI_KNOWLEDGE}
+
+${VILLES_MARKET_REFERENCE}
 
 IMPORTANT — FORMAT DE SORTIE POUR CET APPEL : ignore toute consigne de format "rapport / דוח שמאי / Markdown" décrite plus haut. Pour CET appel uniquement, n'émets AUCUN rapport Markdown et AUCUN bloc de code. Analyse l'annonce fournie et renvoie STRICTEMENT un objet JSON valide (aucun texte avant ou après, pas de balises Markdown). L'objet doit respecter EXACTEMENT cette structure :
 
@@ -166,6 +169,8 @@ RÈGLES DE CALCUL FINANCIER PROMOTEUR (objet "promoterRoi") :
 - Si un permis est déjà accordé (hasBuildingPermit=true), valorise-le dans overallScore et le commentaire (≈3 ans gagnés).`;
 
 const SHAMAI_CHAT_PROMPT = `${SHAMAI_KNOWLEDGE}
+
+${VILLES_MARKET_REFERENCE}
 
 Tu produis des analyses structurées de type דוח שמאי (rapport de Shamai) en réponse aux informations fournies par l'utilisateur sur un bien immobilier, sous forme conversationnelle.
 
