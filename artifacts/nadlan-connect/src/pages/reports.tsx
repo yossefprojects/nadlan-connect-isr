@@ -13,6 +13,7 @@ import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { useToast } from "@/hooks/use-toast";
 import {
   FileText,
@@ -65,15 +66,12 @@ export default function Reports() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container py-16 text-center">
-        <ScrollText className="mx-auto mb-4 h-10 w-10 text-[#C9A84C]" />
-        <h1 className="font-serif text-2xl text-[#1A3A5C]">{t("reports.title")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("reports.loginRequired")}</p>
-        <Link href="/auth/login">
-          <Button className="mt-4 bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">
-            {t("nav.login")}
-          </Button>
-        </Link>
+      <div className="container py-16">
+        <SignInPrompt
+          title="reports.title"
+          subtitle="reports.loginRequired"
+          cta="nav.login"
+        />
       </div>
     );
   }
