@@ -13,24 +13,35 @@ export function MarketBar() {
     { label: t("market.cbsIndex"), value: "285.4", trend: t("market.cbsTrend") },
   ];
 
+  const dateStr = new Date().toLocaleDateString(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
   return (
-    <div className="w-full bg-[#0A1628] text-xs">
-      <div className="container flex items-center gap-5 h-8 overflow-x-auto scrollbar-none whitespace-nowrap">
-        <span className="flex items-center gap-1.5 shrink-0 text-[#9CABBF]">
-          <TrendingUp className="h-3 w-3" />
-          <span className="text-[#85B7EB]">
-            {t("market.asOf")}{" "}
-            {new Date().toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })}
-          </span>
-        </span>
-        {marketData.map((item) => (
-          <span key={item.label} className="flex items-center gap-1.5 shrink-0 text-[#9CABBF]">
-            <span>{item.label}</span>
-            <span className="text-[#C9A84C] font-semibold">{item.value}</span>
-            {item.trend && (
-              <span className="text-[#0F6E56] font-medium">{item.trend}</span>
-            )}
-          </span>
+    <div className="w-full overflow-hidden bg-[#0A1628] text-xs">
+      <div className="ticker-track">
+        {[0, 1, 2, 3].map((copy) => (
+          <div
+            key={copy}
+            className="flex h-8 shrink-0 items-center gap-5 px-2.5"
+            aria-hidden={copy !== 0}
+          >
+            <span className="flex items-center gap-1.5 text-[#9CABBF]">
+              <TrendingUp className="h-3 w-3" />
+              <span className="text-[#85B7EB]">
+                {t("market.asOf")} {dateStr}
+              </span>
+            </span>
+            {marketData.map((item) => (
+              <span key={item.label} className="flex items-center gap-1.5 text-[#9CABBF]">
+                <span>{item.label}</span>
+                <span className="font-semibold text-[#C9A84C]">{item.value}</span>
+                {item.trend && <span className="font-medium text-[#0F6E56]">{item.trend}</span>}
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>
