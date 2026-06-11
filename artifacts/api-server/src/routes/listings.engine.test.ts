@@ -481,6 +481,61 @@ describe("Unauthenticated mutations are rejected", () => {
   });
 });
 
+describe("POST /listings/:listingId/publish authorization", () => {
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent";
+
+    const res = await fetch(`${baseUrl}/listings/7/publish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(403);
+    // No write should have happened.
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 200 for the owner and publishes", async () => {
+    seedListing(AUTH_USER.id);
+
+    const res = await fetch(`${baseUrl}/listings/7/publish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("published");
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+    expect(mock.state.lastUpdateValues!.status).toBe("published");
+  });
+
+  it("returns 200 for an admin publishing someone else's listing", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin";
+
+    const res = await fetch(`${baseUrl}/listings/7/publish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("published");
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+    expect(mock.state.lastUpdateValues!.status).toBe("published");
+  });
+
+  it("returns 404 when the listing does not exist", async () => {
+    mock.state.existingListing = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/publish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(404);
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+});
+
 describe("GET /admin/listings authorization (requireAdmin)", () => {
   it("returns 401 when unauthenticated", async () => {
     currentUser = null;

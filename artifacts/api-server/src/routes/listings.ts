@@ -658,21 +658,30 @@ router.post("/listings/:listingId/publish", async (req, res): Promise<void> => {
     return;
   }
 
+  const [existing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, params.data.listingId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+
+  if (existing.ownerId !== req.user!.id) {
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.id)).limit(1);
+    if (user[0]?.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+  }
+
   const [updated] = await db
     .update(listingsTable)
     .set({ status: "published" })
-    .where(
-      and(
-        eq(listingsTable.id, params.data.listingId),
-        eq(listingsTable.ownerId, req.user!.id)
-      )
-    )
+    .where(eq(listingsTable.id, params.data.listingId))
     .returning();
-
-  if (!updated) {
-    res.status(404).json({ error: "Listing not found or not owned by you" });
-    return;
-  }
 
   res.json(serializeListing(updated, null, null));
 });
