@@ -57,8 +57,6 @@ import {
 
 const GOLD = "#C9A84C";
 
-const EXAMPLE = `Appartement 4 pièces à vendre, Florentin, Tel Aviv. 92 m², 3ème étage avec ascenseur. Mamad, balcon, rénové récemment. Proche de la gare. Prix: 3,200,000 ₪. Possibilité de location 8500₪/mois.`;
-
 const RECO_STYLE: Record<string, { bg: string; text: string; dot: string }> = {
   green: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
   orange: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
@@ -600,7 +598,7 @@ export default function AnalyseIA() {
                   <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
-                      onClick={() => setText(EXAMPLE)}
+                      onClick={() => setText(t("analyse.example"))}
                       className="text-[11px] text-[#C9A84C] underline underline-offset-2 hover:opacity-80"
                     >
                       {t("analyse.insertExample")}

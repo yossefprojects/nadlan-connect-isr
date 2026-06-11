@@ -128,6 +128,7 @@ const fr: Dict = {
   "analyse.placeholder":
     "Ex : Appartement 4 pièces, Florentin Tel Aviv, 92 m², 3ème étage, ascenseur, Mamad, 3 200 000 ₪…",
   "analyse.insertExample": "Insérer un exemple",
+  "analyse.example": "Appartement 4 pièces à vendre, Florentin, Tel Aviv. 92 m², 3ème étage avec ascenseur. Mamad, balcon, rénové récemment. Proche de la gare. Prix : 3 200 000 ₪. Possibilité de location 8 500 ₪/mois.",
   "analyse.charCount": "caractères",
   "analyse.analyzeBtn": "Analyser le bien",
   "analyse.analyzing": "Analyse en cours…",
@@ -1127,6 +1128,7 @@ const en: Dict = {
   "analyse.placeholder":
     "E.g. 4-room apartment, Florentin Tel Aviv, 92 m², 3rd floor, elevator, Mamad, 3,200,000 ₪…",
   "analyse.insertExample": "Insert an example",
+  "analyse.example": "4-room apartment for sale, Florentin, Tel Aviv. 92 sqm, 3rd floor with elevator. Mamad, balcony, recently renovated. Close to the train station. Price: 3,200,000 ₪. Rental potential 8,500 ₪/month.",
   "analyse.charCount": "characters",
   "analyse.analyzeBtn": "Analyze the property",
   "analyse.analyzing": "Analyzing…",
@@ -2120,6 +2122,7 @@ const he: Dict = {
   "analyse.placeholder":
     "לדוגמה: דירת 4 חדרים, פלורנטין תל אביב, 92 מ\"ר, קומה 3, מעלית, ממ\"ד, 3,200,000 ₪…",
   "analyse.insertExample": "הוספת דוגמה",
+  "analyse.example": "דירת 4 חדרים למכירה, פלורנטין, תל אביב. 92 מ\"ר, קומה 3 עם מעלית. ממ\"ד, מרפסת, משופצת לאחרונה. קרוב לתחנת הרכבת. מחיר: 3,200,000 ₪. פוטנציאל השכרה 8,500 ₪ לחודש.",
   "analyse.charCount": "תווים",
   "analyse.analyzeBtn": "ניתוח הנכס",
   "analyse.analyzing": "מנתח…",
