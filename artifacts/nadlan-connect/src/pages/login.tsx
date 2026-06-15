@@ -23,6 +23,8 @@ function pathForRole(role: string | null | undefined): string {
     case "developer":
       return "/dashboard/promoteur";
     case "agent":
+      // Agences only have access to the projects a promoteur entrusts to them.
+      return "/demolition/reventes";
     case "introducer":
       return "/dashboard/agence";
     case "admin":

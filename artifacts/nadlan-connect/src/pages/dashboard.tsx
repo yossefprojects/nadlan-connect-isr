@@ -1,13 +1,13 @@
 import { useGetDashboardStats, useListListings } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Inbox, CheckCircle, TrendingUp, Plus, Edit, Handshake, Scale } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "@/components/layout/language-provider";
 import { ListingMandateRequests } from "./dashboard-mandates";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 function ListingMandateSection({ listingId, title }: { listingId: number; title: string }) {
@@ -39,8 +39,16 @@ export default function Dashboard() {
   const { data: listingsData, isLoading: isListingsLoading } = useListListings();
   const { role } = useUserRole();
   const { t, locale } = useLanguage();
+  const [, setLocation] = useLocation();
+
+  // Agences have no general dashboard: their only privileged surface is the resale
+  // mandates (projects a promoteur entrusted to them). Send them there.
+  useEffect(() => {
+    if (role === "agent") setLocation("/demolition/reventes");
+  }, [role, setLocation]);
 
   if (isStatsLoading) return <div className="p-8">{t("common.loading")}</div>;
+  if (role === "agent") return null;
 
   return (
     <div className="container py-8 max-w-6xl">

@@ -78,7 +78,7 @@ const CONTENT = {
       ],
       agence: [
         { id: "free", name: "Gratuit", price: "0", per: "", note: "", recommended: false,
-          features: ["Profil agence vérifié", "Mandats de revente des promoteurs", "Commission sur les ventes"] },
+          features: ["Inscription 100% gratuite", "Accès aux projets sur mandat d'un promoteur", "Commission sur les reventes"] },
       ],
     },
   },
@@ -111,7 +111,7 @@ const CONTENT = {
       ],
       agence: [
         { id: "free", name: "Free", price: "0", per: "", note: "", recommended: false,
-          features: ["Verified agency profile", "Resale mandates from developers", "Commission on sales"] },
+          features: ["100% free registration", "Project access only via a developer mandate", "Commission on resales"] },
       ],
     },
   },
@@ -144,7 +144,7 @@ const CONTENT = {
       ],
       agence: [
         { id: "free", name: "חינם", price: "0", per: "", note: "", recommended: false,
-          features: ["פרופיל סוכנות מאומת", "מנדטי מכירה מיזמים", "עמלה על מכירות"] },
+          features: ["הרשמה חינמית לחלוטין", "גישה לפרויקטים רק על פי מנדט מיזם", "עמלה על מכירות חוזרות"] },
       ],
     },
   },
