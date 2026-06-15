@@ -17,6 +17,7 @@ async function buildSeed() {
       path.resolve(artifactDir, "src/scripts/seed-listing-images.ts"),
       path.resolve(artifactDir, "src/scripts/seed-program-images.ts"),
       path.resolve(artifactDir, "src/scripts/seed-demolition-offers.ts"),
+      path.resolve(artifactDir, "src/scripts/seed-demo-roles.ts"),
     ],
     platform: "node",
     bundle: true,

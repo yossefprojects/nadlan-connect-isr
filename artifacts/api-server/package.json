@@ -10,6 +10,7 @@
     "seed:images": "node ./build-seed.mjs && node --enable-source-maps ./dist-seed/seed-listing-images.mjs",
     "seed:program-images": "node ./build-seed.mjs && node --enable-source-maps ./dist-seed/seed-program-images.mjs",
     "seed:demolition": "node ./build-seed.mjs && node --enable-source-maps ./dist-seed/seed-demolition-offers.mjs",
+    "seed:demo": "node ./build-seed.mjs && node --enable-source-maps ./dist-seed/seed-demo-roles.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts"
   },
