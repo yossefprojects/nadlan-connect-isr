@@ -15,7 +15,6 @@ type TextKey =
   | "email"
   | "phone"
   | "companyName"
-  | "licenseNumber"
   | "ville"
   | "nbAgents";
 
@@ -60,7 +59,6 @@ export default function RegisterAgence() {
     email: "",
     phone: "",
     companyName: "",
-    licenseNumber: "",
     ville: "",
     nbAgents: "",
     plan: "free" as PlanId,
@@ -110,7 +108,6 @@ export default function RegisterAgence() {
           email: form.email,
           phone: form.phone || undefined,
           companyName: form.companyName || undefined,
-          licenseNumber: form.licenseNumber || undefined,
           ville: form.ville,
           nbAgents: form.nbAgents ? Number(form.nbAgents) : undefined,
           specialties,
@@ -243,9 +240,6 @@ export default function RegisterAgence() {
           {renderField("email", t("proRegister.email"), { required: true, type: "email", autoComplete: "email" })}
           {renderField("phone", t("proRegister.phone"), { type: "tel", autoComplete: "tel" })}
           {renderField("companyName", t("proRegister.agence.companyName"), { autoComplete: "organization" })}
-          {renderField("licenseNumber", t("proRegister.agence.licenseNumber"), {
-            help: t("proRegister.agence.licenseHelp"),
-          })}
           {renderField("ville", t("proRegister.ville"), { required: true, autoComplete: "address-level2" })}
           {renderField("nbAgents", t("proRegister.agence.nbAgents"), { type: "number" })}
 
