@@ -548,6 +548,75 @@ describe("POST /listings/:listingId/publish authorization", () => {
   });
 });
 
+describe("POST /listings/:listingId/unpublish authorization", () => {
+  it("returns 401 when unauthenticated", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/unpublish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent";
+
+    const res = await fetch(`${baseUrl}/listings/7/unpublish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(403);
+    // No write should have happened.
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+
+  it("returns 200 for the owner and moves the listing back to draft", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.existingListing!.status = "published";
+
+    const res = await fetch(`${baseUrl}/listings/7/unpublish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("draft");
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+    expect(mock.state.lastUpdateValues!.status).toBe("draft");
+  });
+
+  it("returns 200 for an admin unpublishing someone else's listing", async () => {
+    seedListing("someone-else");
+    mock.state.existingListing!.status = "published";
+    mock.state.userRole = "admin";
+
+    const res = await fetch(`${baseUrl}/listings/7/unpublish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { status: string };
+    expect(json.status).toBe("draft");
+    expect(mock.state.lastUpdateValues).not.toBeNull();
+    expect(mock.state.lastUpdateValues!.status).toBe("draft");
+  });
+
+  it("returns 404 when the listing does not exist", async () => {
+    mock.state.existingListing = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/unpublish`, {
+      method: "POST",
+    });
+
+    expect(res.status).toBe(404);
+    expect(mock.state.lastUpdateValues).toBeNull();
+  });
+});
+
 describe("POST /listings/:listingId/images authorization", () => {
   const IMAGE_BODY = {
     url: "https://cdn.example/new-photo.jpg",

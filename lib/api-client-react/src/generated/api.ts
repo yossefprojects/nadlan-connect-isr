@@ -2105,6 +2105,76 @@ export const usePublishListing = <TError = ErrorType<unknown>,
       return useMutation(getPublishListingMutationOptions(options));
     }
 
+export const getUnpublishListingUrl = (listingId: number,) => {
+
+
+
+
+  return `/api/listings/${listingId}/unpublish`
+}
+
+/**
+ * @summary Move a listing back to draft (owner or admin)
+ */
+export const unpublishListing = async (listingId: number, options?: RequestInit): Promise<Listing> => {
+
+  return customFetch<Listing>(getUnpublishListingUrl(listingId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getUnpublishListingMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unpublishListing>>, TError,{listingId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof unpublishListing>>, TError,{listingId: number}, TContext> => {
+
+const mutationKey = ['unpublishListing'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unpublishListing>>, {listingId: number}> = (props) => {
+          const {listingId} = props ?? {};
+
+          return  unpublishListing(listingId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnpublishListingMutationResult = NonNullable<Awaited<ReturnType<typeof unpublishListing>>>
+
+    export type UnpublishListingMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Move a listing back to draft (owner or admin)
+ */
+export const useUnpublishListing = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unpublishListing>>, TError,{listingId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof unpublishListing>>,
+        TError,
+        {listingId: number},
+        TContext
+      > => {
+      return useMutation(getUnpublishListingMutationOptions(options));
+    }
+
 export const getListProgramsUrl = (params?: ListProgramsParams,) => {
   const normalizedParams = new URLSearchParams();
 

@@ -21,6 +21,7 @@ import {
   ReorderListingImagesBody,
   DeleteListingImageParams,
   PublishListingParams,
+  UnpublishListingParams,
   AdminListListingsQueryParams,
   AdminUpdateListingStatusParams,
   AdminUpdateListingStatusBody,
@@ -680,6 +681,46 @@ router.post("/listings/:listingId/publish", async (req, res): Promise<void> => {
   const [updated] = await db
     .update(listingsTable)
     .set({ status: "published" })
+    .where(eq(listingsTable.id, params.data.listingId))
+    .returning();
+
+  res.json(serializeListing(updated, null, null));
+});
+
+// POST /listings/:listingId/unpublish
+router.post("/listings/:listingId/unpublish", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  const params = UnpublishListingParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: "Invalid listing ID" });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, params.data.listingId))
+    .limit(1);
+
+  if (!existing) {
+    res.status(404).json({ error: "Listing not found" });
+    return;
+  }
+
+  if (existing.ownerId !== req.user!.id) {
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.id)).limit(1);
+    if (user[0]?.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+  }
+
+  const [updated] = await db
+    .update(listingsTable)
+    .set({ status: "draft" })
     .where(eq(listingsTable.id, params.data.listingId))
     .returning();
 

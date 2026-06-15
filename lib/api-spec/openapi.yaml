@@ -737,6 +737,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Listing'
 
+  /listings/{listingId}/unpublish:
+    post:
+      tags: [Listings]
+      operationId: unpublishListing
+      summary: Move a listing back to draft (owner or admin)
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Listing moved back to draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
   # ── Programmes (developer projects grouping units) ────────────────────────
   /programs:
     get:

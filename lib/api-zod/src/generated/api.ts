@@ -649,6 +649,38 @@ export const PublishListingResponse = zod.object({
 
 
 /**
+ * @summary Move a listing back to draft (owner or admin)
+ */
+export const UnpublishListingParams = zod.object({
+  "listingId": zod.coerce.number()
+})
+
+export const UnpublishListingResponse = zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "ownerId": zod.string(),
+  "programId": zod.number().nullish(),
+  "ownerName": zod.string().nullish(),
+  "ownerAvatar": zod.string().nullish(),
+  "type": zod.enum(['resale', 'new_development']),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "ville": zod.string(),
+  "quartier": zod.string().nullish(),
+  "surface": zod.number(),
+  "nbPieces": zod.number(),
+  "etage": zod.number().nullish(),
+  "price": zod.number(),
+  "estimatedPrice": zod.number().nullish(),
+  "investmentScore": zod.number().nullish(),
+  "status": zod.enum(['draft', 'published', 'sold', 'archived']),
+  "coverImageUrl": zod.string().nullish(),
+  "galleryImageUrls": zod.array(zod.string()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary List programmes (published, or filtered by owner)
  */
 export const ListProgramsQueryParams = zod.object({
