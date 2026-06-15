@@ -286,12 +286,12 @@ export const RegisterAgenceBody = zod.object({
  * @summary List B2B onboarding profiles (admin only)
  */
 export const AdminListProfilesQueryParams = zod.object({
-  "role": zod.enum(['developer', 'agent']).optional()
+  "role": zod.enum(['developer', 'agent', 'introducer']).optional()
 })
 
 export const AdminListProfilesResponseItem = zod.object({
   "id": zod.number(),
-  "role": zod.enum(['developer', 'agent']),
+  "role": zod.enum(['developer', 'agent', 'introducer']),
   "firstName": zod.string(),
   "lastName": zod.string(),
   "email": zod.string(),

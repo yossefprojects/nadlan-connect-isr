@@ -383,7 +383,7 @@ paths:
           required: false
           schema:
             type: string
-            enum: [developer, agent]
+            enum: [developer, agent, introducer]
       responses:
         '200':
           description: List of profiles
@@ -2651,7 +2651,7 @@ components:
           type: integer
         role:
           type: string
-          enum: [developer, agent]
+          enum: [developer, agent, introducer]
         status:
           type: string
         message:
@@ -2665,7 +2665,7 @@ components:
           type: integer
         role:
           type: string
-          enum: [developer, agent]
+          enum: [developer, agent, introducer]
         firstName:
           type: string
         lastName:

@@ -1490,6 +1490,7 @@ export type AdminListProfilesRole = typeof AdminListProfilesRole[keyof typeof Ad
 export const AdminListProfilesRole = {
   developer: 'developer',
   agent: 'agent',
+  introducer: 'introducer',
 } as const;
 
 export type ListListingsParams = {
