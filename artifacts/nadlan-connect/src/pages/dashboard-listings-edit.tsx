@@ -126,6 +126,23 @@ export default function DashboardListingsEdit() {
     }
   };
 
+  const uploadOne = async (item: PendingUpload, position: number): Promise<boolean> => {
+    setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "uploading" } : u)));
+    try {
+      const uploadRes = await uploadFile(item.file);
+      if (!uploadRes?.objectPath) throw new Error("upload failed");
+      await addListingImage.mutateAsync({
+        listingId,
+        data: { url: uploadRes.objectPath, position }
+      });
+      setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "done" } : u)));
+      return true;
+    } catch {
+      setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error" } : u)));
+      return false;
+    }
+  };
+
   const handleAddPhotos = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const batch: PendingUpload[] = Array.from(files).map((file, i) => ({
@@ -142,21 +159,11 @@ export default function DashboardListingsEdit() {
     setUploadProgress({ done: 0, total: batch.length });
 
     for (const item of batch) {
-      try {
-        const uploadRes = await uploadFile(item.file);
-        if (!uploadRes?.objectPath) throw new Error("upload failed");
-        await addListingImage.mutateAsync({
-          listingId,
-          data: { url: uploadRes.objectPath, position: position++ }
-        });
-        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "done" } : u)));
-      } catch {
-        failures++;
-        setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error" } : u)));
-      } finally {
-        processed++;
-        setUploadProgress({ done: processed, total: batch.length });
-      }
+      const ok = await uploadOne(item, position);
+      if (ok) position++;
+      else failures++;
+      processed++;
+      setUploadProgress({ done: processed, total: batch.length });
     }
 
     setUploadProgress(null);
@@ -167,6 +174,28 @@ export default function DashboardListingsEdit() {
     });
 
     if (failures > 0) {
+      toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
+    }
+  };
+
+  const handleRetryPhoto = async (key: string) => {
+    const item = uploads.find((u) => u.key === key && u.status === "error");
+    if (!item) return;
+
+    setUploadProgress({ done: 0, total: 1 });
+    const ok = await uploadOne(item, photos.length);
+    setUploadProgress({ done: 1, total: 1 });
+
+    setUploadProgress(null);
+    await queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
+
+    if (ok) {
+      setUploads((prev) => {
+        const target = prev.find((u) => u.key === key);
+        if (target) URL.revokeObjectURL(target.url);
+        return prev.filter((u) => u.key !== key);
+      });
+    } else {
       toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
     }
   };
@@ -378,6 +407,7 @@ export default function DashboardListingsEdit() {
             photos={displayPhotos}
             onReorder={persistOrder}
             onDelete={handleDeletePhoto}
+            onRetry={handleRetryPhoto}
             disabled={reorderListingImages.isPending || deleteListingImage.isPending || uploadProgress !== null}
           />
         </div>

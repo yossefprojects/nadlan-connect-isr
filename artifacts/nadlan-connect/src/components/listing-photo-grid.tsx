@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, GripVertical, Trash2, Loader2, AlertCircle } from "lucide-react";
+import { Star, GripVertical, Trash2, Loader2, AlertCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
 
@@ -14,10 +14,12 @@ interface Props {
   photos: PhotoItem[];
   onReorder: (next: PhotoItem[]) => void;
   onDelete: (key: string) => void;
+  /** When provided, failed tiles offer a retry action that re-attempts just that upload. */
+  onRetry?: (key: string) => void;
   disabled?: boolean;
 }
 
-export function ListingPhotoGrid({ photos, onReorder, onDelete, disabled }: Props) {
+export function ListingPhotoGrid({ photos, onReorder, onDelete, onRetry, disabled }: Props) {
   const { t } = useLanguage();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
@@ -85,9 +87,21 @@ export function ListingPhotoGrid({ photos, onReorder, onDelete, disabled }: Prop
             )}
 
             {isError && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-2 text-center text-xs font-medium text-destructive">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-2 text-center text-xs font-medium text-destructive">
                 <AlertCircle className="h-6 w-6" />
                 <span>{t("listingForm.photoFailed")}</span>
+                {onRetry && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 px-2 text-xs"
+                    disabled={disabled}
+                    onClick={() => onRetry(photo.key)}
+                  >
+                    <RotateCcw className="me-1 h-3 w-3" /> {t("listingForm.retry")}
+                  </Button>
+                )}
               </div>
             )}
 
