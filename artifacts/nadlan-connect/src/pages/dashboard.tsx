@@ -41,14 +41,15 @@ export default function Dashboard() {
   const { t, locale } = useLanguage();
   const [, setLocation] = useLocation();
 
-  // Agences have no general dashboard: their only privileged surface is the resale
-  // mandates (projects a promoteur entrusted to them). Send them there.
+  // Agences and apporteurs have no general dashboard — an agence sees only its
+  // resale mandates, an apporteur only its own published projects + offers.
   useEffect(() => {
     if (role === "agent") setLocation("/demolition/reventes");
+    else if (role === "introducer") setLocation("/demolition/mes-projets");
   }, [role, setLocation]);
 
   if (isStatsLoading) return <div className="p-8">{t("common.loading")}</div>;
-  if (role === "agent") return null;
+  if (role === "agent" || role === "introducer") return null;
 
   return (
     <div className="container py-8 max-w-6xl">

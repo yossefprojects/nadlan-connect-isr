@@ -47,7 +47,10 @@ export function Navbar() {
     } else if (role === "agent") {
       // Agence: no general dashboard — only the projects mandated to it for resale.
       navItems.push({ label: t("demo.reventes.nav"), href: "/demolition/reventes" });
-    } else if (role === "introducer" || role === "developer") {
+    } else if (role === "introducer") {
+      // Apporteur: their workspace is their published projects + offers received.
+      navItems.push({ label: t("demo.mesProjets.nav"), href: "/demolition/mes-projets" });
+    } else if (role === "developer") {
       navItems.push({ label: t("nav.dashboard"), href: "/dashboard" });
     } else if (role === "admin") {
       navItems.push({ label: t("nav.admin"), href: "/admin" });

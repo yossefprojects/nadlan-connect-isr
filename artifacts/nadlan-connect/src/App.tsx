@@ -34,6 +34,7 @@ import Promoteurs from "@/pages/promoteurs";
 import DemolitionListings from "@/pages/demolition-listings";
 import DemolitionNew from "@/pages/demolition-new";
 import DemolitionReventes from "@/pages/demolition-reventes";
+import DemolitionMesProjets from "@/pages/demolition-mes-projets";
 import DemolitionDetail from "@/pages/demolition-detail";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ function Router() {
       <Route path="/demolition/listings" component={DemolitionListings} />
       <Route path="/demolition/nouveau" component={DemolitionNew} />
       <Route path="/demolition/reventes" component={DemolitionReventes} />
+      <Route path="/demolition/mes-projets" component={DemolitionMesProjets} />
       <Route path="/demolition/:id" component={DemolitionDetail} />
       <Route path="/cgu" component={Cgu} />
       <Route path="/cgv" component={Cgv} />

@@ -26,7 +26,8 @@ function pathForRole(role: string | null | undefined): string {
       // Agences only have access to the projects a promoteur entrusts to them.
       return "/demolition/reventes";
     case "introducer":
-      return "/dashboard/agence";
+      // Apporteurs manage their own published projects and the offers received.
+      return "/demolition/mes-projets";
     case "admin":
       return "/dashboard/admin";
     default:
