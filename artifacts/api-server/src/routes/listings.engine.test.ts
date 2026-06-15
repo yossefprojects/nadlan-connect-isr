@@ -10,7 +10,15 @@ import { calcEstimation, calcInvestmentScore } from "../lib/engine.js";
 const mock = vi.hoisted(() => {
   const tables = {
     listingsTable: { __t: "listings" },
-    listingImagesTable: { __t: "listing_images" },
+    // The image table carries per-column markers so the reorder handler's
+    // `where(and(eq(id, ...), eq(listingId, ...)))` can be inspected and the
+    // matching row's position actually updated in the fake store.
+    listingImagesTable: {
+      __t: "listing_images",
+      id: { __col: "id" },
+      listingId: { __col: "listingId" },
+      position: { __col: "position" },
+    },
     favoritesTable: { __t: "favorites" },
     usersTable: { __t: "users" },
     documentsTable: { __t: "documents" },
@@ -44,10 +52,11 @@ const mock = vi.hoisted(() => {
     _table: unknown;
     _selectArg: unknown;
     _captured: Record<string, unknown> | null;
+    _where: unknown;
     select: (arg?: unknown) => Builder;
     from: (t: unknown) => Builder;
     $dynamic: () => Builder;
-    where: () => Builder;
+    where: (cond?: unknown) => Builder;
     limit: () => Builder;
     offset: () => Builder;
     orderBy: () => Builder;
@@ -58,6 +67,26 @@ const mock = vi.hoisted(() => {
     then: (onF: (v: unknown) => unknown, onR?: (e: unknown) => unknown) => Promise<unknown>;
   };
 
+  // Walk a (mocked) WHERE tree looking for an `eq(<col>, value)` on the named
+  // column. `eq`/`and` are mocked below to emit plain marker objects.
+  function findEqValue(where: unknown, colName: string): unknown {
+    if (!where || typeof where !== "object") return undefined;
+    const node = where as {
+      __cond?: string;
+      col?: { __col?: string };
+      val?: unknown;
+      conds?: unknown[];
+    };
+    if (node.__cond === "eq" && node.col?.__col === colName) return node.val;
+    if (node.__cond === "and" && Array.isArray(node.conds)) {
+      for (const c of node.conds) {
+        const found = findEqValue(c, colName);
+        if (found !== undefined) return found;
+      }
+    }
+    return undefined;
+  }
+
   function resolve(b: Builder): unknown {
     if (b._op === "select") {
       if (b._table === tables.listingsTable) {
@@ -66,7 +95,11 @@ const mock = vi.hoisted(() => {
         if (b._selectArg) return state.slugRows;
         return state.existingListing ? [state.existingListing] : [];
       }
-      if (b._table === tables.listingImagesTable) return state.images;
+      if (b._table === tables.listingImagesTable) {
+        // The route always reads images ordered by position; mirror that so the
+        // fake reflects any reordering writes that already landed.
+        return [...state.images].sort((a, c) => a.position - c.position);
+      }
       if (b._table === tables.usersTable) return [{ role: state.userRole }];
       return [];
     }
@@ -76,6 +109,17 @@ const mock = vi.hoisted(() => {
     }
     if (b._op === "update") {
       state.lastUpdateValues = b._captured;
+      // Image reorder: apply the new position to the row whose id matches the
+      // WHERE clause, leaving rows from other listings untouched. This lets the
+      // test assert the persisted order after a reorder request.
+      if (b._table === tables.listingImagesTable) {
+        const id = findEqValue(b._where, "id");
+        const img = state.images.find((i) => i.id === id);
+        if (img && b._captured && typeof b._captured.position === "number") {
+          img.position = b._captured.position;
+        }
+        return img ? [{ ...img }] : [];
+      }
       // Mirror Drizzle's .returning(): an UPDATE whose WHERE matched no row
       // yields no rows. With no existing listing, the update affects nothing.
       if (!state.existingListing) return [];
@@ -90,6 +134,7 @@ const mock = vi.hoisted(() => {
       _table: null,
       _selectArg: undefined,
       _captured: null,
+      _where: undefined,
       select(arg) {
         b._op = "select";
         b._selectArg = arg;
@@ -102,7 +147,8 @@ const mock = vi.hoisted(() => {
       $dynamic() {
         return b;
       },
-      where() {
+      where(cond) {
+        b._where = cond;
         return b;
       },
       limit() {
@@ -166,6 +212,18 @@ vi.mock("@workspace/db", () => ({
   db: mock.db,
   ...mock.tables,
 }));
+
+// Override drizzle's `eq`/`and` with plain marker objects so the fake db can
+// inspect WHERE clauses (which column equals which value). Every other export
+// (gte, lte, sql, desc, count, ...) is preserved unchanged.
+vi.mock("drizzle-orm", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("drizzle-orm")>();
+  return {
+    ...actual,
+    eq: (col: unknown, val: unknown) => ({ __cond: "eq", col, val }),
+    and: (...conds: unknown[]) => ({ __cond: "and", conds }),
+  };
+});
 
 const AUTH_USER = {
   id: "user-1",
@@ -820,6 +878,79 @@ describe("Listing photos surface in galleryImageUrls (regression guard)", () => 
       ORDERED_PHOTOS.map((p) => p.url)
     );
     expect(json.listings[0].coverImageUrl).toBe(ORDERED_PHOTOS[0].url);
+  });
+});
+
+describe("PATCH /listings/:listingId/images/order persists the new order", () => {
+  // Three images in their initial position order; id 11 starts as the cover.
+  const seedImages = () => [
+    { id: 11, listingId: 7, url: "https://cdn.example/a.jpg", position: 0 },
+    { id: 12, listingId: 7, url: "https://cdn.example/b.jpg", position: 1 },
+    { id: 13, listingId: 7, url: "https://cdn.example/c.jpg", position: 2 },
+  ];
+
+  it("returns the images in the requested order with the new first image as cover", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.images = seedImages();
+
+    // Move the last photo to the front: the gallery sequence and the cover
+    // (position 0) must follow the requested order exactly.
+    const res = await fetch(`${baseUrl}/listings/7/images/order`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageIds: [13, 11, 12] }),
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as Array<{
+      id: number;
+      url: string;
+      position: number;
+    }>;
+
+    expect(json.map((img) => img.id)).toEqual([13, 11, 12]);
+    expect(json.map((img) => img.position)).toEqual([0, 1, 2]);
+    // The new first image becomes the cover (position 0).
+    expect(json[0].id).toBe(13);
+    expect(json[0].position).toBe(0);
+
+    // The reorder is persisted: a follow-up detail read exposes the new cover
+    // and gallery sequence to buyers.
+    const detail = await fetch(
+      `${baseUrl}/listings/bel-appartement-lumineux-tel-aviv`
+    );
+    const detailJson = (await detail.json()) as {
+      listing: { galleryImageUrls: string[]; coverImageUrl: string | null };
+    };
+    expect(detailJson.listing.coverImageUrl).toBe("https://cdn.example/c.jpg");
+    expect(detailJson.listing.galleryImageUrls).toEqual([
+      "https://cdn.example/c.jpg",
+      "https://cdn.example/a.jpg",
+      "https://cdn.example/b.jpg",
+    ]);
+  });
+
+  it("ignores ids that don't belong to the listing and appends omitted images (no orphans)", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.images = seedImages();
+
+    // 999 is not one of this listing's images (must be ignored); image 11 and
+    // 12 are omitted from the request and must be appended after 13, not lost.
+    const res = await fetch(`${baseUrl}/listings/7/images/order`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageIds: [13, 999] }),
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as Array<{ id: number; position: number }>;
+
+    // The foreign id is dropped, every real image is still present, and the
+    // omitted ones are appended after the explicitly ordered one.
+    expect(json.map((img) => img.id)).toEqual([13, 11, 12]);
+    expect(json.map((img) => img.position)).toEqual([0, 1, 2]);
+    expect(json.map((img) => img.id)).not.toContain(999);
+    expect(json).toHaveLength(3);
   });
 });
 
