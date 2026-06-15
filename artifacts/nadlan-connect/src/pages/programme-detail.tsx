@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/layout/language-provider";
 import { DocumentManager } from "@/components/documents/document-manager";
+import { PhotoCarousel } from "@/components/photo-carousel";
 import { Building2, MapPin, ArrowRight } from "lucide-react";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useJsonLd } from "@/hooks/use-json-ld";
@@ -205,19 +206,18 @@ export default function ProgrammeDetail() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {projets.map((projet) => (
               <Card key={projet.id} className="overflow-hidden flex flex-col">
-                <div className="aspect-video bg-muted">
-                  {projet.coverImageUrl ? (
-                    <img
-                      src={`/api/storage${projet.coverImageUrl}`}
-                      alt={projet.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Building2 className="h-8 w-8 text-muted-foreground/40" />
-                    </div>
-                  )}
-                </div>
+                <PhotoCarousel
+                  className="aspect-video"
+                  alt={projet.title}
+                  images={
+                    projet.galleryImageUrls && projet.galleryImageUrls.length > 0
+                      ? projet.galleryImageUrls
+                      : projet.coverImageUrl
+                        ? [projet.coverImageUrl]
+                        : []
+                  }
+                  placeholder={<Building2 className="h-8 w-8 text-muted-foreground/40" />}
+                />
                 <CardContent className="p-4 flex flex-col flex-1">
                   <h3 className="font-medium text-primary truncate">{projet.title}</h3>
                   <p className="text-sm text-muted-foreground mb-1">
