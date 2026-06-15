@@ -227,11 +227,11 @@ export default function RegisterPromoteur() {
         <p className="text-[13px] text-muted-foreground mb-6">{t("proRegister.promoteur.subtitle")}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {renderField("companyName", t("proRegister.promoteur.companyName"), { required: true, autoComplete: "organization" })}
           {renderField("firstName", t("proRegister.firstName"), { required: true, autoComplete: "given-name" })}
           {renderField("lastName", t("proRegister.lastName"), { required: true, autoComplete: "family-name" })}
           {renderField("email", t("proRegister.email"), { required: true, type: "email", autoComplete: "email" })}
           {renderField("phone", t("proRegister.phone"), { type: "tel", autoComplete: "tel" })}
-          {renderField("companyName", t("proRegister.promoteur.companyName"), { required: true, autoComplete: "organization" })}
           {renderField("companyNumber", t("proRegister.promoteur.companyNumber"), {
             required: true,
             placeholder: t("proRegister.promoteur.companyNumberPlaceholder"),
