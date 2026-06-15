@@ -84,7 +84,6 @@ export default function RegisterAgence() {
     if (!form.lastName) errs.lastName = true;
     if (!form.email) errs.email = true;
     if (!form.companyName) errs.companyName = true;
-    if (!form.licenseNumber) errs.licenseNumber = true;
     if (!form.ville) errs.ville = true;
     if (!form.nbAgents) errs.nbAgents = true;
     if (!form.password) errs.password = true;
@@ -201,7 +200,7 @@ export default function RegisterAgence() {
     {
       id: "free",
       name: t("proRegister.planFree"),
-      price: "0₪",
+      price: "0",
       recommended: false,
       features: [
         t("proRegister.plan.free.f1"),
@@ -213,7 +212,7 @@ export default function RegisterAgence() {
     {
       id: "pro",
       name: t("proRegister.planPro"),
-      price: "49₪",
+      price: "49",
       recommended: true,
       features: [
         t("proRegister.plan.pro.f1"),
@@ -247,7 +246,6 @@ export default function RegisterAgence() {
           {renderField("phone", t("proRegister.phone"), { type: "tel", autoComplete: "tel" })}
           {renderField("companyName", t("proRegister.agence.companyName"), { required: true, autoComplete: "organization" })}
           {renderField("licenseNumber", t("proRegister.agence.licenseNumber"), {
-            required: true,
             help: t("proRegister.agence.licenseHelp"),
           })}
           {renderField("ville", t("proRegister.ville"), { required: true, autoComplete: "address-level2" })}
@@ -321,7 +319,7 @@ export default function RegisterAgence() {
                     )}
                     <div className="text-[14px] font-medium" style={{ color: NAVY }}>{plan.name}</div>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}</span>
+                      <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span></span>
                       {plan.id === "pro" && (
                         <span className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</span>
                       )}
