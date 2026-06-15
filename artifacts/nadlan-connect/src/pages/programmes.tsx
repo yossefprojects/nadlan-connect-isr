@@ -13,10 +13,13 @@ import { CITIES } from "@/data/villes";
 
 const ALL = "__all__";
 
+type SortKey = "newest" | "projets" | "az";
+
 export default function Programmes() {
   const { t } = useLanguage();
   const [ville, setVille] = useState<string>(ALL);
   const [keyword, setKeyword] = useState("");
+  const [sort, setSort] = useState<SortKey>("newest");
 
   const { data: programs, isLoading } = useListPrograms();
 
@@ -29,7 +32,7 @@ export default function Programmes() {
   const filtered = useMemo(() => {
     if (!programs) return [];
     const kw = keyword.trim().toLowerCase();
-    return programs.filter((p) => {
+    const result = programs.filter((p) => {
       if (ville !== ALL && p.ville !== ville) return false;
       if (kw) {
         const haystack = `${p.title} ${p.ville} ${p.quartier ?? ""}`.toLowerCase();
@@ -37,7 +40,13 @@ export default function Programmes() {
       }
       return true;
     });
-  }, [programs, ville, keyword]);
+    result.sort((a, b) => {
+      if (sort === "projets") return (b.projetsCount ?? 0) - (a.projetsCount ?? 0);
+      if (sort === "az") return a.title.localeCompare(b.title);
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    return result;
+  }, [programs, ville, keyword, sort]);
 
   const count = filtered.length;
 
@@ -102,6 +111,22 @@ export default function Programmes() {
                 className="h-11 rounded-xl border-[1.5px] bg-[#FAFCFA] ps-9 focus-visible:border-[#1A3A5C] focus-visible:ring-0"
               />
             </div>
+          </div>
+
+          <div className="flex-1 space-y-1.5 md:max-w-[200px]">
+            <label className="text-xs font-medium text-muted-foreground">
+              {t("publicPrograms.sortBy")}
+            </label>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+              <SelectTrigger className="h-11 rounded-xl border-[1.5px] bg-[#FAFCFA] focus:border-[#1A3A5C] focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">{t("publicPrograms.sortNewest")}</SelectItem>
+                <SelectItem value="projets">{t("publicPrograms.sortProjets")}</SelectItem>
+                <SelectItem value="az">{t("publicPrograms.sortAz")}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button className="h-11 gap-2 rounded-xl bg-[#1A3A5C] px-8 text-white shadow-[0_4px_12px_rgba(26,58,92,0.25)] hover:bg-[#2A5080]">
