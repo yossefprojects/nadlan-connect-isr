@@ -9,10 +9,18 @@ const NAVY = "#0D1B3E";
 const GOLD = "#C9A84C";
 
 type RoleId = "promoteur" | "agence" | "apporteur";
+type PlanId = "free" | "starter" | "pro";
 type FieldKey =
   | "firstName" | "lastName" | "email" | "phone"
   | "companyName" | "companyNumber" | "licenseNumber"
   | "ville" | "nbProgrammes" | "nbAgents" | "website";
+
+// Default plan selected for each role (the role's first/cheapest tier).
+const DEFAULT_PLAN: Record<RoleId, PlanId> = {
+  promoteur: "free",
+  apporteur: "starter",
+  agence: "free",
+};
 
 const SPECIALTIES = [
   "residentiel_neuf",
@@ -55,6 +63,24 @@ const CONTENT = {
     licenseHelp: "Licence de courtier obligatoire pour une agence en Israël (loi 5756-1996). Vérifiée avant l'activation.",
     submit: { promoteur: "Créer mon compte promoteur", agence: "Créer mon compte agence", apporteur: "Créer mon compte apporteur" },
     successText: "Votre demande est enregistrée. Nous la vérifions et activons votre accès sous 24 heures.",
+    plans: {
+      promoteur: [
+        { id: "free", name: "Gratuit", price: "0", per: "", note: "", recommended: false,
+          features: ["Profil promoteur vérifié", "Publication de vos programmes", "Réception de leads acheteurs"] },
+        { id: "pro", name: "Pro", price: "490", per: "/mois", note: "", recommended: true,
+          features: ["Tout le plan Gratuit", "Accès aux projets luxueux", "Mise en avant prioritaire", "Badge Pro vérifié"] },
+      ],
+      apporteur: [
+        { id: "starter", name: "3 projets", price: "499", per: "", note: "Sans engagement", recommended: false,
+          features: ["Publication de 3 projets", "Offres des promoteurs", "Mise en relation sécurisée"] },
+        { id: "pro", name: "Illimité", price: "990", per: "", note: "Sans engagement", recommended: true,
+          features: ["Projets illimités", "Offres des promoteurs", "Mise en relation sécurisée", "Mise en avant prioritaire"] },
+      ],
+      agence: [
+        { id: "free", name: "Gratuit", price: "0", per: "", note: "", recommended: false,
+          features: ["Profil agence vérifié", "Mandats de revente des promoteurs", "Commission sur les ventes"] },
+      ],
+    },
   },
   en: {
     title: "Become a partner",
@@ -70,6 +96,24 @@ const CONTENT = {
     licenseHelp: "A broker licence is required for an agency in Israel (law 5756-1996). Verified before activation.",
     submit: { promoteur: "Create my developer account", agence: "Create my agency account", apporteur: "Create my introducer account" },
     successText: "Your application has been received. We verify it and activate your access within 24 hours.",
+    plans: {
+      promoteur: [
+        { id: "free", name: "Free", price: "0", per: "", note: "", recommended: false,
+          features: ["Verified developer profile", "Publish your developments", "Receive buyer leads"] },
+        { id: "pro", name: "Pro", price: "490", per: "/mo", note: "", recommended: true,
+          features: ["Everything in Free", "Access to luxury projects", "Priority placement", "Verified Pro badge"] },
+      ],
+      apporteur: [
+        { id: "starter", name: "3 projects", price: "499", per: "", note: "No commitment", recommended: false,
+          features: ["Publish 3 projects", "Offers from developers", "Secure introductions"] },
+        { id: "pro", name: "Unlimited", price: "990", per: "", note: "No commitment", recommended: true,
+          features: ["Unlimited projects", "Offers from developers", "Secure introductions", "Priority placement"] },
+      ],
+      agence: [
+        { id: "free", name: "Free", price: "0", per: "", note: "", recommended: false,
+          features: ["Verified agency profile", "Resale mandates from developers", "Commission on sales"] },
+      ],
+    },
   },
   he: {
     title: "הצטרפות כשותף",
@@ -85,6 +129,24 @@ const CONTENT = {
     licenseHelp: "רישיון תיווך נדרש לסוכנות בישראל (חוק התשנ\"ו-1996). יאומת לפני הפעלת החשבון.",
     submit: { promoteur: "פתיחת חשבון יזם", agence: "פתיחת חשבון סוכנות", apporteur: "פתיחת חשבון צייד" },
     successText: "הבקשה התקבלה. אנו מאמתים אותה ומפעילים את הגישה תוך 24 שעות.",
+    plans: {
+      promoteur: [
+        { id: "free", name: "חינם", price: "0", per: "", note: "", recommended: false,
+          features: ["פרופיל יזם מאומת", "פרסום הפרויקטים שלכם", "קבלת לידים של קונים"] },
+        { id: "pro", name: "Pro", price: "490", per: "/חודש", note: "", recommended: true,
+          features: ["כל מה שכלול בחינם", "גישה לפרויקטים יוקרתיים", "מיקום מועדף", "תג Pro מאומת"] },
+      ],
+      apporteur: [
+        { id: "starter", name: "3 פרויקטים", price: "499", per: "", note: "ללא התחייבות", recommended: false,
+          features: ["פרסום 3 פרויקטים", "הצעות מיזמים", "חיבור מאובטח"] },
+        { id: "pro", name: "ללא הגבלה", price: "990", per: "", note: "ללא התחייבות", recommended: true,
+          features: ["פרויקטים ללא הגבלה", "הצעות מיזמים", "חיבור מאובטח", "מיקום מועדף"] },
+      ],
+      agence: [
+        { id: "free", name: "חינם", price: "0", per: "", note: "", recommended: false,
+          features: ["פרופיל סוכנות מאומת", "מנדטי מכירה מיזמים", "עמלה על מכירות"] },
+      ],
+    },
   },
 } as const;
 
@@ -98,9 +160,8 @@ export default function RegisterPro() {
   // Preselect the role from the path (legacy links /auth/register/promoteur|agence).
   const [, agenceRoute] = useRoute("/auth/register/agence");
   const [, apporteurRoute] = useRoute("/auth/register/apporteur");
-  const [role, setRole] = useState<RoleId>(
-    apporteurRoute ? "apporteur" : agenceRoute ? "agence" : "promoteur",
-  );
+  const initialRole: RoleId = apporteurRoute ? "apporteur" : agenceRoute ? "agence" : "promoteur";
+  const [role, setRole] = useState<RoleId>(initialRole);
 
   const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -118,7 +179,7 @@ export default function RegisterPro() {
     nbProgrammes: "",
     nbAgents: "",
     website: "",
-    plan: "free" as "free" | "pro",
+    plan: DEFAULT_PLAN[initialRole] as PlanId,
     password: "",
     cgu: false,
   });
@@ -265,12 +326,10 @@ export default function RegisterPro() {
     { id: "agence", icon: Handshake },
   ];
 
-  const plans: { id: "free" | "pro"; name: string; price: string; recommended: boolean; features: string[] }[] = [
-    { id: "free", name: t("proRegister.planFree"), price: "0", recommended: false,
-      features: [t("proRegister.plan.free.f1"), t("proRegister.plan.free.f2"), t("proRegister.plan.free.f3"), t("proRegister.plan.free.f4")] },
-    { id: "pro", name: t("proRegister.planPro"), price: "49", recommended: true,
-      features: [t("proRegister.plan.pro.f1"), t("proRegister.plan.pro.f2"), t("proRegister.plan.pro.f3"), t("proRegister.plan.pro.f4"), t("proRegister.plan.pro.f5"), t("proRegister.plan.pro.f6")] },
-  ];
+  const plans = L.plans[role] as readonly {
+    id: PlanId; name: string; price: string; per: string; note: string;
+    recommended: boolean; features: readonly string[];
+  }[];
 
   return (
     <div className="py-10 px-5 flex justify-center" style={{ backgroundColor: "#F7F5F0", minHeight: "100vh" }}>
@@ -290,7 +349,7 @@ export default function RegisterPro() {
               <button
                 type="button"
                 key={id}
-                onClick={() => setRole(id)}
+                onClick={() => { setRole(id); setField("plan", DEFAULT_PLAN[id]); }}
                 aria-pressed={selected}
                 className="flex items-start gap-3 rounded-xl p-3.5 text-start transition-colors"
                 style={{ border: selected ? "2px solid #0D1B3E" : "0.5px solid rgba(0,0,0,0.15)", background: selected ? "#F7F5F0" : "#fff" }}
@@ -350,13 +409,13 @@ export default function RegisterPro() {
 
           <div>
             <span className={labelCls}>{t("proRegister.choosePlan")} *</span>
-            <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
+            <div className={plans.length > 1 ? "grid grid-cols-1 min-[480px]:grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
               {plans.map((plan) => {
                 const selected = form.plan === plan.id;
                 return (
                   <button type="button" key={plan.id} onClick={() => setField("plan", plan.id)} aria-pressed={selected} className="text-start transition-colors"
                     style={{ borderRadius: "10px", padding: "20px", position: "relative", background: selected ? "#F7F5F0" : "#fff",
-                      border: selected ? "2px solid #0D1B3E" : plan.id === "pro" ? "2px solid #C9A84C" : "0.5px solid rgba(0,0,0,0.12)" }}>
+                      border: selected ? "2px solid #0D1B3E" : plan.recommended ? "2px solid #C9A84C" : "0.5px solid rgba(0,0,0,0.12)" }}>
                     {plan.recommended && (
                       <span style={{ position: "absolute", top: 0, insetInlineEnd: 0, background: GOLD, color: NAVY, fontSize: "11px", borderRadius: "0 10px 0 8px", padding: "4px 10px" }}>
                         {t("proRegister.recommended")}
@@ -365,8 +424,9 @@ export default function RegisterPro() {
                     <div className="text-[14px] font-medium" style={{ color: NAVY }}>{plan.name}</div>
                     <div className="mt-1 flex items-baseline gap-1">
                       <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span></span>
-                      {plan.id === "pro" && <span className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</span>}
+                      {plan.per && <span className="text-xs text-muted-foreground">{plan.per}</span>}
                     </div>
+                    {plan.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: GOLD }}>{plan.note}</div>}
                     <ul className="mt-3 space-y-1.5">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-start gap-1.5 text-[12px]">
