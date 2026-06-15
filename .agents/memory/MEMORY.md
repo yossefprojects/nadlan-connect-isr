@@ -10,6 +10,7 @@
 - [Workspace composite tsconfig gotcha](workspace-composite-typecheck.md) — a lib tsconfig missing composite/declarationMap/emitDeclarationOnly aborts the WHOLE `pnpm run typecheck` with TS6306, masking real downstream type errors.
 - [Branded PDF export](react-pdf-fonts.md) — client-side @react-pdf reports; fonts MUST be static TTF (not woff/variable), lazy-import the module, Helvetica fallback for body.
 - [Demolition address confidentiality](nadlan-demolition-confidentiality.md) — exact address/coords reach only the single chosen+validated promoter; enforce one-validated-connection-per-listing; isOwner is its own flag.
+- [Vitest transform-heavy import in beforeAll](vitest-transform-hook-timeout.md) — move route imports to top-level await (not inside beforeAll) or the transform races the hook timeout under load; post-merge timeout must stay generous.
 - [Demolition offer scoring](demolition-offer-scoring.md) — weighted 40/30/20/10 relative score; lower-is-better metrics MUST use min-max so startDelay=0 (immediate) is rewarded, not penalized.
 - [NadlanConnect header layout](nadlan-navbar-layout.md) — global navbar position is route-conditional (fixed on home for transparent-over-hero, sticky elsewhere); never make it globally fixed (overlays all pages).
 - [Testing @react-pdf documents](react-pdf-testing.md) — react-test-renderer toJSON returns null for @react-pdf string primitives under React 19; walk the element tree manually instead.
