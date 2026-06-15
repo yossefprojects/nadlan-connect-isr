@@ -239,8 +239,13 @@ let currentUser: typeof AUTH_USER | null = AUTH_USER;
 let server: Server;
 let baseUrl: string;
 
+// Import the router at top level (collection phase) rather than inside beforeAll.
+// vi.mock("@workspace/db") is hoisted above this, so the mock is already in place.
+// Doing the (transform-heavy) import here keeps it out of the timed beforeAll hook,
+// which otherwise flakily times out when vitest's transform is slow under load.
+const listingsRouter = (await import("./listings.js")).default;
+
 beforeAll(async () => {
-  const listingsRouter = (await import("./listings.js")).default;
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => {
@@ -261,10 +266,12 @@ beforeAll(async () => {
   });
   const { port } = server.address() as AddressInfo;
   baseUrl = `http://127.0.0.1:${port}`;
-});
+}, 30000);
 
 afterAll(async () => {
-  await new Promise<void>((resolve) => server.close(() => resolve()));
+  if (server) {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
 });
 
 beforeEach(() => {
