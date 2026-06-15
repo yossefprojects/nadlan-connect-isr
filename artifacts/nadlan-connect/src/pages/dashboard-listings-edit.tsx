@@ -127,9 +127,16 @@ export default function DashboardListingsEdit() {
   };
 
   const uploadOne = async (item: PendingUpload, position: number): Promise<boolean> => {
-    setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "uploading" } : u)));
+    setUploads((prev) =>
+      prev.map((u) => (u.key === item.key ? { ...u, status: "uploading", progress: 0 } : u))
+    );
     try {
-      const uploadRes = await uploadFile(item.file);
+      const uploadRes = await uploadFile(item.file, {
+        onProgress: (pct) =>
+          setUploads((prev) =>
+            prev.map((u) => (u.key === item.key ? { ...u, progress: pct } : u))
+          ),
+      });
       if (!uploadRes?.objectPath) throw new Error("upload failed");
       await addListingImage.mutateAsync({
         listingId,

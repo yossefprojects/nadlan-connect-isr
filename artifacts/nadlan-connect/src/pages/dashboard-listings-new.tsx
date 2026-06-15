@@ -55,6 +55,9 @@ export default function DashboardListingsNew() {
   const setPhotoStatus = (key: string, status: PhotoItem["status"]) =>
     setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, status } : p)));
 
+  const setPhotoProgress = (key: string, progress: number) =>
+    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, progress } : p)));
+
   const handleAddPhotos = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const added = Array.from(files).map((file, i) => ({
@@ -115,8 +118,11 @@ export default function DashboardListingsNew() {
 
       for (const photo of toUpload) {
         setPhotoStatus(photo.key, "uploading");
+        setPhotoProgress(photo.key, 0);
         try {
-          const uploadRes = await uploadFile(photo.file);
+          const uploadRes = await uploadFile(photo.file, {
+            onProgress: (pct) => setPhotoProgress(photo.key, pct),
+          });
           if (!uploadRes?.objectPath) throw new Error("upload failed");
           await addListingImage.mutateAsync({
             listingId,

@@ -8,6 +8,8 @@ export interface PhotoItem {
   url: string;
   /** undefined / "done" = ready. "uploading" and "error" are transient batch states. */
   status?: "uploading" | "error" | "done";
+  /** Per-file upload progress (0–100) while status is "uploading". */
+  progress?: number;
 }
 
 interface Props {
@@ -80,9 +82,21 @@ export function ListingPhotoGrid({ photos, onReorder, onDelete, onRetry, disable
             />
 
             {isUploading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs font-medium text-foreground">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-3 text-xs font-medium text-foreground">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span>{t("listingForm.photoUploading")}</span>
+                {typeof photo.progress === "number" ? (
+                  <>
+                    <span>{photo.progress}%</span>
+                    <div className="h-1.5 w-3/4 overflow-hidden rounded-full bg-foreground/15">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-150"
+                        style={{ width: `${photo.progress}%` }}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <span>{t("listingForm.photoUploading")}</span>
+                )}
               </div>
             )}
 
