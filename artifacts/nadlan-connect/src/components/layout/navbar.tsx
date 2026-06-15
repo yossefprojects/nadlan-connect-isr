@@ -46,6 +46,9 @@ export function Navbar() {
       navItems.push({ label: t("nav.myLeads"), href: "/leads" });
     } else if (role === "agent" || role === "introducer" || role === "developer") {
       navItems.push({ label: t("nav.dashboard"), href: "/dashboard" });
+      if (role === "agent") {
+        navItems.push({ label: t("demo.reventes.nav"), href: "/demolition/reventes" });
+      }
     } else if (role === "admin") {
       navItems.push({ label: t("nav.admin"), href: "/admin" });
     }

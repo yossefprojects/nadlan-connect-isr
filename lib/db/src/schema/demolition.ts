@@ -45,6 +45,14 @@ export const demolitionListingsTable = pgTable("demolition_listings", {
   status: text("status").notNull().default("pending"),
   // Winning offer once the owner accepts; set together with status='offer_locked'.
   acceptedOfferId: integer("accepted_offer_id"),
+  // Resale mandate: once a listing is 'offer_locked', the winning promoter (the
+  // promoter of the accepted offer) can mandate a licensed agence to handle the
+  // resale of the acquired project. resaleAgentId references the agence's user id
+  // (usersTable, role='agent'); resaleStatus is null until a mandate is given.
+  resaleAgentId: text("resale_agent_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
+  resaleStatus: text("resale_status"), // null | 'mandated'
   isPaid: boolean("is_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

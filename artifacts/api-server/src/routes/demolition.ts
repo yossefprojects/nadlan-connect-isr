@@ -6,6 +6,7 @@ import {
   demolitionOffersTable,
   demolitionConnectionsTable,
   usersTable,
+  profilesTable,
 } from "@workspace/db";
 import { eq, and, desc, or, sql, ne } from "drizzle-orm";
 import {
@@ -29,6 +30,7 @@ import {
   sendConnectionValidatedEmail,
   sendOfferAcceptedEmail,
   sendOfferRejectedEmail,
+  sendResaleMandateEmail,
 } from "../lib/email";
 import { geocodeAddress, fuzzCoords, APPROX_RADIUS_M } from "../lib/geocode";
 
@@ -51,6 +53,7 @@ function serializeListing(
   offerCount = 0,
   reveal = false,
   isOwner = false,
+  extra: { isWinningPromoter?: boolean; resaleAgentName?: string | null } = {},
 ) {
   return {
     id: listing.id,
@@ -72,6 +75,13 @@ function serializeListing(
     ownerPhone: reveal ? listing.ownerPhone : null,
     status: listing.status,
     acceptedOfferId: listing.acceptedOfferId,
+    // Resale mandate (set once the winning promoter mandates an agence).
+    resaleAgentId: listing.resaleAgentId,
+    resaleStatus: listing.resaleStatus,
+    resaleAgentName: extra.resaleAgentName ?? null,
+    // True only when the authenticated viewer is the promoter of the accepted
+    // offer — gates the "mandate an agence for resale" action on the frontend.
+    isWinningPromoter: extra.isWinningPromoter ?? false,
     isPaid: listing.isPaid,
     offerCount,
     createdAt: listing.createdAt.toISOString(),
@@ -303,6 +313,24 @@ async function getRole(userId: string): Promise<string | undefined> {
     .where(eq(usersTable.id, userId))
     .limit(1);
   return rows[0]?.role ?? undefined;
+}
+
+// Resolve an agence's display name: its B2B profile company name (matched by
+// email), falling back to the auth user's name or email. Used wherever a
+// mandated resale agence must be shown.
+async function resolveAgenceName(userId: string): Promise<string | null> {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+  if (!user) return null;
+  const [prof] = await db
+    .select({ companyName: profilesTable.companyName })
+    .from(profilesTable)
+    .where(eq(profilesTable.email, user.email))
+    .limit(1);
+  return prof?.companyName ?? promoterDisplayName(user) ?? user.email;
 }
 
 // GET /demolition/listings — public browse of active buildings
@@ -537,8 +565,28 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     countOffers([listing.id]),
   ]);
 
+  // Is the viewer the winning promoter (promoter of the accepted offer)? This
+  // gates the "mandate an agence for resale" action. Also resolve the mandated
+  // agence's display name when a resale mandate already exists.
+  let isWinningPromoter = false;
+  let resaleAgentName: string | null = null;
+  if (req.isAuthenticated() && listing.acceptedOfferId) {
+    const [accepted] = await db
+      .select({ promoterId: demolitionOffersTable.promoterId })
+      .from(demolitionOffersTable)
+      .where(eq(demolitionOffersTable.id, listing.acceptedOfferId))
+      .limit(1);
+    if (accepted && accepted.promoterId === req.user!.id) isWinningPromoter = true;
+  }
+  if (listing.resaleAgentId) {
+    resaleAgentName = await resolveAgenceName(listing.resaleAgentId);
+  }
+
   res.json({
-    listing: serializeListing(listing, counts.get(listing.id) ?? 0, reveal, isViewerOwner),
+    listing: serializeListing(listing, counts.get(listing.id) ?? 0, reveal, isViewerOwner, {
+      isWinningPromoter,
+      resaleAgentName,
+    }),
     documents: documents.map(serializeDocument),
   });
 });
@@ -1182,6 +1230,182 @@ router.patch(
 
     res.json(
       serializeConnection(conn, { promoter, listing, includeAddress: true }),
+    );
+  },
+);
+
+// GET /demolition/agences — directory of registered agences a winning promoter
+// can mandate for resale. Joins auth users (role='agent') with their B2B profile
+// (matched by email) for company / ville / specialties, flagging the licence-
+// verified ones. No contact details are exposed here (directory only).
+router.get("/demolition/agences", requireAuth, async (_req, res): Promise<void> => {
+  const rows = await db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      fullName: usersTable.fullName,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      companyName: profilesTable.companyName,
+      ville: profilesTable.ville,
+      specialties: profilesTable.specialties,
+      licenceStatut: profilesTable.licenceStatut,
+    })
+    .from(usersTable)
+    .innerJoin(profilesTable, eq(profilesTable.email, usersTable.email))
+    .where(eq(usersTable.role, "agent"))
+    .orderBy(profilesTable.companyName);
+
+  res.json(
+    rows.map((r) => ({
+      id: r.id,
+      name:
+        r.companyName ??
+        r.fullName ??
+        (r.firstName && r.lastName ? `${r.firstName} ${r.lastName}` : r.email),
+      ville: r.ville,
+      specialties: r.specialties ?? [],
+      verified: r.licenceStatut === "verifie",
+    })),
+  );
+});
+
+// POST /demolition/listings/:listingId/resale — the winning promoter mandates a
+// licensed agence to resell the acquired project. Only the promoter of the
+// accepted offer may mandate, and only once the listing is 'offer_locked'.
+router.post(
+  "/demolition/listings/:listingId/resale",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const listingId = Number(req.params.listingId);
+    const agentId =
+      typeof req.body?.agentId === "string" ? req.body.agentId.trim() : "";
+    if (!Number.isInteger(listingId) || listingId <= 0 || !agentId) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+
+    const [listing] = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.id, listingId))
+      .limit(1);
+    if (!listing) {
+      res.status(404).json({ error: "Listing not found" });
+      return;
+    }
+    if (listing.status !== "offer_locked" || !listing.acceptedOfferId) {
+      res
+        .status(409)
+        .json({ error: "La revente n'est possible qu'une fois une offre acceptée." });
+      return;
+    }
+
+    // Authorize: the caller must be the promoter of the accepted offer.
+    const [accepted] = await db
+      .select({ promoterId: demolitionOffersTable.promoterId })
+      .from(demolitionOffersTable)
+      .where(eq(demolitionOffersTable.id, listing.acceptedOfferId))
+      .limit(1);
+    if (!accepted || accepted.promoterId !== req.user!.id) {
+      res
+        .status(403)
+        .json({ error: "Seul le promoteur retenu peut mandater une agence." });
+      return;
+    }
+
+    // The mandated agence must be a registered agence (role='agent').
+    const [agent] = await db
+      .select()
+      .from(usersTable)
+      .where(and(eq(usersTable.id, agentId), eq(usersTable.role, "agent")))
+      .limit(1);
+    if (!agent) {
+      res.status(404).json({ error: "Agence introuvable." });
+      return;
+    }
+
+    const [updated] = await db
+      .update(demolitionListingsTable)
+      .set({ resaleAgentId: agentId, resaleStatus: "mandated" })
+      .where(eq(demolitionListingsTable.id, listingId))
+      .returning();
+
+    // Best-effort notification to the mandated agence (never block the response).
+    const agenceName = await resolveAgenceName(agentId);
+    const [promoter] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, req.user!.id))
+      .limit(1);
+    void sendResaleMandateEmail({
+      agentName: agenceName,
+      agentEmail: agent.email,
+      promoterName: promoterDisplayName(promoter),
+      promoterCompany: promoter?.company ?? null,
+      buildingCity: listing.city,
+      buildingNeighborhood: listing.neighborhood,
+    });
+
+    const counts = await countOffers([listingId]);
+    res.json(
+      serializeListing(updated ?? listing, counts.get(listingId) ?? 0, true, false, {
+        isWinningPromoter: true,
+        resaleAgentName: agenceName,
+      }),
+    );
+  },
+);
+
+// GET /demolition/resale/assigned — projects a mandated agence must resell.
+// Each project is returned with its (revealed) address and the winning
+// promoter's contact so the agence can coordinate the resale.
+router.get(
+  "/demolition/resale/assigned",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const listings = await db
+      .select()
+      .from(demolitionListingsTable)
+      .where(eq(demolitionListingsTable.resaleAgentId, req.user!.id))
+      .orderBy(desc(demolitionListingsTable.updatedAt));
+
+    if (listings.length === 0) {
+      res.json([]);
+      return;
+    }
+
+    // Resolve each project's winning promoter (promoter of the accepted offer).
+    const offerIds = listings
+      .map((l) => l.acceptedOfferId)
+      .filter((id): id is number => typeof id === "number");
+    const offers = offerIds.length
+      ? await db
+          .select()
+          .from(demolitionOffersTable)
+          .where(or(...offerIds.map((id) => eq(demolitionOffersTable.id, id))))
+      : [];
+    const offerById = new Map(offers.map((o) => [o.id, o]));
+    const promoterIds = [...new Set(offers.map((o) => o.promoterId))];
+    const promoters = promoterIds.length
+      ? await db
+          .select()
+          .from(usersTable)
+          .where(or(...promoterIds.map((id) => eq(usersTable.id, id))))
+      : [];
+    const promoterMap = new Map(promoters.map((p) => [p.id, p]));
+
+    res.json(
+      listings.map((l) => {
+        const offer = l.acceptedOfferId ? offerById.get(l.acceptedOfferId) : null;
+        const promoter = offer ? promoterMap.get(offer.promoterId) : null;
+        return {
+          listing: serializeListing(l, 0, true, false),
+          promoterName: promoterDisplayName(promoter),
+          promoterEmail: promoter?.email ?? null,
+          promoterCompany: promoter?.company ?? null,
+        };
+      }),
     );
   },
 );

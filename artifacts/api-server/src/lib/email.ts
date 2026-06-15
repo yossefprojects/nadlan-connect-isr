@@ -267,3 +267,43 @@ export async function sendOfferRejectedEmail(
     logger.error({ err }, "Failed to send offer-rejected email to promoter");
   }
 }
+
+interface ResaleMandateEmailData {
+  agentName: string | null;
+  agentEmail: string;
+  promoterName: string | null;
+  promoterCompany: string | null;
+  buildingCity: string;
+  buildingNeighborhood: string | null;
+}
+
+/**
+ * Notify an agence that a winning promoter mandated them to resell an acquired
+ * project. Best-effort: callers should not block their HTTP response on this.
+ */
+export async function sendResaleMandateEmail(
+  data: ResaleMandateEmailData,
+): Promise<void> {
+  if (!data.agentEmail) return;
+  const name = data.agentName ?? "Chère agence";
+  const location = data.buildingNeighborhood
+    ? `${data.buildingNeighborhood}, ${data.buildingCity}`
+    : data.buildingCity;
+  const promoter = data.promoterCompany
+    ? `${data.promoterName ?? "Un promoteur"} (${data.promoterCompany})`
+    : data.promoterName ?? "Un promoteur";
+  try {
+    await sendEmail({
+      to: data.agentEmail,
+      subject: `Mandat de revente — ${location}`,
+      html: offerEmailShell(
+        `Bonjour ${name},`,
+        `<p style="font-size:15px;"><strong>${promoter}</strong> vous a <strong>mandatée pour la revente</strong> d'un projet immobilier situé à <strong>${location}</strong>.</p>
+         <p style="font-size:15px;">Connectez-vous à votre espace NadlanConnect, rubrique <strong>« Projets à revendre »</strong>, pour consulter le détail du projet et les coordonnées du promoteur.</p>`,
+      ),
+      text: `Bonjour ${name},\n\n${promoter} vous a mandatée pour la revente d'un projet immobilier situé à ${location}.\n\nConnectez-vous à votre espace NadlanConnect, rubrique « Projets à revendre », pour consulter le détail du projet et les coordonnées du promoteur.`,
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to send resale-mandate email to agence");
+  }
+}

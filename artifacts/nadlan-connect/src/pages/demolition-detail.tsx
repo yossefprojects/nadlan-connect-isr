@@ -8,7 +8,7 @@ import {
   getListDemolitionOffersQueryKey,
   customFetch,
 } from "@workspace/api-client-react";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -107,6 +107,46 @@ export default function DemolitionDetail() {
     if (!window.confirm(t("demo.offer.confirmAccept"))) return;
     acceptOffer.mutate(offerId);
   };
+
+  // --- Resale mandate: the winning promoter mandates an agence to resell the
+  // acquired project (fields/endpoints are not in the generated client). ---
+  const resaleListing = detail?.listing as
+    | { isWinningPromoter?: boolean; resaleAgentId?: string | null; status?: string }
+    | undefined;
+  const canMandateResale =
+    Boolean(resaleListing?.isWinningPromoter) &&
+    resaleListing?.status === "offer_locked";
+  const [selectedAgent, setSelectedAgent] = useState("");
+  const { data: agences } = useQuery({
+    queryKey: ["demolition-agences"],
+    queryFn: () =>
+      customFetch<
+        Array<{
+          id: string;
+          name: string;
+          ville: string | null;
+          specialties: string[];
+          verified: boolean;
+        }>
+      >(`/demolition/agences`, { method: "GET" }),
+    enabled: canMandateResale && !resaleListing?.resaleAgentId,
+  });
+  const mandateResale = useMutation({
+    mutationFn: (agentId: string) =>
+      customFetch(`/demolition/listings/${listingId}/resale`, {
+        method: "POST",
+        body: JSON.stringify({ agentId }),
+      }),
+    onSuccess: () => {
+      toast({ title: t("demo.resale.mandatedToast") });
+      setSelectedAgent("");
+      queryClient.invalidateQueries({
+        queryKey: getGetDemolitionListingQueryKey(listingId),
+      });
+    },
+    onError: () =>
+      toast({ title: t("demo.resale.error"), variant: "destructive" }),
+  });
 
   const [offerForm, setOfferForm] = useState({
     // Financial
@@ -224,6 +264,12 @@ export default function DemolitionDetail() {
   }
 
   const { listing, documents } = detail;
+  const resale = listing as typeof listing & {
+    isWinningPromoter?: boolean;
+    resaleAgentId?: string | null;
+    resaleStatus?: string | null;
+    resaleAgentName?: string | null;
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F7F4]">
@@ -566,6 +612,59 @@ export default function DemolitionDetail() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Resale mandate — the winning promoter mandates an agence to resell */}
+          {resale.isWinningPromoter && listing.status === "offer_locked" && (
+            <section className="rounded-2xl border border-[#C9A84C]/40 bg-card p-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <Handshake className="h-5 w-5 text-[#C9A84C]" />
+                <h2 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.resale.title")}</h2>
+              </div>
+              {resale.resaleAgentId ? (
+                <div className="mt-4 flex items-start gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span dir="auto">
+                    {t("demo.resale.mandated")}
+                    {resale.resaleAgentName ? ` — ${resale.resaleAgentName}` : ""}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("demo.resale.subtitle")}</p>
+                  {!agences || agences.length === 0 ? (
+                    <p className="mt-4 text-sm text-muted-foreground">{t("demo.resale.noAgences")}</p>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                        <SelectTrigger><SelectValue placeholder={t("demo.resale.choose")} /></SelectTrigger>
+                        <SelectContent>
+                          {agences.map((a) => (
+                            <SelectItem key={a.id} value={a.id}>
+                              <span dir="auto">
+                                {a.name}{a.ville ? ` — ${a.ville}` : ""}{a.verified ? " ✓" : ""}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        disabled={!selectedAgent || mandateResale.isPending}
+                        onClick={() => mandateResale.mutate(selectedAgent)}
+                        className="w-full bg-[#C9A84C] text-[#0F2235] hover:bg-[#E8C96A]"
+                      >
+                        {mandateResale.isPending ? (
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Handshake className="me-2 h-4 w-4" />
+                        )}
+                        {t("demo.resale.mandate")}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+          )}
+
           {/* Contact (owner/admin only) */}
           {(listing.ownerEmail || listing.ownerPhone) && (
             <section className="rounded-2xl border bg-card p-6 shadow-sm">
