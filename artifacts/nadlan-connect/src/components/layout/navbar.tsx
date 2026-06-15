@@ -44,7 +44,7 @@ export function Navbar() {
     if (role === "buyer") {
       navItems.push({ label: t("nav.favorites"), href: "/favorites" });
       navItems.push({ label: t("nav.myLeads"), href: "/leads" });
-    } else if (role === "agent" || role === "developer") {
+    } else if (role === "agent" || role === "introducer" || role === "developer") {
       navItems.push({ label: t("nav.dashboard"), href: "/dashboard" });
     } else if (role === "admin") {
       navItems.push({ label: t("nav.admin"), href: "/admin" });

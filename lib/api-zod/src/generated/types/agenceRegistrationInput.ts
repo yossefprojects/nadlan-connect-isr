@@ -22,6 +22,7 @@ export interface AgenceRegistrationInput {
   /** @minimum 0 */
   nbAgents?: number;
   specialties?: AgenceRegistrationInputSpecialtiesItem[];
+  profileType?: "agence" | "apporteur";
   plan: AgenceRegistrationInputPlan;
   /** @minLength 8 */
   password: string;

@@ -23,6 +23,7 @@ function pathForRole(role: string | null | undefined): string {
     case "developer":
       return "/dashboard/promoteur";
     case "agent":
+    case "introducer":
       return "/dashboard/agence";
     case "admin":
       return "/dashboard/admin";
@@ -198,38 +199,21 @@ export default function Login() {
             >
               {t("login.proPrompt")}
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/auth/register/agence"
-                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors"
-                style={{ borderColor: NAVY, color: NAVY }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = NAVY;
-                  e.currentTarget.style.color = "#ffffff";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = NAVY;
-                }}
-              >
-                {t("login.agency")}
-              </Link>
-              <Link
-                href="/auth/register/promoteur"
-                className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors"
-                style={{ borderColor: NAVY, color: NAVY }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = NAVY;
-                  e.currentTarget.style.color = "#ffffff";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = NAVY;
-                }}
-              >
-                {t("login.developer")}
-              </Link>
-            </div>
+            <Link
+              href="/auth/register"
+              className="flex items-center justify-center rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors"
+              style={{ borderColor: NAVY, color: NAVY }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = NAVY;
+                e.currentTarget.style.color = "#ffffff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = NAVY;
+              }}
+            >
+              {t("home.partnerCta")}
+            </Link>
           </div>
         </CardContent>
       </Card>

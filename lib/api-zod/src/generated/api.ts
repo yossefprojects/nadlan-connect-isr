@@ -275,6 +275,7 @@ export const RegisterAgenceBody = zod.object({
   "ville": zod.string().min(1),
   "nbAgents": zod.number().min(registerAgenceBodyNbAgentsMin).optional(),
   "specialties": zod.array(zod.enum(['residentiel_neuf', 'investissement', 'luxe', 'tama38', 'diaspora_francophone', 'commercial'])).optional(),
+  "profileType": zod.enum(['agence', 'apporteur']).optional(),
   "plan": zod.enum(['free', 'starter', 'pro']),
   "password": zod.string().min(registerAgenceBodyPasswordMin),
   "cguAccepted": zod.boolean()

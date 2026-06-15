@@ -10,8 +10,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import Home from "@/pages/home";
 import Auth from "@/pages/auth";
 import Login from "@/pages/login";
-import RegisterPromoteur from "@/pages/register-promoteur";
-import RegisterAgence from "@/pages/register-agence";
+import RegisterPro from "@/pages/register-pro";
 import Listings from "@/pages/listings";
 import ListingDetail from "@/pages/listing-detail";
 import AnalyseIA from "@/pages/analyse-ia";
@@ -44,8 +43,10 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/auth" component={Auth} />
       <Route path="/auth/login" component={Login} />
-      <Route path="/auth/register/promoteur" component={RegisterPromoteur} />
-      <Route path="/auth/register/agence" component={RegisterAgence} />
+      <Route path="/auth/register" component={RegisterPro} />
+      <Route path="/auth/register/promoteur" component={RegisterPro} />
+      <Route path="/auth/register/agence" component={RegisterPro} />
+      <Route path="/auth/register/apporteur" component={RegisterPro} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:slug" component={ListingDetail} />
       <Route path="/programmes" component={Programmes} />

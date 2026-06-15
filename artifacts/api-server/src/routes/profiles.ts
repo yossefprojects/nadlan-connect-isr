@@ -160,6 +160,23 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
     return;
   }
 
+  // Agence immobilière (licensed, role "agent") vs apporteur d'affaires
+  // (no brokerage licence, role "introducer").
+  const isApporteur = data.profileType === "apporteur";
+  const role = isApporteur ? "introducer" : "agent";
+  if (!isApporteur) {
+    if (!data.companyName?.trim()) {
+      res.status(400).json({ error: "Le nom de l'agence est requis." });
+      return;
+    }
+    if (!data.licenseNumber?.trim()) {
+      res.status(400).json({
+        error: "Le numéro de licence (Risha'yon) est requis pour une agence immobilière.",
+      });
+      return;
+    }
+  }
+
   try {
     const passwordHash = await hashPassword(data.password);
     // An apporteur d'affaires may be an individual without a company — fall back
@@ -172,7 +189,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
       fullName: `${data.firstName} ${data.lastName}`.trim(),
       firstName: data.firstName,
       lastName: data.lastName,
-      role: "agent",
+      role,
       phone: data.phone ?? null,
       company: companyName,
     });
@@ -180,7 +197,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
     const [profile] = await db
       .insert(profilesTable)
       .values({
-        role: "agent",
+        role,
         firstName: data.firstName,
         lastName: data.lastName,
         email,
@@ -200,7 +217,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
     res.status(201).json({
       success: true,
       id: profile.id,
-      role: "agent",
+      role,
       status: profile.status,
       message: SUCCESS_MESSAGE,
     });
@@ -279,14 +296,18 @@ router.patch("/admin/profiles/:profileId/licence", requireAdmin, async (req, res
   // A profile cannot be marked "verifie" without the identifier an admin is
   // supposed to check: Risha'yon licence (agence) or company number / ח״פ
   // (promoteur). This also blocks verifying legacy rows that predate the field.
-  // A promoteur still needs a company number (ח״פ) to be verified. An apporteur
-  // d'affaires (agent) has no mandatory brokerage licence, so they can be
-  // verified without one.
+  // Verification identifier rules: a promoteur (developer) needs a company
+  // number (ח״פ); an agence immobilière (agent) needs a Risha'yon licence; an
+  // apporteur d'affaires (introducer) needs neither.
   if (parsed.data.licenceStatut === "verifie") {
-    if (existing.role !== "agent" && !existing.companyNumber) {
-      res.status(400).json({
-        error: "Numéro de société manquant — vérification impossible.",
-      });
+    let missing: string | null = null;
+    if (existing.role === "developer" && !existing.companyNumber) {
+      missing = "Numéro de société manquant — vérification impossible.";
+    } else if (existing.role === "agent" && !existing.licenseNumber) {
+      missing = "Numéro de licence Risha'yon manquant — vérification impossible.";
+    }
+    if (missing) {
+      res.status(400).json({ error: missing });
       return;
     }
   }
