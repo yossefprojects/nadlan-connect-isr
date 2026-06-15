@@ -328,6 +328,7 @@ const fr: Dict = {
   "proRegister.plan.pro.f4": "Page profil personnalisée + badge vérifié",
   "proRegister.plan.pro.f5": "Mise en avant dans les résultats",
   "proRegister.plan.pro.f6": "Support email prioritaire",
+  "proRegister.plan.pro.f7": "Programmes de luxe inclus",
   "auth.redirecting": "Redirection…",
 
   // Listing detail
@@ -1324,6 +1325,7 @@ const en: Dict = {
   "proRegister.plan.pro.f4": "Custom profile page + verified badge",
   "proRegister.plan.pro.f5": "Highlighted in search results",
   "proRegister.plan.pro.f6": "Priority email support",
+  "proRegister.plan.pro.f7": "Luxury projects included",
   "auth.redirecting": "Redirecting…",
 
   "detail.loading": "Loading…",
@@ -2318,6 +2320,7 @@ const he: Dict = {
   "proRegister.plan.pro.f4": "עמוד פרופיל מותאם אישית + תג מאומת",
   "proRegister.plan.pro.f5": "הדגשה בתוצאות החיפוש",
   "proRegister.plan.pro.f6": "תמיכה במייל בעדיפות",
+  "proRegister.plan.pro.f7": "כולל פרויקטים יוקרתיים",
   "auth.redirecting": "מעביר…",
 
   "detail.loading": "טוען…",

@@ -187,7 +187,7 @@ export default function RegisterPromoteur() {
     {
       id: "free",
       name: t("proRegister.planFree"),
-      price: "0₪",
+      price: "0",
       recommended: false,
       features: [
         t("proRegister.plan.free.f1"),
@@ -199,7 +199,7 @@ export default function RegisterPromoteur() {
     {
       id: "pro",
       name: t("proRegister.planPro"),
-      price: "49₪",
+      price: "490",
       recommended: true,
       features: [
         t("proRegister.plan.pro.f1"),
@@ -208,6 +208,7 @@ export default function RegisterPromoteur() {
         t("proRegister.plan.pro.f4"),
         t("proRegister.plan.pro.f5"),
         t("proRegister.plan.pro.f6"),
+        t("proRegister.plan.pro.f7"),
       ],
     },
   ];
@@ -284,7 +285,7 @@ export default function RegisterPromoteur() {
                     )}
                     <div className="text-[14px] font-medium" style={{ color: NAVY }}>{plan.name}</div>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}</span>
+                      <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span></span>
                       {plan.id === "pro" && (
                         <span className="text-xs text-muted-foreground">{t("proRegister.perMonth")}</span>
                       )}
