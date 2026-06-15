@@ -12,4 +12,5 @@ export type ProfileSummaryRole = typeof ProfileSummaryRole[keyof typeof ProfileS
 export const ProfileSummaryRole = {
   developer: 'developer',
   agent: 'agent',
+  introducer: 'introducer',
 } as const;

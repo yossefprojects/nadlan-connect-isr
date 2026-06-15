@@ -505,6 +505,7 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
   let reveal = false;
   let isOwnerOrAdmin = false;
   let isViewerOwner = false;
+  let isWinningPromoter = false;
   if (req.isAuthenticated()) {
     if (req.user!.id === listing.ownerId) {
       reveal = true;
@@ -529,10 +530,28 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     }
   }
 
+  // The winning promoter (promoter of the accepted offer) keeps access to their
+  // won project even before the connection is admin-validated, so they can reach
+  // the resale-mandate action. The exact address stays gated by `reveal` until an
+  // admin validates the connection.
+  if (req.isAuthenticated() && listing.acceptedOfferId) {
+    const [accepted] = await db
+      .select({ promoterId: demolitionOffersTable.promoterId })
+      .from(demolitionOffersTable)
+      .where(eq(demolitionOffersTable.id, listing.acceptedOfferId))
+      .limit(1);
+    if (accepted && accepted.promoterId === req.user!.id) isWinningPromoter = true;
+  }
+
   // Non-active listings (pending / offer_locked / closed) are only visible to
-  // their owner, an admin, or a promoter whose connection is validated (the
-  // winner keeps access to the project — and its revealed address — after lock).
-  if (listing.status !== "active" && !isOwnerOrAdmin && !reveal) {
+  // their owner, an admin, the winning promoter, or a promoter whose connection
+  // is validated.
+  if (
+    listing.status !== "active" &&
+    !isOwnerOrAdmin &&
+    !reveal &&
+    !isWinningPromoter
+  ) {
     res.status(404).json({ error: "Listing not found" });
     return;
   }
@@ -565,19 +584,9 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
     countOffers([listing.id]),
   ]);
 
-  // Is the viewer the winning promoter (promoter of the accepted offer)? This
-  // gates the "mandate an agence for resale" action. Also resolve the mandated
-  // agence's display name when a resale mandate already exists.
-  let isWinningPromoter = false;
+  // Resolve the mandated agence's display name when a resale mandate exists.
+  // (isWinningPromoter was computed above, before the visibility guard.)
   let resaleAgentName: string | null = null;
-  if (req.isAuthenticated() && listing.acceptedOfferId) {
-    const [accepted] = await db
-      .select({ promoterId: demolitionOffersTable.promoterId })
-      .from(demolitionOffersTable)
-      .where(eq(demolitionOffersTable.id, listing.acceptedOfferId))
-      .limit(1);
-    if (accepted && accepted.promoterId === req.user!.id) isWinningPromoter = true;
-  }
   if (listing.resaleAgentId) {
     resaleAgentName = await resolveAgenceName(listing.resaleAgentId);
   }

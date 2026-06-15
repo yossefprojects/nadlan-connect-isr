@@ -61,9 +61,6 @@ export default function Promoteurs() {
       {/* En-tête */}
       <section className="bg-[#0A1628] py-16 text-white md:py-20">
         <div className="container text-center">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#C9A84C]">
-            {pick(DEV_UI.sectionLabel)}
-          </p>
           <h1 className="mx-auto max-w-3xl font-serif text-3xl leading-tight md:text-4xl">
             {pick(DEV_UI.sectionLabel)}
           </h1>

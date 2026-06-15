@@ -615,15 +615,14 @@ export interface AgenceRegistrationInput {
   lastName: string;
   email: string;
   phone?: string;
-  /** @minLength 1 */
-  companyName: string;
-  /** @minLength 1 */
-  licenseNumber: string;
+  companyName?: string;
+  licenseNumber?: string;
   /** @minLength 1 */
   ville: string;
   /** @minimum 0 */
-  nbAgents: number;
+  nbAgents?: number;
   specialties?: AgenceRegistrationInputSpecialtiesItem[];
+  profileType?: "agence" | "apporteur";
   plan: AgenceRegistrationInputPlan;
   /** @minLength 8 */
   password: string;
@@ -652,6 +651,7 @@ export type ProfileSummaryRole = typeof ProfileSummaryRole[keyof typeof ProfileS
 export const ProfileSummaryRole = {
   developer: 'developer',
   agent: 'agent',
+  introducer: 'introducer',
 } as const;
 
 export type ProfileSummaryLicenceStatut = typeof ProfileSummaryLicenceStatut[keyof typeof ProfileSummaryLicenceStatut];

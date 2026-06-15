@@ -613,7 +613,7 @@ export default function DemolitionDetail() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Resale mandate — the winning promoter mandates an agence to resell */}
-          {resale.isWinningPromoter && listing.status === "offer_locked" && (
+          {resale.isWinningPromoter && (listing.status as string) === "offer_locked" && (
             <section className="rounded-2xl border border-[#C9A84C]/40 bg-card p-6 shadow-sm">
               <div className="flex items-center gap-2">
                 <Handshake className="h-5 w-5 text-[#C9A84C]" />
