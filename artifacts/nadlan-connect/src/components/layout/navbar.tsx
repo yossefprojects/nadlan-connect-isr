@@ -94,8 +94,8 @@ export function Navbar() {
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-10">
-          <Link href="/" className="flex items-center space-x-2.5 group">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
             <div className="h-8 w-8 rounded overflow-hidden relative">
                <img src="/favicon.png" alt="NadlanConnect" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
             </div>
@@ -104,7 +104,7 @@ export function Navbar() {
               <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
             </span>
           </Link>
-          <nav className="hidden lg:flex gap-8">
+          <nav className="hidden xl:flex gap-6">
             <NavLinks />
           </nav>
         </div>
@@ -130,7 +130,7 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -157,7 +157,7 @@ export function Navbar() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
+              <Button variant="ghost" size="icon" className="xl:hidden text-white/80 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">{t("nav.menu")}</span>
               </Button>
