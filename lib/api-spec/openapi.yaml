@@ -2603,7 +2603,7 @@ components:
           type: boolean
     AgenceRegistrationInput:
       type: object
-      required: [firstName, lastName, email, companyName, licenseNumber, ville, nbAgents, plan, password, cguAccepted]
+      required: [firstName, lastName, email, ville, plan, password, cguAccepted]
       properties:
         firstName:
           type: string

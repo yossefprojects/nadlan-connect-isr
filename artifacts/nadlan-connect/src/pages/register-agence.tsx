@@ -83,9 +83,7 @@ export default function RegisterAgence() {
     if (!form.firstName) errs.firstName = true;
     if (!form.lastName) errs.lastName = true;
     if (!form.email) errs.email = true;
-    if (!form.companyName) errs.companyName = true;
     if (!form.ville) errs.ville = true;
-    if (!form.nbAgents) errs.nbAgents = true;
     if (!form.password) errs.password = true;
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -111,10 +109,10 @@ export default function RegisterAgence() {
           lastName: form.lastName,
           email: form.email,
           phone: form.phone || undefined,
-          companyName: form.companyName,
-          licenseNumber: form.licenseNumber,
+          companyName: form.companyName || undefined,
+          licenseNumber: form.licenseNumber || undefined,
           ville: form.ville,
-          nbAgents: Number(form.nbAgents),
+          nbAgents: form.nbAgents ? Number(form.nbAgents) : undefined,
           specialties,
           plan: form.plan,
           password: form.password,
@@ -244,12 +242,12 @@ export default function RegisterAgence() {
           {renderField("lastName", t("proRegister.lastName"), { required: true, autoComplete: "family-name" })}
           {renderField("email", t("proRegister.email"), { required: true, type: "email", autoComplete: "email" })}
           {renderField("phone", t("proRegister.phone"), { type: "tel", autoComplete: "tel" })}
-          {renderField("companyName", t("proRegister.agence.companyName"), { required: true, autoComplete: "organization" })}
+          {renderField("companyName", t("proRegister.agence.companyName"), { autoComplete: "organization" })}
           {renderField("licenseNumber", t("proRegister.agence.licenseNumber"), {
             help: t("proRegister.agence.licenseHelp"),
           })}
           {renderField("ville", t("proRegister.ville"), { required: true, autoComplete: "address-level2" })}
-          {renderField("nbAgents", t("proRegister.agence.nbAgents"), { required: true, type: "number" })}
+          {renderField("nbAgents", t("proRegister.agence.nbAgents"), { type: "number" })}
 
           <div>
             <span className={labelCls}>{t("proRegister.agence.specialties")}</span>

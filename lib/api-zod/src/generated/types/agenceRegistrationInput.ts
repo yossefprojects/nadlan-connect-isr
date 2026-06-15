@@ -15,14 +15,12 @@ export interface AgenceRegistrationInput {
   lastName: string;
   email: string;
   phone?: string;
-  /** @minLength 1 */
-  companyName: string;
-  /** @minLength 1 */
-  licenseNumber: string;
+  companyName?: string;
+  licenseNumber?: string;
   /** @minLength 1 */
   ville: string;
   /** @minimum 0 */
-  nbAgents: number;
+  nbAgents?: number;
   specialties?: AgenceRegistrationInputSpecialtiesItem[];
   plan: AgenceRegistrationInputPlan;
   /** @minLength 8 */

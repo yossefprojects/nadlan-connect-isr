@@ -162,6 +162,10 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
 
   try {
     const passwordHash = await hashPassword(data.password);
+    // An apporteur d'affaires may be an individual without a company — fall back
+    // to their own name so the (NOT NULL) companyName is always populated.
+    const companyName =
+      data.companyName?.trim() || `${data.firstName} ${data.lastName}`.trim();
     await db.insert(usersTable).values({
       email,
       passwordHash,
@@ -170,7 +174,7 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
       lastName: data.lastName,
       role: "agent",
       phone: data.phone ?? null,
-      company: data.companyName,
+      company: companyName,
     });
 
     const [profile] = await db
@@ -181,12 +185,12 @@ router.post("/profiles/agence", async (req, res): Promise<void> => {
         lastName: data.lastName,
         email,
         phone: data.phone ?? null,
-        companyName: data.companyName,
+        companyName,
         ville: data.ville,
         plan: data.plan,
         passwordHash,
-        licenseNumber: data.licenseNumber,
-        nbAgents: data.nbAgents,
+        licenseNumber: data.licenseNumber ?? null,
+        nbAgents: data.nbAgents ?? null,
         specialties: data.specialties ?? [],
         cguAccepted: data.cguAccepted,
         status: "pending",
@@ -275,17 +279,13 @@ router.patch("/admin/profiles/:profileId/licence", requireAdmin, async (req, res
   // A profile cannot be marked "verifie" without the identifier an admin is
   // supposed to check: Risha'yon licence (agence) or company number / ח״פ
   // (promoteur). This also blocks verifying legacy rows that predate the field.
+  // A promoteur still needs a company number (ח״פ) to be verified. An apporteur
+  // d'affaires (agent) has no mandatory brokerage licence, so they can be
+  // verified without one.
   if (parsed.data.licenceStatut === "verifie") {
-    const missingIdentifier =
-      existing.role === "agent"
-        ? !existing.licenseNumber
-        : !existing.companyNumber;
-    if (missingIdentifier) {
+    if (existing.role !== "agent" && !existing.companyNumber) {
       res.status(400).json({
-        error:
-          existing.role === "agent"
-            ? "Numéro de licence Risha'yon manquant — vérification impossible."
-            : "Numéro de société manquant — vérification impossible.",
+        error: "Numéro de société manquant — vérification impossible.",
       });
       return;
     }
