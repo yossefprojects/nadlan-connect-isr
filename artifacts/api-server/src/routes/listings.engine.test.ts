@@ -545,6 +545,159 @@ describe("POST /listings/:listingId/publish authorization", () => {
   });
 });
 
+describe("POST /listings/:listingId/images authorization", () => {
+  const IMAGE_BODY = {
+    url: "https://cdn.example/new-photo.jpg",
+    position: 0,
+  };
+
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "agent"; // the impersonated user's role lookup
+
+    const res = await fetch(`${baseUrl}/listings/7/images`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(IMAGE_BODY),
+    });
+
+    expect(res.status).toBe(403);
+    // The guard must reject before any image row is written.
+    expect(mock.state.lastInsertValues).toBeNull();
+  });
+
+  it("returns 201 for the owner and persists the image", async () => {
+    seedListing(AUTH_USER.id);
+
+    const res = await fetch(`${baseUrl}/listings/7/images`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(IMAGE_BODY),
+    });
+
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      id: number;
+      listingId: number;
+      url: string;
+      position: number;
+    };
+    expect(json.url).toBe(IMAGE_BODY.url);
+    expect(json.listingId).toBe(7);
+    expect(mock.state.lastInsertValues).not.toBeNull();
+    expect(mock.state.lastInsertValues!.url).toBe(IMAGE_BODY.url);
+  });
+
+  it("returns 201 for an admin adding to someone else's listing", async () => {
+    seedListing("someone-else");
+    mock.state.userRole = "admin"; // role lookup for the non-owner returns admin
+
+    const res = await fetch(`${baseUrl}/listings/7/images`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(IMAGE_BODY),
+    });
+
+    expect(res.status).toBe(201);
+    expect(mock.state.lastInsertValues).not.toBeNull();
+  });
+
+  it("returns 401 when unauthenticated", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/images`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(IMAGE_BODY),
+    });
+
+    expect(res.status).toBe(401);
+    expect(mock.state.lastInsertValues).toBeNull();
+  });
+
+  it("returns 404 when the listing does not exist", async () => {
+    mock.state.existingListing = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/images`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(IMAGE_BODY),
+    });
+
+    expect(res.status).toBe(404);
+    expect(mock.state.lastInsertValues).toBeNull();
+  });
+});
+
+describe("DELETE /listings/:listingId/images/:imageId authorization", () => {
+  it("returns 403 for an authenticated non-owner (non-admin)", async () => {
+    seedListing("someone-else");
+    mock.state.images = [
+      { id: 11, listingId: 7, url: "https://cdn.example/a.jpg", position: 0 },
+    ];
+    mock.state.userRole = "agent";
+
+    const res = await fetch(`${baseUrl}/listings/7/images/11`, {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("returns success for the owner", async () => {
+    seedListing(AUTH_USER.id);
+    mock.state.images = [
+      { id: 11, listingId: 7, url: "https://cdn.example/a.jpg", position: 0 },
+    ];
+
+    const res = await fetch(`${baseUrl}/listings/7/images/11`, {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { success: boolean };
+    expect(json.success).toBe(true);
+  });
+
+  it("returns success for an admin deleting someone else's image", async () => {
+    seedListing("someone-else");
+    mock.state.images = [
+      { id: 11, listingId: 7, url: "https://cdn.example/a.jpg", position: 0 },
+    ];
+    mock.state.userRole = "admin";
+
+    const res = await fetch(`${baseUrl}/listings/7/images/11`, {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { success: boolean };
+    expect(json.success).toBe(true);
+  });
+
+  it("returns 401 when unauthenticated", async () => {
+    seedListing(AUTH_USER.id);
+    currentUser = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/images/11`, {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 404 when the listing does not exist", async () => {
+    mock.state.existingListing = null;
+
+    const res = await fetch(`${baseUrl}/listings/7/images/11`, {
+      method: "DELETE",
+    });
+
+    expect(res.status).toBe(404);
+  });
+});
+
 describe("Listing photos surface in galleryImageUrls (regression guard)", () => {
   // Three images in non-trivial position order; the DB returns them ordered by
   // position (orderBy in the route), so we seed them already ordered to mirror
