@@ -101,6 +101,14 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
       e.preventDefault();
       e.stopPropagation();
       stepImage(dir === "rtl" ? -1 : 1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveImage(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveImage(galleryImages.length - 1);
     }
   };
 

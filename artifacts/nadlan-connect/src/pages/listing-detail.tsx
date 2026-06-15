@@ -206,6 +206,12 @@ export default function ListingDetail() {
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
       stepImage(dir === "rtl" ? -1 : 1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setActiveImage(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setActiveImage(galleryImages.length - 1);
     }
   };
 
