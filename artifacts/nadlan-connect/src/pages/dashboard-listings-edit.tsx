@@ -26,6 +26,10 @@ interface PendingUpload extends PhotoItem {
   file: File;
 }
 
+function isForbidden(err: unknown): boolean {
+  return (err as { status?: number } | null)?.status === 403;
+}
+
 export default function DashboardListingsEdit() {
   const [, params] = useRoute("/dashboard/listings/:id/edit");
   const listingId = params?.id ? parseInt(params.id, 10) : 0;
@@ -120,13 +124,21 @@ export default function DashboardListingsEdit() {
     try {
       await deleteListingImage.mutateAsync({ listingId, imageId: Number(key) });
       queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
-    } catch {
+    } catch (err) {
       setPhotos(previous);
-      toast({ title: t("listingForm.deletePhotoError"), variant: "destructive" });
+      toast({
+        title: isForbidden(err)
+          ? t("listingForm.photoPermissionError")
+          : t("listingForm.deletePhotoError"),
+        variant: "destructive",
+      });
     }
   };
 
-  const uploadOne = async (item: PendingUpload, position: number): Promise<boolean> => {
+  const uploadOne = async (
+    item: PendingUpload,
+    position: number
+  ): Promise<{ ok: boolean; forbidden: boolean }> => {
     setUploads((prev) =>
       prev.map((u) => (u.key === item.key ? { ...u, status: "uploading", progress: 0 } : u))
     );
@@ -143,10 +155,10 @@ export default function DashboardListingsEdit() {
         data: { url: uploadRes.objectPath, position }
       });
       setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "done" } : u)));
-      return true;
-    } catch {
+      return { ok: true, forbidden: false };
+    } catch (err) {
       setUploads((prev) => prev.map((u) => (u.key === item.key ? { ...u, status: "error" } : u)));
-      return false;
+      return { ok: false, forbidden: isForbidden(err) };
     }
   };
 
@@ -163,12 +175,16 @@ export default function DashboardListingsEdit() {
     let position = photos.length;
     let processed = 0;
     let failures = 0;
+    let forbidden = false;
     setUploadProgress({ done: 0, total: batch.length });
 
     for (const item of batch) {
-      const ok = await uploadOne(item, position);
-      if (ok) position++;
-      else failures++;
+      const res = await uploadOne(item, position);
+      if (res.ok) position++;
+      else {
+        failures++;
+        if (res.forbidden) forbidden = true;
+      }
       processed++;
       setUploadProgress({ done: processed, total: batch.length });
     }
@@ -181,7 +197,12 @@ export default function DashboardListingsEdit() {
     });
 
     if (failures > 0) {
-      toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
+      toast({
+        title: forbidden
+          ? t("listingForm.photoPermissionError")
+          : t("listingForm.someUploadsFailed"),
+        variant: "destructive",
+      });
     }
   };
 
@@ -190,20 +211,25 @@ export default function DashboardListingsEdit() {
     if (!item) return;
 
     setUploadProgress({ done: 0, total: 1 });
-    const ok = await uploadOne(item, photos.length);
+    const res = await uploadOne(item, photos.length);
     setUploadProgress({ done: 1, total: 1 });
 
     setUploadProgress(null);
     await queryClient.invalidateQueries({ queryKey: getGetListingQueryKey(String(listingId)) });
 
-    if (ok) {
+    if (res.ok) {
       setUploads((prev) => {
         const target = prev.find((u) => u.key === key);
         if (target) URL.revokeObjectURL(target.url);
         return prev.filter((u) => u.key !== key);
       });
     } else {
-      toast({ title: t("listingForm.someUploadsFailed"), variant: "destructive" });
+      toast({
+        title: res.forbidden
+          ? t("listingForm.photoPermissionError")
+          : t("listingForm.someUploadsFailed"),
+        variant: "destructive",
+      });
     }
   };
 
