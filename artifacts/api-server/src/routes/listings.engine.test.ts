@@ -76,7 +76,10 @@ const mock = vi.hoisted(() => {
     }
     if (b._op === "update") {
       state.lastUpdateValues = b._captured;
-      return [{ ...(state.existingListing ?? {}), ...b._captured }];
+      // Mirror Drizzle's .returning(): an UPDATE whose WHERE matched no row
+      // yields no rows. With no existing listing, the update affects nothing.
+      if (!state.existingListing) return [];
+      return [{ ...state.existingListing, ...b._captured }];
     }
     return [];
   }
@@ -825,5 +828,20 @@ describe("PATCH /admin/listings/:listingId/status authorization (requireAdmin)",
     expect(json.status).toBe("published");
     expect(mock.state.lastUpdateValues).not.toBeNull();
     expect(mock.state.lastUpdateValues!.status).toBe("published");
+  });
+
+  it("returns 404 when the listing no longer exists", async () => {
+    mock.state.existingListing = null; // the row an admin clicks was already deleted
+    mock.state.userRole = "admin";
+
+    const res = await fetch(`${baseUrl}/admin/listings/7/status`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status: "published" }),
+    });
+
+    expect(res.status).toBe(404);
+    const json = (await res.json()) as { error: string };
+    expect(json.error).toBe("Listing not found");
   });
 });

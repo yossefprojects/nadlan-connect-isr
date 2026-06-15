@@ -270,12 +270,11 @@ export const RegisterAgenceBody = zod.object({
   "lastName": zod.string().min(1),
   "email": zod.string().email(),
   "phone": zod.string().optional(),
-  "companyName": zod.string().optional(),
-  "licenseNumber": zod.string().optional(),
+  "companyName": zod.string().min(1).optional(),
+  "licenseNumber": zod.string().min(1).optional(),
   "ville": zod.string().min(1),
   "nbAgents": zod.number().min(registerAgenceBodyNbAgentsMin).optional(),
   "specialties": zod.array(zod.enum(['residentiel_neuf', 'investissement', 'luxe', 'tama38', 'diaspora_francophone', 'commercial'])).optional(),
-  "profileType": zod.enum(['agence', 'apporteur']).optional(),
   "plan": zod.enum(['free', 'starter', 'pro']),
   "password": zod.string().min(registerAgenceBodyPasswordMin),
   "cguAccepted": zod.boolean()
@@ -325,7 +324,7 @@ export const AdminUpdateLicenceStatutBody = zod.object({
 
 export const AdminUpdateLicenceStatutResponse = zod.object({
   "id": zod.number(),
-  "role": zod.enum(['developer', 'agent']),
+  "role": zod.enum(['developer', 'agent', 'introducer']),
   "firstName": zod.string(),
   "lastName": zod.string(),
   "email": zod.string(),

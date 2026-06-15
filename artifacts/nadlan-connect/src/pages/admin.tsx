@@ -57,7 +57,18 @@ export default function Admin() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getAdminListListingsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
-      }
+      },
+      onError: (error) => {
+        const isGone = (error as { status?: number })?.status === 404;
+        toast({
+          title: isGone ? t("admin.listingGoneError") : t("admin.statusUpdateError"),
+          variant: "destructive",
+        });
+        if (isGone) {
+          queryClient.invalidateQueries({ queryKey: getAdminListListingsQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        }
+      },
     });
   };
 

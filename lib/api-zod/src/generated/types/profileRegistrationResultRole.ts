@@ -12,4 +12,5 @@ export type ProfileRegistrationResultRole = typeof ProfileRegistrationResultRole
 export const ProfileRegistrationResultRole = {
   developer: 'developer',
   agent: 'agent',
+  introducer: 'introducer',
 } as const;
