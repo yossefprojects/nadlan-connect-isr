@@ -2633,6 +2633,9 @@ components:
           items:
             type: string
             enum: [residentiel_neuf, investissement, luxe, tama38, diaspora_francophone, commercial]
+        profileType:
+          type: string
+          enum: [agence, apporteur]
         plan:
           type: string
           enum: [free, starter, pro]
