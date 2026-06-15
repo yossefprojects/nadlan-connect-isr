@@ -667,6 +667,7 @@ export const ListProgramsResponseItem = zod.object({
   "status": zod.enum(['draft', 'published']),
   "coverImageUrl": zod.string().nullish(),
   "projetsCount": zod.number().optional(),
+  "availableCount": zod.number().optional().describe('Number of projets still available (published listings not sold).'),
   "createdAt": zod.coerce.date()
 })
 export const ListProgramsResponse = zod.array(ListProgramsResponseItem)
@@ -707,6 +708,7 @@ export const GetProgramResponse = zod.object({
   "status": zod.enum(['draft', 'published']),
   "coverImageUrl": zod.string().nullish(),
   "projetsCount": zod.number().optional(),
+  "availableCount": zod.number().optional().describe('Number of projets still available (published listings not sold).'),
   "createdAt": zod.coerce.date()
 }),
   "projets": zod.array(zod.object({
@@ -773,6 +775,7 @@ export const UpdateProgramResponse = zod.object({
   "status": zod.enum(['draft', 'published']),
   "coverImageUrl": zod.string().nullish(),
   "projetsCount": zod.number().optional(),
+  "availableCount": zod.number().optional().describe('Number of projets still available (published listings not sold).'),
   "createdAt": zod.coerce.date()
 })
 
@@ -808,6 +811,7 @@ export const PublishProgramResponse = zod.object({
   "status": zod.enum(['draft', 'published']),
   "coverImageUrl": zod.string().nullish(),
   "projetsCount": zod.number().optional(),
+  "availableCount": zod.number().optional().describe('Number of projets still available (published listings not sold).'),
   "createdAt": zod.coerce.date()
 })
 

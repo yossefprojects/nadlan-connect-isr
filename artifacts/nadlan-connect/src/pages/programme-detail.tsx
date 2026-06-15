@@ -158,6 +158,27 @@ export default function ProgrammeDetail() {
           {t(`city.${program.ville}`)}
           {program.quartier ? ` · ${program.quartier}` : ""}
         </p>
+        {(program.projetsCount ?? 0) > 0 && (
+          <div className="mt-3">
+            {(program.availableCount ?? 0) > 0 ? (
+              <Badge
+                variant="outline"
+                className="border-emerald-600/30 bg-emerald-50 font-semibold text-emerald-700"
+              >
+                {t("publicPrograms.available")
+                  .replace("{available}", String(program.availableCount ?? 0))
+                  .replace("{total}", String(program.projetsCount ?? 0))}
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="border-[#0A1628]/15 bg-[#0A1628]/5 font-semibold text-[#0A1628]/70"
+              >
+                {t("publicPrograms.soldOut")}
+              </Badge>
+            )}
+          </div>
+        )}
         {program.description && (
           <p className="mt-4 text-foreground/80 whitespace-pre-line" dir="auto">
             {program.description}

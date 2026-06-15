@@ -42,7 +42,8 @@ function serializeProgram(
   p: typeof programsTable.$inferSelect,
   owner?: typeof usersTable.$inferSelect | null,
   coverImageUrl?: string | null,
-  projetsCount?: number
+  projetsCount?: number,
+  availableCount?: number
 ) {
   return {
     id: p.id,
@@ -61,6 +62,7 @@ function serializeProgram(
     status: p.status,
     coverImageUrl: coverImageUrl ?? null,
     projetsCount: projetsCount ?? 0,
+    availableCount: availableCount ?? 0,
     createdAt: p.createdAt.toISOString(),
   };
 }
@@ -117,11 +119,20 @@ router.get("/programs", async (req, res): Promise<void> => {
   const result = await Promise.all(
     programs.map(async (p) => {
       const [countRow] = await db
-        .select({ c: sql<number>`count(*)::int` })
+        .select({
+          c: sql<number>`count(*)::int`,
+          available: sql<number>`count(*) filter (where ${listingsTable.status} = 'published')::int`,
+        })
         .from(listingsTable)
         .where(eq(listingsTable.programId, p.id));
       const cover = await coverForProgram(p.id);
-      return serializeProgram(p, null, cover, countRow?.c ?? 0);
+      return serializeProgram(
+        p,
+        null,
+        cover,
+        countRow?.c ?? 0,
+        countRow?.available ?? 0
+      );
     })
   );
 
@@ -251,8 +262,22 @@ router.get("/programs/:programId", async (req, res): Promise<void> => {
 
   const cover = await coverForProgram(program.id);
 
+  const [countRow] = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      available: sql<number>`count(*) filter (where ${listingsTable.status} = 'published')::int`,
+    })
+    .from(listingsTable)
+    .where(eq(listingsTable.programId, program.id));
+
   res.json({
-    program: serializeProgram(program, owner, cover, projets.length),
+    program: serializeProgram(
+      program,
+      owner,
+      cover,
+      countRow?.total ?? 0,
+      countRow?.available ?? 0
+    ),
     projets: projets.map((l) => ({
       id: l.id,
       slug: l.slug,

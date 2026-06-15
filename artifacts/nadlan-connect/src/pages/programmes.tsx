@@ -176,9 +176,29 @@ export default function Programmes() {
                       {t(`city.${p.ville}`)}
                       {p.quartier ? ` · ${p.quartier}` : ""}
                     </p>
-                    <p className="mb-4 text-xs text-muted-foreground">
-                      {p.projetsCount ?? 0} {t("programs.projetsCount")}
-                    </p>
+                    <div className="mb-4 flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">
+                        {p.projetsCount ?? 0} {t("programs.projetsCount")}
+                      </span>
+                      {(p.projetsCount ?? 0) > 0 &&
+                        ((p.availableCount ?? 0) > 0 ? (
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-600/30 bg-emerald-50 font-semibold text-emerald-700"
+                          >
+                            {t("publicPrograms.available")
+                              .replace("{available}", String(p.availableCount ?? 0))
+                              .replace("{total}", String(p.projetsCount ?? 0))}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-[#0A1628]/15 bg-[#0A1628]/5 font-semibold text-[#0A1628]/70"
+                          >
+                            {t("publicPrograms.soldOut")}
+                          </Badge>
+                        ))}
+                    </div>
                     <div className="mt-auto flex items-center gap-1.5 text-sm font-semibold text-[#1A3A5C] transition-colors group-hover:text-[#C9A84C]">
                       {t("publicPrograms.view")}
                       <ArrowRight className="h-4 w-4 rtl:rotate-180" />

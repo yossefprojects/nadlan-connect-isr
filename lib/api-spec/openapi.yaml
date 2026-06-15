@@ -2943,6 +2943,9 @@ components:
           type: [string, 'null']
         projetsCount:
           type: integer
+        availableCount:
+          type: integer
+          description: Number of projets still available (published listings not sold).
         createdAt:
           type: string
           format: date-time

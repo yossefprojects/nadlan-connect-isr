@@ -932,6 +932,8 @@ export interface Program {
   /** @nullable */
   coverImageUrl?: string | null;
   projetsCount?: number;
+  /** Number of projets still available (published listings not sold). */
+  availableCount?: number;
   createdAt: string;
 }
 
