@@ -34,7 +34,10 @@ export function Navbar() {
     { label: t("nav.home"), href: "/" },
     { label: t("nav.properties"), href: "/listings" },
     { label: t("nav.programs"), href: "/programmes" },
-    { label: t("nav.developers"), href: "/promoteurs" },
+    // A promoteur doesn't need the public "Promoteurs" directory in their own nav.
+    ...(role === "developer"
+      ? []
+      : [{ label: t("nav.developers"), href: "/promoteurs" }]),
     { label: t("nav.demolition"), href: "/demolition/listings" },
     { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
   ];
