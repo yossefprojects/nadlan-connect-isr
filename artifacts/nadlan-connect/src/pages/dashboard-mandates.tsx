@@ -55,8 +55,8 @@ export default function DashboardMandates() {
           </p>
         </div>
       ) : (
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("mandates.colProject")}</th>

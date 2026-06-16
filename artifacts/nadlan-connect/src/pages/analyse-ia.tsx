@@ -757,7 +757,7 @@ export default function AnalyseIA() {
                         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           {t("analyse.coefficients")}
                         </div>
-                        <div className="overflow-hidden rounded-lg border border-black/5">
+                        <div className="overflow-x-auto rounded-lg border border-black/5">
                           <table className="w-full text-sm">
                             <thead className="bg-muted/50 text-xs text-muted-foreground">
                               <tr>
@@ -865,7 +865,7 @@ export default function AnalyseIA() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="overflow-hidden rounded-lg border border-black/5">
+                    <div className="overflow-x-auto rounded-lg border border-black/5">
                       <table className="w-full text-sm">
                         <tbody className="divide-y divide-black/5">
                           {([
@@ -905,7 +905,7 @@ export default function AnalyseIA() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     {result.urbanScore.criteria.length > 0 && (
-                      <div className="overflow-hidden rounded-lg border border-black/5">
+                      <div className="overflow-x-auto rounded-lg border border-black/5">
                         <table className="w-full text-sm">
                           <thead className="bg-muted/50 text-xs text-muted-foreground">
                             <tr>

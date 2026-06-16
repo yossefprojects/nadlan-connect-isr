@@ -36,8 +36,8 @@ export default function DashboardLeads() {
           <p className="text-muted-foreground">{t("dashLeads.emptyDesc")}</p>
         </div>
       ) : (
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[560px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashLeads.colClient")}</th>

@@ -126,8 +126,8 @@ export default function Admin() {
       <div className="mb-8">
         <h2 className="font-serif text-2xl font-bold text-primary mb-6">{t("admin.moderationTitle")}</h2>
         
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
@@ -187,8 +187,8 @@ export default function Admin() {
           <h2 className="font-serif text-2xl font-bold text-primary">{t("admin.agencyVerification")}</h2>
         </div>
 
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colAgency")}</th>
@@ -261,8 +261,8 @@ export default function Admin() {
           <h2 className="font-serif text-2xl font-bold text-primary">{t("admin.promoteurVerification")}</h2>
         </div>
 
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colCompany")}</th>
@@ -335,8 +335,8 @@ export default function Admin() {
           <h2 className="font-serif text-2xl font-bold text-primary">{t("admin.apporteurVerification")}</h2>
         </div>
 
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colApporteur")}</th>
@@ -407,8 +407,8 @@ export default function Admin() {
           <h2 className="font-serif text-2xl font-bold text-primary">{t("demo.admin.title")}</h2>
         </div>
 
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>
@@ -494,8 +494,8 @@ export default function Admin() {
           <h2 className="font-serif text-2xl font-bold text-primary">{t("demo.admin.connectionsTitle")}</h2>
         </div>
 
-        <div className="bg-card border rounded-xl overflow-hidden">
-          <table className="w-full text-sm text-start">
+        <div className="bg-card border rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm text-start">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 font-medium text-muted-foreground">{t("admin.colId")}</th>

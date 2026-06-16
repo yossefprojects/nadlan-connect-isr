@@ -52,12 +52,12 @@ export default function Leads() {
           {leads?.map((lead) => (
             <Link key={lead.id} href={`/leads/${lead.id}`}>
               <Card className="hover:border-primary transition-colors cursor-pointer hover-elevate">
-                <CardContent className="p-6 flex items-center justify-between">
-                  <div>
-                    <h3 dir="auto" className="font-bold text-lg mb-1">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h3>
+                <CardContent className="p-6 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <h3 dir="auto" className="font-bold text-lg mb-1 truncate">{lead.listingTitle || `${t("common.propertyNum")}${lead.listingId}`}</h3>
                     <p dir="auto" className="text-sm text-muted-foreground truncate max-w-lg">{lead.message}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 shrink-0">
                     {getStatusBadge(lead.status)}
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
                       <MessageCircle className="h-3 w-3" /> {t("leadsPage.openDiscussion")}

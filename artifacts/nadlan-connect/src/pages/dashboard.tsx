@@ -53,9 +53,9 @@ export default function Dashboard() {
 
   return (
     <div className="container py-8 max-w-6xl">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-8">
         <h1 className="font-serif text-3xl font-bold text-primary">{t("dashboard.title")}</h1>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Link href="/outils/analyse-ia">
             <Button variant="outline" className="gap-2 border-[#C9A84C]/40 text-[#1A3A5C] hover:bg-[#C9A84C]/10">
               <Scale className="h-4 w-4" /> {t("dashboard.shamaiTool")}
@@ -203,8 +203,8 @@ export default function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="bg-card border rounded-xl overflow-hidden">
-            <table className="w-full text-sm text-start">
+          <div className="bg-card border rounded-xl overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm text-start">
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="px-6 py-4 font-medium text-muted-foreground">{t("dashboard.colTitle")}</th>
