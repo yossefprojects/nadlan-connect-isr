@@ -17,6 +17,14 @@ import {
   type SessionData,
 } from "../lib/auth";
 
+// Emails always granted the admin role on login/registration. Defaults to the
+// project owner; extend via the ADMIN_EMAILS env var (comma-separated).
+const ADMIN_EMAILS = new Set(
+  ["joseph.chaouat@gmail.com", ...(process.env.ADMIN_EMAILS ?? "").split(",")]
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+);
+
 const router: IRouter = Router();
 
 function setSessionCookie(res: Response, sid: string) {
@@ -65,6 +73,14 @@ router.post("/auth/login", async (req: Request, res: Response) => {
   if (!ok) {
     res.status(401).json({ error: "Email ou mot de passe incorrect." });
     return;
+  }
+
+  // Promote (and keep) designated admin emails on every login.
+  if (ADMIN_EMAILS.has(email) && user.role !== "admin") {
+    await db
+      .update(usersTable)
+      .set({ role: "admin" })
+      .where(eq(usersTable.id, user.id));
   }
 
   const sessionData: SessionData = {
@@ -116,7 +132,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
         fullName,
         firstName: firstName || null,
         lastName,
-        role: "buyer",
+        role: ADMIN_EMAILS.has(email) ? "admin" : "buyer",
         phone: parsed.data.phone ?? null,
       })
       .returning();
