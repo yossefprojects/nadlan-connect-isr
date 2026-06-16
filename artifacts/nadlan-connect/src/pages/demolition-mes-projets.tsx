@@ -5,7 +5,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import {
-  Building2, MapPin, Layers, Calendar, Loader2, ArrowRight, Plus, Inbox,
+  Building2, MapPin, Layers, Calendar, Loader2, ArrowRight, Plus, Inbox, Sparkles,
 } from "lucide-react";
 
 // One published project owned by the current user (apporteur). Shape comes from
@@ -65,12 +65,20 @@ export default function DemolitionMesProjets() {
               </h1>
               <p className="mt-2 max-w-xl text-white/60">{t("demo.mesProjets.subtitle")}</p>
             </div>
-            <Link href="/demolition/nouveau">
-              <Button className="bg-[#C9A84C] text-[#0F2235] hover:bg-[#E8C96A]">
-                <Plus className="me-2 h-4 w-4" />
-                {t("demo.mesProjets.publish")}
-              </Button>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/outils/analyse-ia">
+                <Button variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                  <Sparkles className="me-2 h-4 w-4" />
+                  {t("nav.aiAnalysis")}
+                </Button>
+              </Link>
+              <Link href="/demolition/nouveau">
+                <Button className="bg-[#C9A84C] text-[#0F2235] hover:bg-[#E8C96A]">
+                  <Plus className="me-2 h-4 w-4" />
+                  {t("demo.mesProjets.publish")}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

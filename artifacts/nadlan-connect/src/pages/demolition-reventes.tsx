@@ -5,7 +5,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import {
-  Building2, MapPin, Layers, Calendar, Mail, User, Loader2, ArrowRight, Handshake,
+  Building2, MapPin, Layers, Calendar, Mail, User, Loader2, ArrowRight, Handshake, Sparkles,
 } from "lucide-react";
 
 type AssignedProject = {
@@ -55,6 +55,12 @@ export default function DemolitionReventes() {
             {t("demo.reventes.title")}
           </h1>
           <p className="mt-2 max-w-xl text-white/60">{t("demo.reventes.subtitle")}</p>
+          <Link href="/outils/analyse-ia">
+            <Button variant="outline" className="mt-5 border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Sparkles className="me-2 h-4 w-4" />
+              {t("nav.aiAnalysis")}
+            </Button>
+          </Link>
         </div>
       </div>
 

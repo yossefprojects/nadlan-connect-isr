@@ -38,7 +38,6 @@ export function Navbar() {
     programmes: { label: t("nav.programs"), href: "/programmes" },
     developers: { label: t("nav.developers"), href: "/promoteurs" },
     demolition: { label: t("nav.demolition"), href: "/demolition/listings" },
-    analyse: { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
     reports: { label: t("nav.myReports"), href: "/outils/mes-rapports" },
     dashboard: { label: t("nav.dashboard"), href: "/dashboard" },
     mesProjets: { label: t("demo.mesProjets.nav"), href: "/demolition/mes-projets" },
@@ -48,23 +47,25 @@ export function Navbar() {
     admin: { label: t("nav.admin"), href: "/admin" },
   };
 
+  // Analyse IA is intentionally NOT in the menu — it lives on the pages
+  // (home CTA, dashboard, the apporteur/agence workspaces, and the footer).
   let navItems: { label: string; href: string }[];
   if (role === "developer") {
     // Promoteur: browses the market, makes offers, manages a dashboard.
-    navItems = [items.home, items.properties, items.programmes, items.demolition, items.analyse, items.reports, items.dashboard];
+    navItems = [items.home, items.properties, items.programmes, items.demolition, items.reports, items.dashboard];
   } else if (role === "introducer") {
     // Apporteur: focused on their own published projects.
-    navItems = [items.home, items.analyse, items.reports, items.mesProjets];
+    navItems = [items.home, items.reports, items.mesProjets];
   } else if (role === "agent") {
     // Agence: only the projects entrusted to it for resale.
-    navItems = [items.home, items.analyse, items.reports, items.reventes];
+    navItems = [items.home, items.reports, items.reventes];
   } else if (role === "admin") {
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse, items.admin];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.admin];
   } else if (role === "buyer") {
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse, items.reports, items.favorites, items.myLeads];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.reports, items.favorites, items.myLeads];
   } else {
     // Anonymous visitor.
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition];
   }
 
   const isHome = location === "/";
