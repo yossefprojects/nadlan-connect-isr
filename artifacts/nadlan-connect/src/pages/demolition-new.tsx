@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/components/layout/language-provider";
-import { Loader2, Building2, FileText, X } from "lucide-react";
+import { Loader2, Building2, FileText, X, Camera } from "lucide-react";
 
 const COMMISSION = Number(import.meta.env.VITE_DEMOLITION_COMMISSION_NIS ?? 500);
 
@@ -166,6 +166,28 @@ export default function DemolitionNew() {
               multiple
               accept="image/*,.pdf"
               onChange={(e) => setDocs(Array.from(e.target.files ?? []))}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="sm:hidden"
+              onClick={() => document.getElementById("demo-capture-input")?.click()}
+            >
+              <Camera className="me-2 h-4 w-4" />
+              {t("listingForm.takePhoto")}
+            </Button>
+            <input
+              id="demo-capture-input"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                setDocs((d) => [...d, ...files]);
+                e.target.value = "";
+              }}
             />
             {docs.length > 0 && (
               <ul className="mt-2 space-y-1">

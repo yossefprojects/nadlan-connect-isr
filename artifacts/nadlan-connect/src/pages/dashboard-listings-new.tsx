@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
-import { Loader2, ImagePlus } from "lucide-react";
+import { Loader2, ImagePlus, Camera } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/components/layout/language-provider";
 import { ListingPhotoGrid, type PhotoItem } from "@/components/listing-photo-grid";
@@ -249,22 +249,45 @@ export default function DashboardListingsNew() {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <label className="text-sm font-medium">{t("listingForm.fieldPhotos")}</label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById("add-photos-input")?.click()}
-            >
-              <ImagePlus className="me-2 h-4 w-4" />
-              {t("listingForm.addPhotos")}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="sm:hidden"
+                onClick={() => document.getElementById("capture-photo-input")?.click()}
+              >
+                <Camera className="me-2 h-4 w-4" />
+                {t("listingForm.takePhoto")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById("add-photos-input")?.click()}
+              >
+                <ImagePlus className="me-2 h-4 w-4" />
+                {t("listingForm.addPhotos")}
+              </Button>
+            </div>
             <input
               id="add-photos-input"
               type="file"
               accept="image/*"
               multiple
+              className="hidden"
+              onChange={(e) => {
+                handleAddPhotos(e.target.files);
+                e.target.value = "";
+              }}
+            />
+            <input
+              id="capture-photo-input"
+              type="file"
+              accept="image/*"
+              capture="environment"
               className="hidden"
               onChange={(e) => {
                 handleAddPhotos(e.target.files);
