@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useCreateDemolitionListing } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@workspace/object-storage-web";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/components/layout/language-provider";
-import { Loader2, Building2, FileText, X, Camera } from "lucide-react";
+import { Loader2, Building2, FileText, X, Camera, ImagePlus } from "lucide-react";
 
 const COMMISSION = Number(import.meta.env.VITE_DEMOLITION_COMMISSION_NIS ?? 500);
 
@@ -33,6 +33,17 @@ export default function DemolitionNew() {
   });
   const [docs, setDocs] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
+
+  // Object-URL previews for image files (revoked on change/unmount to avoid leaks).
+  const docPreviews = useMemo(
+    () => docs.map((f) => (f.type.startsWith("image/") ? URL.createObjectURL(f) : null)),
+    [docs],
+  );
+  useEffect(() => {
+    return () => {
+      docPreviews.forEach((u) => u && URL.revokeObjectURL(u));
+    };
+  }, [docPreviews]);
 
   const { uploadFile, isUploading } = useUpload({
     onError: () => toast({ title: t("demo.new.uploadError"), variant: "destructive" }),
@@ -161,22 +172,40 @@ export default function DemolitionNew() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">{t("demo.new.documents")}</label>
-            <Input
+            <p className="text-xs text-muted-foreground">{t("demo.new.photosHint")}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById("demo-photos-input")?.click()}
+              >
+                <ImagePlus className="me-2 h-4 w-4" />
+                {t("listingForm.addPhotos")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="sm:hidden"
+                onClick={() => document.getElementById("demo-capture-input")?.click()}
+              >
+                <Camera className="me-2 h-4 w-4" />
+                {t("listingForm.takePhoto")}
+              </Button>
+            </div>
+            <input
+              id="demo-photos-input"
               type="file"
               multiple
               accept="image/*,.pdf"
-              onChange={(e) => setDocs(Array.from(e.target.files ?? []))}
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                setDocs((d) => [...d, ...files]);
+                e.target.value = "";
+              }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="sm:hidden"
-              onClick={() => document.getElementById("demo-capture-input")?.click()}
-            >
-              <Camera className="me-2 h-4 w-4" />
-              {t("listingForm.takePhoto")}
-            </Button>
             <input
               id="demo-capture-input"
               type="file"
@@ -190,21 +219,33 @@ export default function DemolitionNew() {
               }}
             />
             {docs.length > 0 && (
-              <ul className="mt-2 space-y-1">
-                {docs.map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <FileText className="h-4 w-4 text-[#1A3A5C]" />
-                    <span className="truncate">{f.name}</span>
-                    <button
-                      type="button"
-                      className="ms-auto text-muted-foreground hover:text-red-500"
-                      onClick={() => setDocs(docs.filter((_, j) => j !== i))}
+              <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {docs.map((f, i) => {
+                  const isImage = f.type.startsWith("image/");
+                  return (
+                    <div
+                      key={i}
+                      className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
                     >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      {isImage && docPreviews[i] ? (
+                        <img src={docPreviews[i]!} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
+                          <FileText className="h-6 w-6 text-[#1A3A5C]" />
+                          <span className="line-clamp-2 break-all text-[10px] text-muted-foreground">{f.name}</span>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="absolute end-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                        onClick={() => setDocs(docs.filter((_, j) => j !== i))}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
