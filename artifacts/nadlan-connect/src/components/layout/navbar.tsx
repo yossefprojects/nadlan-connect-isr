@@ -30,34 +30,41 @@ export function Navbar() {
     setLocation("/");
   };
 
-  const navItems = [
-    { label: t("nav.home"), href: "/" },
-    { label: t("nav.properties"), href: "/listings" },
-    { label: t("nav.programs"), href: "/programmes" },
-    // A promoteur doesn't need the public "Promoteurs" directory in their own nav.
-    ...(role === "developer"
-      ? []
-      : [{ label: t("nav.developers"), href: "/promoteurs" }]),
-    { label: t("nav.demolition"), href: "/demolition/listings" },
-    { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
-  ];
+  // Menu tailored per role — each interface (promoteur / apporteur / agence) has
+  // its own focused menu instead of the full public browse.
+  const items = {
+    home: { label: t("nav.home"), href: "/" },
+    properties: { label: t("nav.properties"), href: "/listings" },
+    programmes: { label: t("nav.programs"), href: "/programmes" },
+    developers: { label: t("nav.developers"), href: "/promoteurs" },
+    demolition: { label: t("nav.demolition"), href: "/demolition/listings" },
+    analyse: { label: t("nav.aiAnalysis"), href: "/outils/analyse-ia" },
+    reports: { label: t("nav.myReports"), href: "/outils/mes-rapports" },
+    dashboard: { label: t("nav.dashboard"), href: "/dashboard" },
+    mesProjets: { label: t("demo.mesProjets.nav"), href: "/demolition/mes-projets" },
+    reventes: { label: t("demo.reventes.nav"), href: "/demolition/reventes" },
+    favorites: { label: t("nav.favorites"), href: "/favorites" },
+    myLeads: { label: t("nav.myLeads"), href: "/leads" },
+    admin: { label: t("nav.admin"), href: "/admin" },
+  };
 
-  if (isAuthenticated) {
-    navItems.push({ label: t("nav.myReports"), href: "/outils/mes-rapports" });
-    if (role === "buyer") {
-      navItems.push({ label: t("nav.favorites"), href: "/favorites" });
-      navItems.push({ label: t("nav.myLeads"), href: "/leads" });
-    } else if (role === "agent") {
-      // Agence: no general dashboard — only the projects mandated to it for resale.
-      navItems.push({ label: t("demo.reventes.nav"), href: "/demolition/reventes" });
-    } else if (role === "introducer") {
-      // Apporteur: their workspace is their published projects + offers received.
-      navItems.push({ label: t("demo.mesProjets.nav"), href: "/demolition/mes-projets" });
-    } else if (role === "developer") {
-      navItems.push({ label: t("nav.dashboard"), href: "/dashboard" });
-    } else if (role === "admin") {
-      navItems.push({ label: t("nav.admin"), href: "/admin" });
-    }
+  let navItems: { label: string; href: string }[];
+  if (role === "developer") {
+    // Promoteur: browses the market, makes offers, manages a dashboard.
+    navItems = [items.home, items.properties, items.programmes, items.demolition, items.analyse, items.reports, items.dashboard];
+  } else if (role === "introducer") {
+    // Apporteur: focused on their own published projects.
+    navItems = [items.home, items.analyse, items.reports, items.mesProjets];
+  } else if (role === "agent") {
+    // Agence: only the projects entrusted to it for resale.
+    navItems = [items.home, items.analyse, items.reports, items.reventes];
+  } else if (role === "admin") {
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse, items.admin];
+  } else if (role === "buyer") {
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse, items.reports, items.favorites, items.myLeads];
+  } else {
+    // Anonymous visitor.
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.analyse];
   }
 
   const isHome = location === "/";
