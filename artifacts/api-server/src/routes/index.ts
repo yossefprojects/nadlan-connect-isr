@@ -13,6 +13,7 @@ import reportsRouter from "./reports";
 import programsRouter from "./programs";
 import documentsRouter from "./documents";
 import demolitionRouter from "./demolition";
+import paymentsRouter from "./payments";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(reportsRouter);
 router.use(programsRouter);
 router.use(documentsRouter);
 router.use(demolitionRouter);
+router.use(paymentsRouter);
 
 export default router;
