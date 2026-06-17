@@ -52,6 +52,7 @@ const fr: Dict = {
   "nav.menu": "Menu",
   "nav.account": "Mon compte",
   "nav.logout": "Déconnexion",
+  "nav.subscription": "Mon abonnement",
   "nav.login": "Connexion",
 
   // Market bar
@@ -1094,6 +1095,7 @@ const en: Dict = {
   "nav.menu": "Menu",
   "nav.account": "My account",
   "nav.logout": "Log out",
+  "nav.subscription": "My subscription",
   "nav.login": "Sign in",
 
   "market.asOf": "Market as of",
@@ -2125,6 +2127,7 @@ const he: Dict = {
   "nav.menu": "תפריט",
   "nav.account": "החשבון שלי",
   "nav.logout": "התנתקות",
+  "nav.subscription": "המנוי שלי",
   "nav.login": "התחברות",
 
   "market.asOf": "שוק נכון לתאריך",

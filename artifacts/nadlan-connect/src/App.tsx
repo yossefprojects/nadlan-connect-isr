@@ -36,6 +36,7 @@ import DemolitionNew from "@/pages/demolition-new";
 import DemolitionReventes from "@/pages/demolition-reventes";
 import DemolitionMesProjets from "@/pages/demolition-mes-projets";
 import DemolitionDetail from "@/pages/demolition-detail";
+import Abonnement from "@/pages/abonnement";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,8 @@ function Router() {
       <Route path="/promoteurs" component={Promoteurs} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
       <Route path="/outils/mes-rapports" component={Reports} />
+      <Route path="/abonnement/merci" component={Abonnement} />
+      <Route path="/abonnement" component={Abonnement} />
 
       {/* Tama 38 / Pinui-Binui Marketplace */}
       <Route path="/demolition/listings" component={DemolitionListings} />

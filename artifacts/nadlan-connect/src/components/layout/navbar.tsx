@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useLanguage } from "./language-provider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Globe, LogOut, Menu, UserCircle } from "lucide-react";
+import { Globe, LogOut, Menu, UserCircle, CreditCard } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -157,6 +157,14 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-[#0A1628] text-white border-white/10">
+                  {(role === "developer" || role === "introducer") && (
+                    <DropdownMenuItem asChild className="hover:bg-white/10 focus:bg-white/10 cursor-pointer">
+                      <Link href="/abonnement" className="flex items-center">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        {t("nav.subscription")}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:bg-white/10 focus:bg-white/10 hover:text-red-300 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     {t("nav.logout")}
