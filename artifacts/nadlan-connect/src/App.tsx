@@ -37,6 +37,7 @@ import DemolitionReventes from "@/pages/demolition-reventes";
 import DemolitionMesProjets from "@/pages/demolition-mes-projets";
 import DemolitionDetail from "@/pages/demolition-detail";
 import Abonnement from "@/pages/abonnement";
+import Tarifs from "@/pages/tarifs";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/programmes" component={Programmes} />
       <Route path="/programme/:slug" component={ProgrammeDetail} />
       <Route path="/promoteurs" component={Promoteurs} />
+      <Route path="/tarifs" component={Tarifs} />
       <Route path="/outils/analyse-ia" component={AnalyseIA} />
       <Route path="/outils/mes-rapports" component={Reports} />
       <Route path="/abonnement/merci" component={Abonnement} />

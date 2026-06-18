@@ -38,6 +38,7 @@ export function Navbar() {
     programmes: { label: t("nav.programs"), href: "/programmes" },
     developers: { label: t("nav.developers"), href: "/promoteurs" },
     demolition: { label: t("nav.demolition"), href: "/demolition/listings" },
+    tarifs: { label: t("nav.pricing"), href: "/tarifs" },
     reports: { label: t("nav.myReports"), href: "/outils/mes-rapports" },
     dashboard: { label: t("nav.dashboard"), href: "/dashboard" },
     mesProjets: { label: t("demo.mesProjets.nav"), href: "/demolition/mes-projets" },
@@ -62,10 +63,10 @@ export function Navbar() {
   } else if (role === "admin") {
     navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.admin];
   } else if (role === "buyer") {
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.reports, items.favorites, items.myLeads];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.tarifs, items.reports, items.favorites, items.myLeads];
   } else {
     // Anonymous visitor.
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.tarifs];
   }
 
   const isHome = location === "/";
