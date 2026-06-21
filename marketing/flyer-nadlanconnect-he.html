@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NadlanConnect — פלייר הצגה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@300;400;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0F2235;
+    --blue:#1A3A5C;
+    --gold:#C9A84C;
+    --gold-soft:#E4CE8C;
+    --bg:#F8F7F4;
+    --ink:#1d2733;
+    --muted:#5a6675;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#c9ccd1}
+  body{
+    font-family:"Assistant",sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;justify-content:center;
+    padding:24px;
+  }
+  /* A4 page */
+  .page{
+    width:210mm;height:297mm;
+    background:var(--bg);
+    position:relative;overflow:hidden;
+    box-shadow:0 24px 60px rgba(15,34,53,.28);
+    display:flex;flex-direction:column;
+  }
+  @page{size:A4;margin:0}
+  @media print{
+    body{padding:0;background:#fff}
+    .page{box-shadow:none}
+  }
+
+  /* ---------- HEADER ---------- */
+  .hero{
+    background:
+      radial-gradient(120% 130% at 90% -10%, rgba(201,168,76,.22), transparent 55%),
+      linear-gradient(160deg,var(--navy) 0%, var(--blue) 100%);
+    color:#fff;
+    padding:30px 40px 34px;
+    position:relative;
+  }
+  .hero::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft),var(--gold));
+  }
+  .brandrow{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo-mark{
+    width:50px;height:50px;border-radius:13px;
+    background:linear-gradient(150deg,var(--gold),#a9842f);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(201,168,76,.35);
+    flex:none;
+  }
+  .logo-mark svg{width:28px;height:28px}
+  .brand-name{font-family:"DM Serif Display",serif;font-size:27px;letter-spacing:.3px;line-height:1}
+  .brand-name b{color:var(--gold)}
+  .brand-sub{font-size:12.5px;color:#bcd0e4;margin-top:3px;font-weight:600}
+  .site-pill{
+    font-weight:700;font-size:13px;color:var(--navy);
+    background:var(--gold);padding:8px 15px;border-radius:999px;
+    display:flex;align-items:center;gap:7px;direction:ltr;
+  }
+
+  .eyebrow{
+    margin-top:26px;display:inline-block;
+    font-size:12px;font-weight:700;letter-spacing:2px;
+    color:var(--gold-soft);text-transform:uppercase;
+  }
+  h1.title{
+    font-family:"Frank Ruhl Libre",serif;font-weight:900;
+    font-size:42px;line-height:1.12;margin-top:8px;max-width:15ch;
+  }
+  h1.title .hl{color:var(--gold)}
+  .subtitle{
+    margin-top:12px;font-size:15.5px;line-height:1.55;color:#d6e2ee;
+    font-weight:400;max-width:54ch;
+  }
+  .stats{display:flex;gap:30px;margin-top:20px}
+  .stat .n{font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:25px;color:#fff}
+  .stat .l{font-size:11.5px;color:#a9c0d6;font-weight:600;margin-top:1px}
+
+  /* ---------- BODY ---------- */
+  .body{flex:1;padding:24px 40px 0;display:flex;flex-direction:column;gap:18px}
+
+  .section-eyebrow{
+    font-size:11.5px;font-weight:800;letter-spacing:1.5px;color:var(--gold);
+    text-transform:uppercase;
+  }
+  .section-title{
+    font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:22px;
+    color:var(--navy);margin-top:2px;
+  }
+
+  /* audience cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  .card{
+    background:#fff;border:1px solid #ececdf;border-radius:16px;
+    padding:16px 15px;position:relative;
+    box-shadow:0 8px 22px rgba(15,34,53,.06);
+  }
+  .card .ico{
+    width:42px;height:42px;border-radius:11px;
+    background:rgba(201,168,76,.14);color:var(--blue);
+    display:flex;align-items:center;justify-content:center;margin-bottom:11px;
+  }
+  .card .ico svg{width:23px;height:23px}
+  .card h3{font-family:"Frank Ruhl Libre",serif;font-size:18px;color:var(--navy);font-weight:700}
+  .card .role{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.4px;margin-bottom:7px}
+  .card p{font-size:12.7px;line-height:1.5;color:var(--muted);font-weight:400}
+
+  /* process */
+  .process{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  .step{display:flex;gap:11px;align-items:flex-start}
+  .step .num{
+    width:34px;height:34px;border-radius:50%;flex:none;
+    background:var(--navy);color:var(--gold);
+    font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:17px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .step h4{font-size:14.5px;color:var(--navy);font-weight:800;line-height:1.2}
+  .step p{font-size:11.8px;color:var(--muted);line-height:1.45;margin-top:3px}
+
+  /* feature + pricing band */
+  .band{display:grid;grid-template-columns:1.15fr 1fr;gap:14px}
+  .ai{
+    background:linear-gradient(160deg,var(--navy),var(--blue));
+    color:#fff;border-radius:16px;padding:17px 19px;position:relative;overflow:hidden;
+  }
+  .ai::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;
+    background:radial-gradient(circle,rgba(201,168,76,.28),transparent 70%);left:-40px;bottom:-50px}
+  .ai .tag{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--gold-soft)}
+  .ai h3{font-family:"Frank Ruhl Libre",serif;font-size:21px;font-weight:700;margin-top:3px}
+  .ai p{font-size:12.5px;line-height:1.5;color:#cfdcea;margin-top:6px}
+  .ai ul{list-style:none;margin-top:10px;display:flex;flex-wrap:wrap;gap:7px}
+  .ai li{font-size:11px;font-weight:600;background:rgba(255,255,255,.1);
+    border:1px solid rgba(201,168,76,.4);padding:5px 10px;border-radius:999px}
+
+  .pricing{
+    background:#fff;border:2px solid var(--gold);border-radius:16px;
+    padding:17px 19px;position:relative;
+    box-shadow:0 10px 26px rgba(201,168,76,.16);
+  }
+  .pricing .ribbon{
+    position:absolute;top:-12px;inset-inline-start:16px;
+    background:var(--gold);color:var(--navy);font-size:11px;font-weight:800;
+    letter-spacing:.5px;padding:4px 12px;border-radius:999px;
+  }
+  .pricing h3{font-family:"Frank Ruhl Libre",serif;font-size:19px;color:var(--navy);font-weight:700;margin-top:5px}
+  .pricing .big{
+    display:flex;align-items:baseline;gap:8px;margin-top:6px;
+  }
+  .pricing .big .amount{font-family:"Frank Ruhl Libre",serif;font-weight:900;font-size:26px;color:var(--navy)}
+  .pricing .big .per{font-size:13px;color:var(--gold);font-weight:800}
+  .pricing .note{font-size:12.3px;color:var(--muted);line-height:1.5;margin-top:7px}
+  .pricing .note b{color:var(--navy)}
+  .strike{color:#b1383d;font-weight:700;text-decoration:line-through;text-decoration-thickness:2px}
+
+  /* ---------- CTA / QR FOOTER ---------- */
+  .cta{
+    margin-top:auto;
+    background:
+      radial-gradient(120% 160% at 8% 120%, rgba(201,168,76,.18), transparent 55%),
+      linear-gradient(150deg,var(--navy),var(--blue));
+    color:#fff;padding:22px 40px;display:flex;align-items:center;gap:26px;
+  }
+  .qr{
+    background:#fff;border-radius:16px;padding:11px;flex:none;
+    box-shadow:0 10px 26px rgba(0,0,0,.3);
+    width:124px;height:124px;
+  }
+  .qr svg{width:100%;height:100%;display:block}
+  .cta-text{flex:1}
+  .cta-text .k{font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--gold-soft);text-transform:uppercase}
+  .cta-text h2{font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:27px;line-height:1.15;margin-top:4px}
+  .cta-url{
+    direction:ltr;display:inline-flex;align-items:center;gap:8px;margin-top:11px;
+    background:var(--gold);color:var(--navy);font-weight:800;font-size:16px;
+    padding:9px 18px;border-radius:999px;
+  }
+  .cta-meta{display:flex;gap:18px;margin-top:12px;font-size:12px;color:#bcd0e4;font-weight:600;flex-wrap:wrap}
+  .cta-meta span{display:inline-flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- HEADER -->
+    <header class="hero">
+      <div class="brandrow">
+        <div class="brand">
+          <div class="logo-mark">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5" stroke="#0F2235" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9h5v-5h4v5h5v-9" stroke="#0F2235" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="brand-name">Nadlan<b>Connect</b></div>
+            <div class="brand-sub">פלטפורמת הנדל״ן הישראלית</div>
+          </div>
+        </div>
+        <div class="site-pill">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0F2235" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" stroke="#0F2235" stroke-width="1.6"/></svg>
+          nadlanconnect.com
+        </div>
+      </div>
+
+      <span class="eyebrow">יזמים · ציידים · משקיעים</span>
+      <h1 class="title">המקום שבו עסקאות הנדל״ן <span class="hl">קורות</span></h1>
+      <p class="subtitle">הפלטפורמה שמחברת יזמים, ציידי נכסים ומשקיעים במקום אחד — נתונים מדויקים, הזדמנויות בלעדיות, ניתוח AI וחיבור ישיר לטובי אנשי המקצוע בשוק.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="n">+50,000</div><div class="l">עסקאות נדל״ן</div></div>
+        <div class="stat"><div class="n">12</div><div class="l">ערים מכוסות</div></div>
+        <div class="stat"><div class="n">98%</div><div class="l">לידים איכותיים</div></div>
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <main class="body">
+
+      <section>
+        <div class="section-eyebrow">למי זה מתאים</div>
+        <div class="section-title">פלטפורמה אחת, שלושה צדדים</div>
+        <div class="cards" style="margin-top:12px">
+          <div class="card">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M4 21V8l7-4 7 4v13" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 21v-5h4v5M4 11h14" stroke="currentColor" stroke-width="1.8"/></svg></div>
+            <div class="role">ליזמים</div>
+            <h3>פרסום פרויקטים</h3>
+            <p>העלו פרויקטים חדשים ב-10 דקות, נהלו דירות וסטטוסים, וקבלו לידים איכותיים מציידים מאומתים.</p>
+          </div>
+          <div class="card">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="role">לציידים / לסוכנים</div>
+            <h3>מנדטים בלעדיים</h3>
+            <p>קבלו מנדט בקליק, גישה מלאה למסמכים, וכלים לסגירת עסקאות מהר — תשלום פר פרויקט, בלי מנוי.</p>
+          </div>
+          <div class="card">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 13 12 4l9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4v16M5 13v7h14v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="role">למשקיעים / לקונים</div>
+            <h3>הזדמנויות חכמות</h3>
+            <p>קטלוג עם סינונים, ציון השקעה מתוך 100 וניתוח AI — וקשר ישיר עם הסוכן המורשה לכל נכס.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-eyebrow">איך זה עובד</div>
+        <div class="section-title">3 צעדים למכירה מהירה</div>
+        <div class="process" style="margin-top:12px">
+          <div class="step"><div class="num">1</div><div><h4>היזם מפרסם</h4><p>פרויקט עם תמונות, תוכניות, מחירים וסטטוס — הכל במקום אחד.</p></div></div>
+          <div class="step"><div class="num">2</div><div><h4>הצייד מקבל מנדט</h4><p>בקשה בקליק, היזם מאשר וגישה מלאה למסמכים נפתחת.</p></div></div>
+          <div class="step"><div class="num">3</div><div><h4>הקונה מוצא נכס</h4><p>סינון חכם, ציון השקעה וקשר ישיר עם הסוכן המורשה.</p></div></div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="ai">
+          <div class="tag">בינה מלאכותית · סוכן השמאי</div>
+          <h3>ניתוח נכס ב-30 שניות</h3>
+          <p>מדביקים מודעה (Yad2, Madlan, וואטסאפ) ומקבלים הערכת שווי אמיתית, זיהוי חריגות, סימולציית תשואה ופוטנציאל תכנוני.</p>
+          <ul>
+            <li>הערכת שווי</li><li>זיהוי חריגות</li><li>תשואה צפויה</li><li>תמ״א 38</li><li>פינוי-בינוי</li>
+          </ul>
+        </div>
+
+        <div class="pricing">
+          <div class="ribbon">תמחור לציידים</div>
+          <h3>תשלום פר פרויקט</h3>
+          <div class="big"><span class="amount">לפי פרויקט</span><span class="per">/ ולא מנוי</span></div>
+          <p class="note"><span class="strike">מנוי חודשי</span> — לא אצלנו. משלמים <b>תעריף לכל פרויקט</b> שאתם עובדים עליו בלבד. בלי התחייבות חודשית, בלי עלויות קבועות — רק על מה שמניב.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- CTA / QR -->
+    <footer class="cta">
+      <div class="qr">
+        <!-- QR → https://nadlanconnect.com -->
+        <svg viewBox="0 0 41 41" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M0 0h41v41H0z"/><path stroke="#0F2235" d="M4 4.5h7m1 0h3m2 0h1m1 0h2m4 0h1m1 0h2m1 0h7M4 5.5h1m5 0h1m1 0h1m3 0h3m1 0h3m5 0h1m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h2m4 0h4m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m5 0h1m2 0h1m3 0h1m2 0h3m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m6 0h1m2 0h3m7 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h2m1 0h1m2 0h2m1 0h2m3 0h3m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h3m4 0h1m3 0h5M6 12.5h3m1 0h1m1 0h1m1 0h5m1 0h1m1 0h1m3 0h6m2 0h3M7 13.5h1m1 0h1m5 0h1m5 0h1m3 0h1m1 0h1m1 0h2m2 0h1m2 0h1M5 14.5h3m2 0h1m1 0h1m1 0h1m3 0h2m2 0h4m3 0h3m3 0h1M4 15.5h6m1 0h2m3 0h1m3 0h1m1 0h7m4 0h2m1 0h1M8 16.5h4m1 0h3m3 0h1m1 0h2m1 0h2m2 0h2m5 0h2M6 17.5h1m1 0h1m2 0h1m2 0h1m5 0h2m1 0h1m2 0h2m2 0h2m2 0h1m1 0h1M6 18.5h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h2m2 0h1m1 0h2m3 0h3M4 19.5h1m3 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h7m3 0h1m2 0h2M4 20.5h3m3 0h2m5 0h1m2 0h1m1 0h2m3 0h1m4 0h3m1 0h1M4 21.5h3m1 0h2m1 0h2m1 0h5m4 0h2m2 0h2m1 0h1M5 22.5h1m2 0h1m1 0h1m1 0h2m2 0h1m2 0h2m5 0h1m2 0h2m1 0h1m1 0h3M5 23.5h4m4 0h2m1 0h1m1 0h1m1 0h4m1 0h4m1 0h2m1 0h2m1 0h1M5 24.5h2m3 0h2m2 0h1m4 0h1m2 0h1m3 0h1m2 0h5m1 0h2M4 25.5h1m2 0h3m2 0h1m2 0h2m5 0h1m1 0h1m3 0h1m5 0h1m1 0h1M4 26.5h1m1 0h8m2 0h1m1 0h1m1 0h2m2 0h3m4 0h1m1 0h3M4 27.5h1m1 0h2m1 0h1m1 0h4m2 0h1m4 0h5m1 0h1m4 0h2m1 0h1M4 28.5h1m1 0h8m2 0h1m2 0h1m4 0h2m2 0h5m2 0h2M12 29.5h5m1 0h2m3 0h1m4 0h1m3 0h3m1 0h1M4 30.5h7m6 0h3m2 0h3m1 0h3m1 0h1m1 0h4M4 31.5h1m5 0h1m2 0h3m1 0h1m2 0h1m6 0h2m3 0h5M4 32.5h1m1 0h3m1 0h1m1 0h3m1 0h4m4 0h3m1 0h5m2 0h2M4 33.5h1m1 0h3m1 0h1m1 0h1m6 0h3m1 0h2m4 0h1m2 0h2m1 0h1M4 34.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m2 0h4m1 0h2M4 35.5h1m5 0h1m4 0h4m5 0h2m5 0h1m1 0h1M4 36.5h7m3 0h1m1 0h1m4 0h2m1 0h2m1 0h3m4 0h2"/></svg>
+      </div>
+      <div class="cta-text">
+        <div class="k">סרקו והצטרפו עכשיו</div>
+        <h2>הצטרפו לפלטפורמת<br/>הנדל״ן המובילה בישראל</h2>
+        <span class="cta-url">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0F2235" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" stroke="#0F2235" stroke-width="1.6"/></svg>
+          nadlanconnect.com
+        </span>
+        <div class="cta-meta">
+          <span>📍 תל אביב, ישראל</span>
+          <span>🤖 מבוסס AI — Claude</span>
+          <span>🔒 סוכנים ויזמים מאומתים</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
