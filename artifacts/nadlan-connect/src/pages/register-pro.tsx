@@ -3,7 +3,7 @@ import { Link, useRoute } from "wouter";
 import { useRegisterPromoteur, useRegisterAgence } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
-import { Building2, Handshake, Search, Home, Check, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Building2, Handshake, Search, Home, Check, CheckCircle2, Eye, EyeOff, Loader2, ChevronLeft } from "lucide-react";
 
 const NAVY = "hsl(var(--foreground))";
 const GOLD = "hsl(var(--sea))";
@@ -200,6 +200,9 @@ export default function RegisterPro() {
     cgu: false,
   });
 
+  // Two-step wizard: choose a role first, then fill the form.
+  const [showForm, setShowForm] = useState(false);
+
   const isPending = registerPromoteur.isPending || registerAgence.isPending;
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -357,33 +360,49 @@ export default function RegisterPro() {
         <h1 className="text-[20px] font-medium mb-1.5" style={{ color: NAVY }}>{L.title}</h1>
         <p className="text-[13px] text-muted-foreground mb-6">{L.subtitle}</p>
 
-        {/* Role selector */}
-        <span className={labelCls}>{L.chooseRole} *</span>
-        <div className="grid grid-cols-1 gap-2.5 mb-6">
-          {CARD_OPTIONS.map(({ id, icon: Icon }) => {
-            const selected = card === id;
-            return (
-              <button
-                type="button"
-                key={id}
-                onClick={() => { setCard(id); setField("plan", DEFAULT_PLAN[id]); }}
-                aria-pressed={selected}
-                className="flex items-start gap-3 rounded-xl p-3.5 text-start transition-colors"
-                style={{ border: selected ? "2px solid hsl(var(--foreground))" : "0.5px solid rgba(0,0,0,0.15)", background: selected ? "hsl(var(--accent))" : "#fff" }}
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: selected ? GOLD : "#EEE9DD" }}>
-                  <Icon className="h-4 w-4" style={{ color: NAVY }} />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold" style={{ color: NAVY }}>{L.roles[id].name}</div>
-                  <div className="text-[12px] text-muted-foreground leading-snug">{L.roles[id].desc}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        {/* Step 1 — role chooser (with price) */}
+        {!showForm && (
+          <div>
+            <span className={labelCls}>{L.chooseRole} *</span>
+            <div className="grid grid-cols-1 gap-2.5 mb-5">
+              {CARD_OPTIONS.map(({ id, icon: Icon }) => {
+                const plan = L.plans[id][0];
+                return (
+                  <button
+                    type="button"
+                    key={id}
+                    onClick={() => { setCard(id); setField("plan", DEFAULT_PLAN[id]); setShowForm(true); }}
+                    className="flex items-center gap-3 rounded-xl p-3.5 text-start transition-colors hover:border-sea"
+                    style={{ border: "0.5px solid rgba(0,0,0,0.15)", background: "#fff" }}
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ background: "hsl(var(--sea-soft))" }}>
+                      <Icon className="h-4 w-4" style={{ color: "hsl(var(--sea))" }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold" style={{ color: NAVY }}>{L.roles[id].name}</div>
+                      <div className="text-[12px] text-muted-foreground leading-snug">{L.roles[id].desc}</div>
+                    </div>
+                    <div className="shrink-0 text-end">
+                      <div className="text-[15px] font-semibold" style={{ color: NAVY }}>
+                        {plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span>
+                      </div>
+                      {plan.per && <div className="text-[10px] text-muted-foreground">{plan.per}</div>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-center text-[13px] text-muted-foreground">
+              <Link href="/auth/login" className="underline" style={{ color: GOLD }}>{t("login.haveAccount")}</Link>
+            </p>
+          </div>
+        )}
 
+        {showForm && (
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <button type="button" onClick={() => setShowForm(false)} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {L.roles[card].name}
+          </button>
           {field("firstName", t("proRegister.firstName"), { required: true, autoComplete: "given-name" })}
           {field("lastName", t("proRegister.lastName"), { required: true, autoComplete: "family-name" })}
           {field("email", t("proRegister.email"), { required: true, type: "email", autoComplete: "email" })}
@@ -499,6 +518,7 @@ export default function RegisterPro() {
             <Link href="/auth/login" className="underline" style={{ color: GOLD }}>{t("login.haveAccount")}</Link>
           </p>
         </form>
+        )}
       </div>
     </div>
   );
