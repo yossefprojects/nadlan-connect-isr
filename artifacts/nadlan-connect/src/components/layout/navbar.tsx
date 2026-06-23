@@ -63,10 +63,10 @@ export function Navbar() {
   } else if (role === "admin") {
     navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.admin];
   } else if (role === "buyer") {
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.tarifs, items.reports, items.favorites, items.myLeads];
+    navItems = [items.home, items.properties, items.programmes, items.developers, items.reports, items.favorites, items.myLeads];
   } else {
     // Anonymous visitor.
-    navItems = [items.home, items.properties, items.programmes, items.developers, items.demolition, items.tarifs];
+    navItems = [items.home, items.properties, items.programmes, items.developers];
   }
 
   const isHome = location === "/";

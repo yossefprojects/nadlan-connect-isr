@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import {
   useListDemolitionListings,
   type ListDemolitionListingsParams,
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/components/layout/language-provider";
+import { useUserRole } from "@/hooks/use-user-role";
 import { Building2, MapPin, Calendar, Layers, Plus, Inbox } from "lucide-react";
 
 const ALL = "__all__";
@@ -20,6 +21,17 @@ function projectTypeLabel(t: (k: string) => string, pt: string) {
 
 export default function DemolitionListings() {
   const { t } = useLanguage();
+  const { role, isAuthenticated } = useUserRole();
+  const [, setLocation] = useLocation();
+
+  // The marketplace of published projects is reserved for promoteurs (yazam).
+  // Vaad bayit / apporteurs only see what they published (/demolition/mes-projets).
+  useEffect(() => {
+    if (isAuthenticated && role !== "developer" && role !== "admin") {
+      setLocation("/");
+    }
+  }, [isAuthenticated, role, setLocation]);
+
   const [city, setCity] = useState("");
   const [projectType, setProjectType] = useState<string>(ALL);
   const [minUnits, setMinUnits] = useState("");
