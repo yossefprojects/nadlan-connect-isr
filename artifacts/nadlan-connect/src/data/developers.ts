@@ -8,7 +8,7 @@ export interface Developer {
   /** Optionnel : chemin du logo dans /public/partners/ (ex: "/partners/shikun-binui.png").
    *  Tant qu'il est absent, le bandeau et la page affichent le nom stylisé. */
   logo?: string;
-  blurb: { fr: string; en: string };
+  blurb: { fr: string; en: string; he: string };
 }
 
 export const DEVELOPERS: Developer[] = [
@@ -21,6 +21,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Plus grand groupe d'infrastructures et de promotion immobilière d'Israël.",
       en: "Israel's largest infrastructure and real-estate development group.",
+      he: "קבוצת התשתיות והייזום הנדל״ני הגדולה בישראל.",
     },
   },
   {
@@ -31,6 +32,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Conglomérat coté : matériaux, résidentiel haut de gamme, bureaux et centres commerciaux.",
       en: "Listed conglomerate: materials, premium residential, offices and malls.",
+      he: "קונגלומרט נסחר: חומרי בנייה, מגורי יוקרה, משרדים וקניונים.",
     },
   },
   {
@@ -41,6 +43,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Filiale immobilière du groupe Electra : résidentiel, parcs d'activités et commercial.",
       en: "Electra's real-estate arm: residential, business parks and commercial.",
+      he: "הזרוע הנדל״נית של קבוצת אלקטרה: מגורים, פארקי תעסוקה ומסחר.",
     },
   },
 
@@ -53,6 +56,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Acteur majeur du luxe et des projets mixtes à Tel-Aviv (tours phares, parcelles ultra-prime).",
       en: "Major player in luxury and mixed-use projects in Tel Aviv (landmark towers, prime plots).",
+      he: "שחקנית מובילה ביוקרה ובפרויקטים מעורבי-שימושים בתל אביב (מגדלי דגל, מגרשי פריים).",
     },
   },
   {
@@ -63,6 +67,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Immobilier haut de gamme et gratte-ciels résidentiels et de bureaux à Tel-Aviv.",
       en: "High-end real estate and residential & office towers in Tel Aviv.",
+      he: "נדל״ן יוקרתי ומגדלי מגורים ומשרדים בתל אביב.",
     },
   },
   {
@@ -73,6 +78,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "L'un des plus gros promoteurs résidentiels du pays en volume d'appartements.",
       en: "One of the country's largest residential developers by volume.",
+      he: "אחת היזמיות הגדולות במדינה בהיקף דירות למגורים.",
     },
   },
   {
@@ -83,6 +89,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Nom historique des grands projets résidentiels et des tours d'habitation urbaines.",
       en: "Historic name in large residential projects and urban housing towers.",
+      he: "שם ותיק בפרויקטים גדולים למגורים ובמגדלי מגורים עירוניים.",
     },
   },
 
@@ -95,6 +102,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Leader incontesté du Pinui-Binui et du renouvellement urbain (Tel-Aviv, Ramat Gan, Givatayim).",
       en: "Undisputed leader in Pinui-Binui and urban renewal (Tel Aviv, Ramat Gan, Givatayim).",
+      he: "מובילה בלתי מעורערת בפינוי-בינוי ובהתחדשות עירונית (תל אביב, רמת גן, גבעתיים).",
     },
   },
   {
@@ -105,6 +113,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Promoteur-constructeur de référence, reconnu pour sa rigueur d'exécution et ses grands projets.",
       en: "Leading developer-builder known for execution rigor and large-scale projects.",
+      he: "יזמית-קבלנית מובילה, מוכרת בקפדנות הביצוע ובפרויקטים בקנה מידה גדול.",
     },
   },
   {
@@ -115,6 +124,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Groupe familial solide : projets boutique, Tama 38 et surélévations au centre de Tel-Aviv.",
       en: "Solid family group: boutique projects, Tama 38 and rooftop additions in central Tel Aviv.",
+      he: "קבוצה משפחתית איתנה: פרויקטים בוטיק, תמ״א 38 ותוספות גג במרכז תל אביב.",
     },
   },
 
@@ -127,6 +137,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Plus grosse capitalisation immobilière du pays : tours Azrieli, centres commerciaux et bureaux.",
       en: "Country's largest real-estate cap: Azrieli towers, malls and office parks.",
+      he: "שווי השוק הנדל״ני הגדול במדינה: מגדלי עזריאלי, קניונים ומשרדים.",
     },
   },
   {
@@ -137,6 +148,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Grand acteur des centres commerciaux (Ofer Malls) et des bureaux de prestige pour la Tech.",
       en: "Major player in shopping centers (Ofer Malls) and prime offices for tech firms.",
+      he: "שחקנית גדולה בקניונים (קניוני עופר) ובמשרדי יוקרה לחברות הייטק.",
     },
   },
   {
@@ -147,6 +159,7 @@ export const DEVELOPERS: Developer[] = [
     blurb: {
       fr: "Spécialiste historique des parcs technologiques et industriels de pointe (Herzliya, Matam…).",
       en: "Historic specialist in advanced tech and industrial parks (Herzliya, Matam…).",
+      he: "מומחית ותיקה בפארקי טכנולוגיה ותעשייה מתקדמים (הרצליה, מתם…).",
     },
   },
 ];
