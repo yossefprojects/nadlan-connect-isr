@@ -48,7 +48,7 @@
   /* Brand tokens — palette « Méditerranée » (données / accents) */
   --color-sea: hsl(var(--sea));
   --color-sea-soft: hsl(var(--sea-soft));
-  --color-gold: hsl(var(--gold));
+  --color-sea-bright: hsl(var(--sea-bright));
   --color-ink-2: hsl(var(--ink-2));
   --color-score-good: hsl(var(--score-good));
   --color-score-mid: hsl(var(--score-mid));
@@ -125,10 +125,10 @@
   /* Brand tokens (accents data) */
   --sea: 172 78% 27%;
   --sea-soft: 168 33% 91%;
-  --gold: 37 56% 51%;
+  --sea-bright: 171 53% 46%;
   --ink-2: 213 44% 20%;
   --score-good: 172 78% 27%;
-  --score-mid: 37 56% 51%;
+  --score-mid: 28 79% 49%;
   --score-low: 5 59% 44%;
 
   --app-font-sans: 'Inter', sans-serif;

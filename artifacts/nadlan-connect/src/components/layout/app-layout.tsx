@@ -25,7 +25,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("nav.simulator")}
-        className="fixed bottom-5 right-5 rtl:right-auto rtl:left-5 z-50 flex items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-foreground shadow-lg shadow-black/15 transition-transform hover:scale-105"
+        className="fixed bottom-5 right-5 rtl:right-auto rtl:left-5 z-50 flex items-center gap-2 rounded-full bg-sea px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-black/15 transition-transform hover:scale-105"
       >
         <Calculator className="h-5 w-5" />
         <span>{t("nav.simulator")}</span>
@@ -90,7 +90,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               href="https://simmoisrael.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-gold/30 bg-gold/10 px-3.5 py-2 text-xs font-semibold text-gold transition-colors hover:border-gold/50 hover:bg-gold/20"
+              className="inline-flex items-center gap-2 rounded-lg border border-sea/30 bg-sea-soft px-3.5 py-2 text-xs font-semibold text-sea transition-colors hover:border-sea/50 hover:bg-sea/15"
             >
               <Calculator className="h-4 w-4" />
               {t("footer.aiSimulator")}

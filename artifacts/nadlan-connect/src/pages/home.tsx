@@ -11,6 +11,7 @@ import abstractAiWebp from "@/assets/ai-abstract.webp";
 import proNetwork from "@/assets/pro-network.png";
 import proNetworkWebp from "@/assets/pro-network.webp";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { CITIES } from "@/data/villes";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -26,15 +27,6 @@ const staggerContainer = {
     }
   }
 };
-
-const CITIES = [
-  { v: "tlv", l: "Tel Aviv" },
-  { v: "jer", l: "Jérusalem" },
-  { v: "hfa", l: "Haïfa" },
-  { v: "nat", l: "Netanya" },
-  { v: "ash", l: "Ashdod" },
-  { v: "bs", l: "Beer-Sheva" },
-];
 
 const BUDGETS = ["2000000", "4000000", "6000000", "10000000"];
 
@@ -109,7 +101,7 @@ export default function Home() {
               <label htmlFor="s-ville" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{t("home.searchVille")}</label>
               <select id="s-ville" value={ville} onChange={(e) => setVille(e.target.value)} className="bg-transparent text-sm font-medium text-foreground outline-none">
                 <option value="">{t("home.searchAny")}</option>
-                {CITIES.map((c) => <option key={c.v} value={c.v}>{c.l}</option>)}
+                {CITIES.map((c) => <option key={c} value={c}>{t(`city.${c}`)}</option>)}
               </select>
             </div>
             <div className="flex min-w-[150px] flex-1 flex-col gap-0.5 px-3.5 py-1.5 border-border sm:border-e">
@@ -225,9 +217,9 @@ export default function Home() {
               variants={staggerContainer}
               className="max-w-xl"
             >
-              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 mb-8">
-                <Brain className="h-4 w-4 text-gold" />
-                <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-gold">
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 rounded-full border border-sea-bright/40 bg-sea-bright/10 px-4 py-1.5 mb-8">
+                <Brain className="h-4 w-4 text-sea-bright" />
+                <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-sea-bright">
                   {t("home.aiEyebrow")}
                 </span>
               </motion.div>
@@ -247,7 +239,7 @@ export default function Home() {
                   t("analyse.rentalYield"),
                 ].map((feature, i) => (
                   <motion.li key={i} variants={fadeInUp} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-gold" />
+                    <CheckCircle2 className="h-5 w-5 text-sea-bright" />
                     <span className="text-white/90 font-medium">{feature}</span>
                   </motion.li>
                 ))}
@@ -335,7 +327,7 @@ export default function Home() {
          <div className="container relative z-10">
            <div className="bg-foreground rounded-[2.5rem] overflow-hidden flex flex-col lg:flex-row shadow-2xl">
               <div className="lg:w-1/2 p-12 lg:p-20 flex flex-col justify-center">
-                <div className="font-mono text-xs font-semibold tracking-[0.14em] text-gold uppercase mb-6">
+                <div className="font-mono text-xs font-semibold tracking-[0.14em] text-sea-bright uppercase mb-6">
                   {t("home.closingEyebrow")}
                 </div>
                 <h2 className="font-serif text-3xl md:text-5xl text-white mb-6 leading-tight">
@@ -346,7 +338,7 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/auth/register">
-                    <Button className="h-14 rounded-full bg-gold text-foreground px-8 text-base font-bold shadow-lg hover:scale-105 transition-transform border-0">
+                    <Button className="h-14 rounded-full bg-background text-foreground px-8 text-base font-bold shadow-lg hover:scale-105 transition-transform border-0">
                       {t("home.partnerCta")}
                     </Button>
                   </Link>
