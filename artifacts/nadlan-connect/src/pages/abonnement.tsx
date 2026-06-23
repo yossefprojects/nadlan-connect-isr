@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Loader2, CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
 
 const NAVY = "hsl(var(--foreground))";
-const GOLD = "hsl(var(--sea))";
+const SEA = "hsl(var(--sea))";
 
 type SubStatus = { active: boolean; plan: string | null; currentPeriodEnd: string | null };
 
@@ -168,9 +168,9 @@ export default function Abonnement() {
               <>
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {plans.map((plan) => (
-                    <div key={plan.key} className="flex flex-col rounded-2xl bg-white p-6 shadow-sm" style={{ border: plan.recommended ? `2px solid ${GOLD}` : "0.5px solid rgba(0,0,0,0.12)" }}>
+                    <div key={plan.key} className="flex flex-col rounded-2xl bg-white p-6 shadow-sm" style={{ border: plan.recommended ? `2px solid ${SEA}` : "0.5px solid rgba(0,0,0,0.12)" }}>
                       {plan.recommended && (
-                        <span className="mb-2 inline-block w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ background: GOLD, color: NAVY }}>
+                        <span className="mb-2 inline-block w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ background: SEA, color: NAVY }}>
                           {L.recommended}
                         </span>
                       )}

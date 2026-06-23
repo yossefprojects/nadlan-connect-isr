@@ -23,7 +23,7 @@ Font.registerHyphenationCallback((word) => [word]);
 
 const NAVY_DARK = "#0E1B2A";
 const NAVY = "#1C3049";
-const GOLD = "#0F7B6C";
+const SEA = "#0F7B6C";
 const INK = "#334155";
 const MUTED = "#64748B";
 const LINE = "#D8D4CB";
@@ -150,7 +150,7 @@ function makeStyles(f: Fonts, rtl: boolean) {
       marginBottom: 26,
     },
     kicker: {
-      color: GOLD,
+      color: SEA,
       fontSize: 8,
       letterSpacing: 1.5,
       fontFamily: f.bold,
@@ -171,7 +171,7 @@ function makeStyles(f: Fonts, rtl: boolean) {
     sectionPlain: { marginBottom: 16 },
     secHead: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
     secNum: {
-      backgroundColor: GOLD,
+      backgroundColor: SEA,
       color: NAVY_DARK,
       fontFamily: f.serif,
       fontSize: 11,
@@ -193,8 +193,8 @@ function makeStyles(f: Fonts, rtl: boolean) {
     bullet: {
       marginTop: 9,
       ...(rtl
-        ? { paddingRight: 10, borderRightWidth: 2, borderRightColor: GOLD }
-        : { paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: GOLD }),
+        ? { paddingRight: 10, borderRightWidth: 2, borderRightColor: SEA }
+        : { paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: SEA }),
     },
     bulletTitle: {
       color: NAVY,

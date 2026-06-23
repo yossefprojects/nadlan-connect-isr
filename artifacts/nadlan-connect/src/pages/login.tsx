@@ -16,7 +16,7 @@ import {
 import { Loader2 } from "lucide-react";
 
 const NAVY = "hsl(var(--foreground))";
-const GOLD = "hsl(var(--sea))";
+const SEA = "hsl(var(--sea))";
 
 function pathForRole(role: string | null | undefined): string {
   switch (role) {
@@ -89,7 +89,7 @@ export default function Login() {
         <CardHeader className="text-center space-y-2">
           <div
             className="mx-auto mb-2 h-12 w-1 rounded-full"
-            style={{ backgroundColor: GOLD }}
+            style={{ backgroundColor: SEA }}
           />
           <CardTitle
             className="font-serif text-3xl"
@@ -152,7 +152,7 @@ export default function Login() {
               type="submit"
               size="lg"
               className="w-full text-white border-0"
-              style={{ backgroundColor: GOLD }}
+              style={{ backgroundColor: SEA }}
               disabled={submitting}
             >
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -194,7 +194,7 @@ export default function Login() {
 
           <div
             className="rounded-xl border p-4 space-y-3"
-            style={{ borderColor: GOLD, backgroundColor: "rgba(15,123,108,0.07)" }}
+            style={{ borderColor: SEA, backgroundColor: "rgba(15,123,108,0.07)" }}
           >
             <p
               className="text-center text-sm font-semibold"

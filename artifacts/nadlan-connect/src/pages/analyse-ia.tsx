@@ -55,7 +55,7 @@ import {
   PieChart,
 } from "lucide-react";
 
-const GOLD = "hsl(var(--sea))";
+const SEA = "hsl(var(--sea))";
 
 const RECO_STYLE: Record<string, { bg: string; text: string; dot: string }> = {
   green: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
@@ -742,7 +742,7 @@ export default function AnalyseIA() {
                   <CardContent className="pt-0">
                     <div className="mb-4 rounded-lg bg-foreground p-4 text-white">
                       <div className="text-xs uppercase tracking-wider text-white/60">{t("analyse.appraisalValue")}</div>
-                      <div className="text-2xl font-serif" style={{ color: GOLD }}>
+                      <div className="text-2xl font-serif" style={{ color: SEA }}>
                         {fmtShekel(result.appraisal.estimatedValue)}
                       </div>
                       <div className="mt-1 text-xs text-white/70">
@@ -954,7 +954,7 @@ export default function AnalyseIA() {
                     {result.promoterRoi.applicable ? (
                       <>
                         <div className="mb-4 flex items-center gap-3 rounded-lg bg-foreground p-4 text-white">
-                          <span className="text-3xl font-serif" style={{ color: GOLD }}>
+                          <span className="text-3xl font-serif" style={{ color: SEA }}>
                             {fmtPct(result.promoterRoi.grossRoiPct)}
                           </span>
                           <span className="text-xs uppercase tracking-wider text-white/60">

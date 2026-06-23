@@ -3,7 +3,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { Building2, Handshake, Home, Search, Check, ArrowRight } from "lucide-react";
 
 const NAVY = "hsl(var(--foreground))";
-const GOLD = "hsl(var(--sea))";
+const SEA = "hsl(var(--sea))";
 
 // Hebrew uses the gershayim ״ (U+05F4), never an ASCII quote, inside strings.
 const CONTENT = {
@@ -82,7 +82,7 @@ export default function Tarifs() {
                   <span className="text-3xl font-bold" style={{ color: NAVY }}>{role.price}<Shekel /></span>
                   {role.per && <span className="text-xs text-muted-foreground">{role.per}</span>}
                 </div>
-                {role.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: GOLD }} dir="auto">{role.note}</div>}
+                {role.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: SEA }} dir="auto">{role.note}</div>}
                 <ul className="mt-4 flex-1 space-y-1.5 border-t pt-4">
                   {role.features.map((f) => (
                     <li key={f} className="flex items-start gap-1.5 text-[13px]" dir="auto">
