@@ -3,11 +3,14 @@ import { Link, useRoute } from "wouter";
 import { useRegisterPromoteur, useRegisterAgence } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
-import { Building2, Handshake, Search, Check, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Building2, Handshake, Search, Home, Check, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const NAVY = "#0D1B3E";
 const GOLD = "#C9A84C";
 
+// 4 selectable cards. Internally there are only 3 roles: "vaad" and "tzayad"
+// are two labels for the same role (apporteur / introducer), per the model.
+type CardId = "promoteur" | "agent" | "vaad" | "tzayad";
 type RoleId = "promoteur" | "agence" | "apporteur";
 type PlanId = "free" | "starter" | "pro";
 type FieldKey =
@@ -15,11 +18,19 @@ type FieldKey =
   | "companyName" | "companyNumber" | "licenseNumber"
   | "ville" | "nbProgrammes" | "nbAgents" | "website";
 
-// Default plan selected for each role (the role's first/cheapest tier).
-const DEFAULT_PLAN: Record<RoleId, PlanId> = {
+const CARD_ROLE: Record<CardId, RoleId> = {
+  promoteur: "promoteur",
+  agent: "agence",
+  vaad: "apporteur",
+  tzayad: "apporteur",
+};
+
+// Default plan per card.
+const DEFAULT_PLAN: Record<CardId, PlanId> = {
   promoteur: "free",
-  apporteur: "starter",
-  agence: "free",
+  agent: "pro",
+  vaad: "starter",
+  tzayad: "starter",
 };
 
 const SPECIALTIES = [
@@ -48,6 +59,7 @@ const inputBase =
 const labelCls = "block text-[12px] uppercase tracking-[0.05em] text-muted-foreground mb-1.5";
 
 // Role-specific copy (FR / EN / HE). Common field labels reuse the global i18n.
+// NB: Hebrew uses the gershayim ״ (U+05F4), never an ASCII quote, inside strings.
 const CONTENT = {
   fr: {
     title: "Devenir partenaire",
@@ -55,30 +67,31 @@ const CONTENT = {
     chooseRole: "Vous êtes :",
     roles: {
       promoteur: { name: "Promoteur", desc: "Vous construisez et commercialisez des programmes neufs." },
-      agence: { name: "Agence immobilière", desc: "Agence agréée avec licence תיווך (Risha'yon)." },
-      apporteur: { name: "Apporteur d'affaires", desc: "Vous dénichez des biens et opportunités — sans licence." },
+      agent: { name: "Agent immobilier", desc: "Agent agréé (Risha'yon) — vous commercialisez et revendez des biens." },
+      vaad: { name: "Responsable d'immeuble (ועד בית)", desc: "Vous représentez votre immeuble et le référencez pour la rénovation urbaine (Tama 38 / Pinui-Binui)." },
+      tzayad: { name: "Chasseur de biens (צייד נכסים)", desc: "Vous dénichez des biens et opportunités à proposer aux promoteurs." },
     },
-    companyName: { promoteur: "Nom de la société", agence: "Nom de l'agence", apporteur: "Société (optionnel)" },
+    companyName: { promoteur: "Nom de la société", agent: "Nom de l'agence", vaad: "Nom de l'immeuble / copropriété (optionnel)", tzayad: "Société (optionnel)" },
     licenseNumber: "Numéro de licence (Risha'yon)",
-    licenseHelp: "Licence de courtier obligatoire pour une agence en Israël (loi 5756-1996). Vérifiée avant l'activation.",
-    submit: { promoteur: "Créer mon compte promoteur", agence: "Créer mon compte agence", apporteur: "Créer mon compte apporteur" },
+    licenseHelp: "Licence de courtier obligatoire pour un agent immobilier en Israël (loi 5756-1996). Vérifiée avant l'activation.",
+    submit: { promoteur: "Créer mon compte promoteur", agent: "Créer mon compte agent immobilier", vaad: "Créer mon compte responsable d'immeuble", tzayad: "Créer mon compte chasseur de biens" },
     successText: "Votre demande est enregistrée. Nous la vérifions et activons votre accès sous 24 heures.",
     plans: {
       promoteur: [
-        { id: "free", name: "Gratuit", price: "0", per: "", note: "", recommended: false,
-          features: ["Profil promoteur vérifié", "Publication de vos programmes", "Réception de leads acheteurs"] },
-        { id: "pro", name: "Pro", price: "490", per: "/mois", note: "", recommended: true,
-          features: ["Tout le plan Gratuit", "Accès aux projets luxueux", "Mise en avant prioritaire", "Badge Pro vérifié"] },
+        { id: "free", name: "Accès gratuit", price: "0", per: "", note: "Commission au succès (voir CGV)", recommended: false,
+          features: ["Accès gratuit à la plateforme", "Publication de vos programmes", "Réception de leads acheteurs", "Commission uniquement à la transaction (CGV)"] },
       ],
-      apporteur: [
-        { id: "starter", name: "3 projets", price: "499", per: "", note: "Sans engagement", recommended: false,
-          features: ["Publication de 3 projets", "Offres des promoteurs", "Mise en relation sécurisée"] },
-        { id: "pro", name: "Illimité", price: "990", per: "", note: "Sans engagement", recommended: true,
-          features: ["Projets illimités", "Offres des promoteurs", "Mise en relation sécurisée", "Mise en avant prioritaire"] },
+      agent: [
+        { id: "pro", name: "Abonnement agent", price: "300", per: "/mois", note: "Sans engagement", recommended: true,
+          features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Visibilité sur la plateforme", "Aucune commission sur les ventes"] },
       ],
-      agence: [
-        { id: "free", name: "Gratuit", price: "0", per: "", note: "", recommended: false,
-          features: ["Inscription 100% gratuite", "Accès aux projets sur mandat d'un promoteur", "Commission sur les reventes"] },
+      vaad: [
+        { id: "starter", name: "Abonnement annuel", price: "1000", per: "/an", note: "Sans engagement", recommended: true,
+          features: ["Référencement de votre immeuble", "Offres des promoteurs", "Mise en relation sécurisée"] },
+      ],
+      tzayad: [
+        { id: "starter", name: "Abonnement annuel", price: "1000", per: "/an", note: "Sans engagement", recommended: true,
+          features: ["Publication de vos biens dénichés", "Offres des promoteurs", "Mise en relation sécurisée"] },
       ],
     },
   },
@@ -88,30 +101,31 @@ const CONTENT = {
     chooseRole: "You are:",
     roles: {
       promoteur: { name: "Developer", desc: "You build and sell new developments." },
-      agence: { name: "Real estate agency", desc: "Licensed agency with a Risha'yon licence." },
-      apporteur: { name: "Business introducer", desc: "You find properties and opportunities — no licence needed." },
+      agent: { name: "Real estate agent", desc: "Licensed agent (Risha'yon) — you market and resell properties." },
+      vaad: { name: "Building manager (ועד בית)", desc: "You represent your building and list it for urban renewal (Tama 38 / Pinui-Binui)." },
+      tzayad: { name: "Property hunter (צייד נכסים)", desc: "You find properties and opportunities to offer to developers." },
     },
-    companyName: { promoteur: "Company name", agence: "Agency name", apporteur: "Company (optional)" },
+    companyName: { promoteur: "Company name", agent: "Agency name", vaad: "Building / association name (optional)", tzayad: "Company (optional)" },
     licenseNumber: "Licence number (Risha'yon)",
-    licenseHelp: "A broker licence is required for an agency in Israel (law 5756-1996). Verified before activation.",
-    submit: { promoteur: "Create my developer account", agence: "Create my agency account", apporteur: "Create my introducer account" },
+    licenseHelp: "A broker licence is required for a real estate agent in Israel (law 5756-1996). Verified before activation.",
+    submit: { promoteur: "Create my developer account", agent: "Create my agent account", vaad: "Create my building-manager account", tzayad: "Create my property-hunter account" },
     successText: "Your application has been received. We verify it and activate your access within 24 hours.",
     plans: {
       promoteur: [
-        { id: "free", name: "Free", price: "0", per: "", note: "", recommended: false,
-          features: ["Verified developer profile", "Publish your developments", "Receive buyer leads"] },
-        { id: "pro", name: "Pro", price: "490", per: "/mo", note: "", recommended: true,
-          features: ["Everything in Free", "Access to luxury projects", "Priority placement", "Verified Pro badge"] },
+        { id: "free", name: "Free access", price: "0", per: "", note: "Success commission (see GTS)", recommended: false,
+          features: ["Free access to the platform", "Publish your developments", "Receive buyer leads", "Commission only on transactions (GTS)"] },
       ],
-      apporteur: [
-        { id: "starter", name: "3 projects", price: "499", per: "", note: "No commitment", recommended: false,
-          features: ["Publish 3 projects", "Offers from developers", "Secure introductions"] },
-        { id: "pro", name: "Unlimited", price: "990", per: "", note: "No commitment", recommended: true,
-          features: ["Unlimited projects", "Offers from developers", "Secure introductions", "Priority placement"] },
+      agent: [
+        { id: "pro", name: "Agent subscription", price: "300", per: "/mo", note: "No commitment", recommended: true,
+          features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "Visibility on the platform", "No commission on sales"] },
       ],
-      agence: [
-        { id: "free", name: "Free", price: "0", per: "", note: "", recommended: false,
-          features: ["100% free registration", "Project access only via a developer mandate", "Commission on resales"] },
+      vaad: [
+        { id: "starter", name: "Annual subscription", price: "1000", per: "/yr", note: "No commitment", recommended: true,
+          features: ["List your building", "Offers from developers", "Secure introductions"] },
+      ],
+      tzayad: [
+        { id: "starter", name: "Annual subscription", price: "1000", per: "/yr", note: "No commitment", recommended: true,
+          features: ["Publish the properties you find", "Offers from developers", "Secure introductions"] },
       ],
     },
   },
@@ -121,30 +135,31 @@ const CONTENT = {
     chooseRole: "אתם:",
     roles: {
       promoteur: { name: "יזם", desc: "אתם בונים ומשווקים פרויקטים חדשים." },
-      agence: { name: "סוכנות נדל\"ן", desc: "סוכנות מורשית עם רישיון תיווך." },
-      apporteur: { name: "צייד נכסים", desc: "אתם מאתרים נכסים והזדמנויות — ללא צורך ברישיון." },
+      agent: { name: "מתווך נדל״ן", desc: "מתווך מורשה (רישיון תיווך) — אתם משווקים ומוכרים נכסים." },
+      vaad: { name: "ועד בית", desc: "אתם מייצגים את הבניין שלכם ומפרסמים אותו להתחדשות עירונית (תמ״א 38 / פינוי-בינוי)." },
+      tzayad: { name: "צייד נכסים", desc: "אתם מאתרים נכסים והזדמנויות עבור יזמים." },
     },
-    companyName: { promoteur: "שם החברה", agence: "שם הסוכנות", apporteur: "חברה (אופציונלי)" },
+    companyName: { promoteur: "שם החברה", agent: "שם הסוכנות", vaad: "שם הבניין / הוועד (אופציונלי)", tzayad: "חברה (אופציונלי)" },
     licenseNumber: "מספר רישיון תיווך",
-    licenseHelp: "רישיון תיווך נדרש לסוכנות בישראל (חוק התשנ\"ו-1996). יאומת לפני הפעלת החשבון.",
-    submit: { promoteur: "פתיחת חשבון יזם", agence: "פתיחת חשבון סוכנות", apporteur: "פתיחת חשבון צייד" },
+    licenseHelp: "רישיון תיווך נדרש למתווך נדל״ן בישראל (חוק התשנ״ו-1996). יאומת לפני הפעלת החשבון.",
+    submit: { promoteur: "פתיחת חשבון יזם", agent: "פתיחת חשבון מתווך", vaad: "פתיחת חשבון ועד בית", tzayad: "פתיחת חשבון צייד נכסים" },
     successText: "הבקשה התקבלה. אנו מאמתים אותה ומפעילים את הגישה תוך 24 שעות.",
     plans: {
       promoteur: [
-        { id: "free", name: "חינם", price: "0", per: "", note: "", recommended: false,
-          features: ["פרופיל יזם מאומת", "פרסום הפרויקטים שלכם", "קבלת לידים של קונים"] },
-        { id: "pro", name: "Pro", price: "490", per: "/חודש", note: "", recommended: true,
-          features: ["כל מה שכלול בחינם", "גישה לפרויקטים יוקרתיים", "מיקום מועדף", "תג Pro מאומת"] },
+        { id: "free", name: "גישה חינם", price: "0", per: "", note: "עמלה בעת עסקה (ראו תנאי מכר)", recommended: false,
+          features: ["גישה חינם לפלטפורמה", "פרסום הפרויקטים שלכם", "קבלת לידים של קונים", "עמלה רק בעת עסקה (תנאי מכר)"] },
       ],
-      apporteur: [
-        { id: "starter", name: "3 פרויקטים", price: "499", per: "", note: "ללא התחייבות", recommended: false,
-          features: ["פרסום 3 פרויקטים", "הצעות מיזמים", "חיבור מאובטח"] },
-        { id: "pro", name: "ללא הגבלה", price: "990", per: "", note: "ללא התחייבות", recommended: true,
-          features: ["פרויקטים ללא הגבלה", "הצעות מיזמים", "חיבור מאובטח", "מיקום מועדף"] },
+      agent: [
+        { id: "pro", name: "מנוי מתווך", price: "300", per: "/חודש", note: "ללא התחייבות", recommended: true,
+          features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "נראות בפלטפורמה", "ללא עמלה על מכירות"] },
       ],
-      agence: [
-        { id: "free", name: "חינם", price: "0", per: "", note: "", recommended: false,
-          features: ["הרשמה חינמית לחלוטין", "גישה לפרויקטים רק על פי מנדט מיזם", "עמלה על מכירות חוזרות"] },
+      vaad: [
+        { id: "starter", name: "מנוי שנתי", price: "1000", per: "/שנה", note: "ללא התחייבות", recommended: true,
+          features: ["פרסום הבניין שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
+      ],
+      tzayad: [
+        { id: "starter", name: "מנוי שנתי", price: "1000", per: "/שנה", note: "ללא התחייבות", recommended: true,
+          features: ["פרסום הנכסים שאיתרתם", "הצעות מיזמים", "חיבור מאובטח"] },
       ],
     },
   },
@@ -157,11 +172,12 @@ export default function RegisterPro() {
   const registerPromoteur = useRegisterPromoteur();
   const registerAgence = useRegisterAgence();
 
-  // Preselect the role from the path (legacy links /auth/register/promoteur|agence).
+  // Preselect from the path (legacy links /auth/register/agence|apporteur).
   const [, agenceRoute] = useRoute("/auth/register/agence");
   const [, apporteurRoute] = useRoute("/auth/register/apporteur");
-  const initialRole: RoleId = apporteurRoute ? "apporteur" : agenceRoute ? "agence" : "promoteur";
-  const [role, setRole] = useState<RoleId>(initialRole);
+  const initialCard: CardId = apporteurRoute ? "tzayad" : agenceRoute ? "agent" : "promoteur";
+  const [card, setCard] = useState<CardId>(initialCard);
+  const role: RoleId = CARD_ROLE[card];
 
   const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -179,7 +195,7 @@ export default function RegisterPro() {
     nbProgrammes: "",
     nbAgents: "",
     website: "",
-    plan: DEFAULT_PLAN[initialRole] as PlanId,
+    plan: DEFAULT_PLAN[initialCard] as PlanId,
     password: "",
     cgu: false,
   });
@@ -320,13 +336,14 @@ export default function RegisterPro() {
     </div>
   );
 
-  const ROLE_OPTIONS: { id: RoleId; icon: typeof Building2 }[] = [
+  const CARD_OPTIONS: { id: CardId; icon: typeof Building2 }[] = [
     { id: "promoteur", icon: Building2 },
-    { id: "apporteur", icon: Search },
-    { id: "agence", icon: Handshake },
+    { id: "agent", icon: Handshake },
+    { id: "vaad", icon: Home },
+    { id: "tzayad", icon: Search },
   ];
 
-  const plans = L.plans[role] as readonly {
+  const plans = L.plans[card] as readonly {
     id: PlanId; name: string; price: string; per: string; note: string;
     recommended: boolean; features: readonly string[];
   }[];
@@ -343,13 +360,13 @@ export default function RegisterPro() {
         {/* Role selector */}
         <span className={labelCls}>{L.chooseRole} *</span>
         <div className="grid grid-cols-1 gap-2.5 mb-6">
-          {ROLE_OPTIONS.map(({ id, icon: Icon }) => {
-            const selected = role === id;
+          {CARD_OPTIONS.map(({ id, icon: Icon }) => {
+            const selected = card === id;
             return (
               <button
                 type="button"
                 key={id}
-                onClick={() => { setRole(id); setField("plan", DEFAULT_PLAN[id]); }}
+                onClick={() => { setCard(id); setField("plan", DEFAULT_PLAN[id]); }}
                 aria-pressed={selected}
                 className="flex items-start gap-3 rounded-xl p-3.5 text-start transition-colors"
                 style={{ border: selected ? "2px solid #0D1B3E" : "0.5px solid rgba(0,0,0,0.15)", background: selected ? "#F7F5F0" : "#fff" }}
@@ -372,7 +389,7 @@ export default function RegisterPro() {
           {field("email", t("proRegister.email"), { required: true, type: "email", autoComplete: "email" })}
           {field("phone", t("proRegister.phone"), { type: "tel", autoComplete: "tel" })}
 
-          {field("companyName", L.companyName[role], { required: role !== "apporteur", autoComplete: "organization" })}
+          {field("companyName", L.companyName[card], { required: role !== "apporteur", autoComplete: "organization" })}
 
           {role === "promoteur" && (
             <>
@@ -475,7 +492,7 @@ export default function RegisterPro() {
           <button type="submit" disabled={isPending}
             className="w-full flex items-center justify-center rounded-lg text-[15px] font-medium text-white bg-[#0D1B3E] hover:bg-[#1a2f5e] transition-colors disabled:opacity-60" style={{ height: "46px" }}>
             {isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
-            {L.submit[role]}
+            {L.submit[card]}
           </button>
 
           <p className="text-center text-[13px] text-muted-foreground">
