@@ -366,7 +366,6 @@ export default function RegisterPro() {
             <span className={labelCls}>{L.chooseRole} *</span>
             <div className="grid grid-cols-1 gap-2.5 mb-5">
               {CARD_OPTIONS.map(({ id, icon: Icon }) => {
-                const plan = L.plans[id][0];
                 return (
                   <button
                     type="button"
@@ -381,12 +380,6 @@ export default function RegisterPro() {
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold" style={{ color: NAVY }}>{L.roles[id].name}</div>
                       <div className="text-[12px] text-muted-foreground leading-snug">{L.roles[id].desc}</div>
-                    </div>
-                    <div className="shrink-0 text-end">
-                      <div className="text-[15px] font-semibold" style={{ color: NAVY }}>
-                        {plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span>
-                      </div>
-                      {plan.per && <div className="text-[10px] text-muted-foreground">{plan.per}</div>}
                     </div>
                   </button>
                 );
