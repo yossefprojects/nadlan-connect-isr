@@ -21,23 +21,23 @@ function initials(name: string): string {
 
 function DeveloperCard({ dev, blurb }: { dev: Developer; blurb: string }) {
   return (
-    <div className="flex flex-col rounded-xl border border-[#1A3A5C]/10 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-center gap-3">
         {dev.logo ? (
           <img src={dev.logo} alt={dev.name} className="h-11 w-11 rounded-lg object-contain" loading="lazy" />
         ) : (
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#0A1628] font-serif text-sm text-[#C9A84C]">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-foreground font-serif text-sm text-sea-bright">
             {initials(dev.name)}
           </div>
         )}
         <div className="min-w-0">
-          <p className="truncate font-serif text-lg text-[#1A3A5C]">{dev.name}</p>
-          <p className="text-sm text-[#C9A84C]" dir="rtl">
+          <p className="truncate font-serif text-lg text-foreground">{dev.name}</p>
+          <p className="text-sm text-sea" dir="rtl">
             {dev.nameHe}
           </p>
         </div>
       </div>
-      <p className="text-sm leading-relaxed text-[#475569]">{blurb}</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">{blurb}</p>
     </div>
   );
 }
@@ -57,14 +57,14 @@ export default function Promoteurs() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4] font-sans">
+    <div className="min-h-screen bg-background font-sans">
       {/* En-tête */}
-      <section className="bg-[#0A1628] py-16 text-white md:py-20">
+      <section className="border-b border-border bg-card py-16 md:py-20">
         <div className="container text-center">
-          <h1 className="mx-auto max-w-3xl font-serif text-3xl leading-tight md:text-4xl">
+          <h1 className="mx-auto max-w-3xl font-serif text-3xl leading-tight text-foreground md:text-4xl">
             {pick(DEV_UI.sectionLabel)}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/50 md:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
             {pick(DEV_UI.pageSubtitle)}
           </p>
         </div>
@@ -77,9 +77,9 @@ export default function Promoteurs() {
           return (
             <section key={cat}>
               <div className="mb-5 flex items-center gap-3">
-                <h2 className="font-serif text-xl text-[#1A3A5C] md:text-2xl">{pick(CATEGORY_LABELS[cat])}</h2>
-                <span className="h-px flex-1 bg-gradient-to-r from-[#C9A84C]/40 to-transparent" />
-                <span className="text-xs text-[#1A3A5C]/40">{list.length}</span>
+                <h2 className="font-serif text-xl text-foreground md:text-2xl">{pick(CATEGORY_LABELS[cat])}</h2>
+                <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+                <span className="text-xs text-muted-foreground">{list.length}</span>
               </div>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {list.map((dev) => (
@@ -90,7 +90,7 @@ export default function Promoteurs() {
           );
         })}
 
-        <p className="pt-2 text-center text-xs leading-relaxed text-[#1A3A5C]/40">
+        <p className="pt-2 text-center text-xs leading-relaxed text-muted-foreground">
           {pick(DEV_UI.disclaimer)}
         </p>
       </div>
