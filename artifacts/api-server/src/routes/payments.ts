@@ -14,8 +14,8 @@ const router = Router();
 // Plan catalogue. Keys are unambiguous (role baked into the key); `interval`
 // drives the PayPlus recurrence so the annual plan is not charged every month.
 const PLANS: Record<string, { amount: number; label: string; interval: "monthly" | "yearly" }> = {
-  agent_mensuel: { amount: 300, label: "NadlanConnect — Agent immobilier (mensuel)", interval: "monthly" },
-  introducer_annuel: { amount: 1000, label: "NadlanConnect — Abonnement annuel", interval: "yearly" },
+  agent_mensuel: { amount: 290, label: "NadlanConnect — Agent immobilier (mensuel)", interval: "monthly" },
+  introducer_annuel: { amount: 990, label: "NadlanConnect — Abonnement annuel", interval: "yearly" },
 };
 
 function publicBase(req: Request): string {

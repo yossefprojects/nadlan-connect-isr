@@ -32,10 +32,10 @@ const CONTENT = {
     recommended: "Recommandé",
     plans: {
       agent: [
-        { key: "agent_mensuel", name: "Abonnement agent immobilier", price: "300", per: "/mois", recommended: true, features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Aucune commission sur les ventes"] },
+        { key: "agent_mensuel", name: "Abonnement agent immobilier", price: "290", per: "/mois", recommended: true, features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Aucune commission sur les ventes"] },
       ],
       introducer: [
-        { key: "introducer_annuel", name: "Abonnement annuel", price: "1000", per: "/an", recommended: true, features: ["Publication de vos projets", "Offres des promoteurs", "Sans engagement"] },
+        { key: "introducer_annuel", name: "Abonnement annuel", price: "990", per: "/an", recommended: true, features: ["Publication de vos projets", "Offres des promoteurs", "Sans engagement"] },
       ],
     },
   },
@@ -58,10 +58,10 @@ const CONTENT = {
     recommended: "Recommended",
     plans: {
       agent: [
-        { key: "agent_mensuel", name: "Agent subscription", price: "300", per: "/mo", recommended: true, features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "No commission on sales"] },
+        { key: "agent_mensuel", name: "Agent subscription", price: "290", per: "/mo", recommended: true, features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "No commission on sales"] },
       ],
       introducer: [
-        { key: "introducer_annuel", name: "Annual subscription", price: "1000", per: "/yr", recommended: true, features: ["Publish your projects", "Offers from developers", "No commitment"] },
+        { key: "introducer_annuel", name: "Annual subscription", price: "990", per: "/yr", recommended: true, features: ["Publish your projects", "Offers from developers", "No commitment"] },
       ],
     },
   },
@@ -84,10 +84,10 @@ const CONTENT = {
     recommended: "מומלץ",
     plans: {
       agent: [
-        { key: "agent_mensuel", name: "מנוי מתווך", price: "300", per: "/חודש", recommended: true, features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "ללא עמלה על מכירות"] },
+        { key: "agent_mensuel", name: "מנוי מתווך", price: "290", per: "/חודש", recommended: true, features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "ללא עמלה על מכירות"] },
       ],
       introducer: [
-        { key: "introducer_annuel", name: "מנוי שנתי", price: "1000", per: "/שנה", recommended: true, features: ["פרסום הפרויקטים שלכם", "הצעות מיזמים", "ללא התחייבות"] },
+        { key: "introducer_annuel", name: "מנוי שנתי", price: "990", per: "/שנה", recommended: true, features: ["פרסום הפרויקטים שלכם", "הצעות מיזמים", "ללא התחייבות"] },
       ],
     },
   },

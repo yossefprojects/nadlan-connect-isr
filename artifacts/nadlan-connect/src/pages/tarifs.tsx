@@ -14,9 +14,9 @@ const CONTENT = {
     cta: "Devenir partenaire",
     roles: [
       { icon: Building2, name: "Promoteur (יזם)", desc: "Vous construisez et achetez des projets.", price: "0", per: "", note: "Commission uniquement à la transaction (voir CGV)", features: ["Accès gratuit à la plateforme", "Faire des offres sur les projets", "Aucun abonnement"] },
-      { icon: Handshake, name: "Agent immobilier (מתווך)", desc: "Agent agréé — vous revendez les biens.", price: "300", per: "/mois", note: "Sans engagement", features: ["Mandats de revente des promoteurs", "Visibilité sur la plateforme", "Aucune commission sur les ventes"] },
-      { icon: Home, name: "Responsable d'immeuble (ועד בית)", desc: "Vous référencez votre immeuble.", price: "1000", per: "/an", note: "Sans engagement", features: ["Référencement de votre immeuble", "Offres des promoteurs", "Mise en relation sécurisée"] },
-      { icon: Search, name: "Chasseur de biens (צייד נכסים)", desc: "Vous dénichez des biens pour les promoteurs.", price: "1000", per: "/an", note: "Sans engagement", features: ["Publication de vos biens", "Offres des promoteurs", "Mise en relation sécurisée"] },
+      { icon: Handshake, name: "Agent immobilier (מתווך)", desc: "Agent agréé — vous revendez les biens.", price: "290", per: "/mois", note: "Sans engagement", features: ["Mandats de revente des promoteurs", "Visibilité sur la plateforme", "Aucune commission sur les ventes"] },
+      { icon: Home, name: "Responsable d'immeuble (ועד בית)", desc: "Vous référencez votre immeuble.", price: "990", per: "/an", note: "Sans engagement", features: ["Référencement de votre immeuble", "Offres des promoteurs", "Mise en relation sécurisée"] },
+      { icon: Search, name: "Chasseur de biens (צייד נכסים)", desc: "Vous dénichez des biens pour les promoteurs.", price: "990", per: "/an", note: "Sans engagement", features: ["Publication de vos biens", "Offres des promoteurs", "Mise en relation sécurisée"] },
     ],
   },
   en: {
@@ -26,9 +26,9 @@ const CONTENT = {
     cta: "Become a partner",
     roles: [
       { icon: Building2, name: "Developer (יזם)", desc: "You build and buy projects.", price: "0", per: "", note: "Commission only on transactions (see GTS)", features: ["Free access to the platform", "Make offers on projects", "No subscription"] },
-      { icon: Handshake, name: "Real estate agent (מתווך)", desc: "Licensed agent — you resell properties.", price: "300", per: "/mo", note: "No commitment", features: ["Resale mandates from developers", "Visibility on the platform", "No commission on sales"] },
-      { icon: Home, name: "Building manager (ועד בית)", desc: "You list your building.", price: "1000", per: "/yr", note: "No commitment", features: ["List your building", "Offers from developers", "Secure introductions"] },
-      { icon: Search, name: "Property hunter (צייד נכסים)", desc: "You find properties for developers.", price: "1000", per: "/yr", note: "No commitment", features: ["Publish your properties", "Offers from developers", "Secure introductions"] },
+      { icon: Handshake, name: "Real estate agent (מתווך)", desc: "Licensed agent — you resell properties.", price: "290", per: "/mo", note: "No commitment", features: ["Resale mandates from developers", "Visibility on the platform", "No commission on sales"] },
+      { icon: Home, name: "Building manager (ועד בית)", desc: "You list your building.", price: "990", per: "/yr", note: "No commitment", features: ["List your building", "Offers from developers", "Secure introductions"] },
+      { icon: Search, name: "Property hunter (צייד נכסים)", desc: "You find properties for developers.", price: "990", per: "/yr", note: "No commitment", features: ["Publish your properties", "Offers from developers", "Secure introductions"] },
     ],
   },
   he: {
@@ -38,9 +38,9 @@ const CONTENT = {
     cta: "הצטרפות כשותף",
     roles: [
       { icon: Building2, name: "יזם", desc: "אתם בונים ורוכשים פרויקטים.", price: "0", per: "", note: "עמלה רק בעת עסקה (ראו תנאי מכר)", features: ["גישה חינם לפלטפורמה", "הגשת הצעות על פרויקטים", "ללא מנוי"] },
-      { icon: Handshake, name: "מתווך נדל״ן", desc: "מתווך מורשה — אתם מוכרים נכסים.", price: "300", per: "/חודש", note: "ללא התחייבות", features: ["מנדטי מכירה מיזמים", "נראות בפלטפורמה", "ללא עמלה על מכירות"] },
-      { icon: Home, name: "ועד בית", desc: "אתם מפרסמים את הבניין שלכם.", price: "1000", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הבניין שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
-      { icon: Search, name: "צייד נכסים", desc: "אתם מאתרים נכסים עבור יזמים.", price: "1000", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הנכסים שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
+      { icon: Handshake, name: "מתווך נדל״ן", desc: "מתווך מורשה — אתם מוכרים נכסים.", price: "290", per: "/חודש", note: "ללא התחייבות", features: ["מנדטי מכירה מיזמים", "נראות בפלטפורמה", "ללא עמלה על מכירות"] },
+      { icon: Home, name: "ועד בית", desc: "אתם מפרסמים את הבניין שלכם.", price: "990", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הבניין שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
+      { icon: Search, name: "צייד נכסים", desc: "אתם מאתרים נכסים עבור יזמים.", price: "990", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הנכסים שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
     ],
   },
 } as const;

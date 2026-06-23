@@ -82,15 +82,15 @@ const CONTENT = {
           features: ["Accès gratuit à la plateforme", "Publication de vos programmes", "Réception de leads acheteurs", "Commission uniquement à la transaction (CGV)"] },
       ],
       agent: [
-        { id: "pro", name: "Abonnement agent", price: "300", per: "/mois", note: "Sans engagement", recommended: true,
+        { id: "pro", name: "Abonnement agent", price: "290", per: "/mois", note: "Sans engagement", recommended: true,
           features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Visibilité sur la plateforme", "Aucune commission sur les ventes"] },
       ],
       vaad: [
-        { id: "starter", name: "Abonnement annuel", price: "1000", per: "/an", note: "Sans engagement", recommended: true,
+        { id: "starter", name: "Abonnement annuel", price: "990", per: "/an", note: "Sans engagement", recommended: true,
           features: ["Référencement de votre immeuble", "Offres des promoteurs", "Mise en relation sécurisée"] },
       ],
       tzayad: [
-        { id: "starter", name: "Abonnement annuel", price: "1000", per: "/an", note: "Sans engagement", recommended: true,
+        { id: "starter", name: "Abonnement annuel", price: "990", per: "/an", note: "Sans engagement", recommended: true,
           features: ["Publication de vos biens dénichés", "Offres des promoteurs", "Mise en relation sécurisée"] },
       ],
     },
@@ -116,15 +116,15 @@ const CONTENT = {
           features: ["Free access to the platform", "Publish your developments", "Receive buyer leads", "Commission only on transactions (GTS)"] },
       ],
       agent: [
-        { id: "pro", name: "Agent subscription", price: "300", per: "/mo", note: "No commitment", recommended: true,
+        { id: "pro", name: "Agent subscription", price: "290", per: "/mo", note: "No commitment", recommended: true,
           features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "Visibility on the platform", "No commission on sales"] },
       ],
       vaad: [
-        { id: "starter", name: "Annual subscription", price: "1000", per: "/yr", note: "No commitment", recommended: true,
+        { id: "starter", name: "Annual subscription", price: "990", per: "/yr", note: "No commitment", recommended: true,
           features: ["List your building", "Offers from developers", "Secure introductions"] },
       ],
       tzayad: [
-        { id: "starter", name: "Annual subscription", price: "1000", per: "/yr", note: "No commitment", recommended: true,
+        { id: "starter", name: "Annual subscription", price: "990", per: "/yr", note: "No commitment", recommended: true,
           features: ["Publish the properties you find", "Offers from developers", "Secure introductions"] },
       ],
     },
@@ -150,15 +150,15 @@ const CONTENT = {
           features: ["גישה חינם לפלטפורמה", "פרסום הפרויקטים שלכם", "קבלת לידים של קונים", "עמלה רק בעת עסקה (תנאי מכר)"] },
       ],
       agent: [
-        { id: "pro", name: "מנוי מתווך", price: "300", per: "/חודש", note: "ללא התחייבות", recommended: true,
+        { id: "pro", name: "מנוי מתווך", price: "290", per: "/חודש", note: "ללא התחייבות", recommended: true,
           features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "נראות בפלטפורמה", "ללא עמלה על מכירות"] },
       ],
       vaad: [
-        { id: "starter", name: "מנוי שנתי", price: "1000", per: "/שנה", note: "ללא התחייבות", recommended: true,
+        { id: "starter", name: "מנוי שנתי", price: "990", per: "/שנה", note: "ללא התחייבות", recommended: true,
           features: ["פרסום הבניין שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
       ],
       tzayad: [
-        { id: "starter", name: "מנוי שנתי", price: "1000", per: "/שנה", note: "ללא התחייבות", recommended: true,
+        { id: "starter", name: "מנוי שנתי", price: "990", per: "/שנה", note: "ללא התחייבות", recommended: true,
           features: ["פרסום הנכסים שאיתרתם", "הצעות מיזמים", "חיבור מאובטח"] },
       ],
     },
