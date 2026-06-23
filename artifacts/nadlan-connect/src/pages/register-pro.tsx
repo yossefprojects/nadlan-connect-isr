@@ -6,7 +6,7 @@ import { useLanguage } from "@/components/layout/language-provider";
 import { Building2, Handshake, Search, Home, Check, CheckCircle2, Eye, EyeOff, Loader2, ChevronLeft } from "lucide-react";
 
 const NAVY = "hsl(var(--foreground))";
-const GOLD = "hsl(var(--sea))";
+const SEA = "hsl(var(--sea))";
 
 // 4 selectable cards. Internally there are only 3 roles: "vaad" and "tzayad"
 // are two labels for the same role (apporteur / introducer), per the model.
@@ -354,8 +354,15 @@ export default function RegisterPro() {
   return (
     <div className="py-10 px-5 flex justify-center" style={{ backgroundColor: "#F7F5F0", minHeight: "100vh" }}>
       <div className="w-full max-w-[520px] bg-white p-8 max-[480px]:p-5" style={{ borderRadius: "14px", border: "0.5px solid rgba(0,0,0,0.08)" }}>
-        <div className="font-serif text-lg mb-4" style={{ color: NAVY }}>
-          Nadlan<span style={{ color: GOLD }}>Connect</span>
+        <div className="font-serif text-lg mb-4 flex items-center gap-2">
+          <svg viewBox="0 0 56 56" className="h-7 w-7 shrink-0" aria-hidden="true">
+            <rect width="56" height="56" rx="14" fill="#F7F5F0" stroke="#0E1B2A" strokeOpacity="0.14" />
+            <rect x="16" y="18" width="13" height="26" rx="2" fill="#0E1B2A" />
+            <rect x="28" y="24" width="13" height="20" rx="2" fill="#0F7B6C" />
+            <g fill="#F7F5F0"><circle cx="22.5" cy="24" r="1.4" /><circle cx="22.5" cy="30" r="1.4" /><circle cx="22.5" cy="36" r="1.4" /></g>
+            <g fill="#fff"><circle cx="34.5" cy="31" r="1.4" /><circle cx="34.5" cy="37" r="1.4" /></g>
+          </svg>
+          <span style={{ color: NAVY }}>Nadlan<span style={{ color: SEA }}>Connect</span></span>
         </div>
         <h1 className="text-[20px] font-medium mb-1.5" style={{ color: NAVY }}>{L.title}</h1>
         <p className="text-[13px] text-muted-foreground mb-6">{L.subtitle}</p>
@@ -386,7 +393,7 @@ export default function RegisterPro() {
               })}
             </div>
             <p className="text-center text-[13px] text-muted-foreground">
-              <Link href="/auth/login" className="underline" style={{ color: GOLD }}>{t("login.haveAccount")}</Link>
+              <Link href="/auth/login" className="underline" style={{ color: SEA }}>{t("login.haveAccount")}</Link>
             </p>
           </div>
         )}
@@ -425,7 +432,7 @@ export default function RegisterPro() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {SPECIALTIES.map((spec) => (
                     <label key={spec} className="flex items-center gap-2.5 rounded-lg p-2.5 cursor-pointer" style={{ border: "0.5px solid rgba(0,0,0,0.15)" }}>
-                      <input type="checkbox" checked={specialties.includes(spec)} onChange={() => toggleSpecialty(spec)} className="h-4 w-4" style={{ accentColor: GOLD }} />
+                      <input type="checkbox" checked={specialties.includes(spec)} onChange={() => toggleSpecialty(spec)} className="h-4 w-4" style={{ accentColor: SEA }} />
                       <span className="text-sm">{t(`proRegister.specialty.${spec}`)}</span>
                     </label>
                   ))}
@@ -446,7 +453,7 @@ export default function RegisterPro() {
                     style={{ borderRadius: "10px", padding: "20px", position: "relative", background: selected ? "#F7F5F0" : "#fff",
                       border: selected ? "2px solid hsl(var(--foreground))" : plan.recommended ? "2px solid hsl(var(--sea))" : "0.5px solid rgba(0,0,0,0.12)" }}>
                     {plan.recommended && (
-                      <span style={{ position: "absolute", top: 0, insetInlineEnd: 0, background: GOLD, color: NAVY, fontSize: "11px", borderRadius: "0 10px 0 8px", padding: "4px 10px" }}>
+                      <span style={{ position: "absolute", top: 0, insetInlineEnd: 0, background: SEA, color: NAVY, fontSize: "11px", borderRadius: "0 10px 0 8px", padding: "4px 10px" }}>
                         {t("proRegister.recommended")}
                       </span>
                     )}
@@ -455,7 +462,7 @@ export default function RegisterPro() {
                       <span className="text-[24px] font-semibold" style={{ color: NAVY }}>{plan.price}<span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span></span>
                       {plan.per && <span className="text-xs text-muted-foreground">{plan.per}</span>}
                     </div>
-                    {plan.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: GOLD }}>{plan.note}</div>}
+                    {plan.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: SEA }}>{plan.note}</div>}
                     <ul className="mt-3 space-y-1.5">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-start gap-1.5 text-[12px]">
@@ -492,12 +499,12 @@ export default function RegisterPro() {
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" checked={form.cgu} onChange={(e) => setField("cgu", e.target.checked)} className="mt-0.5 h-4 w-4" style={{ accentColor: GOLD }} />
+            <input type="checkbox" checked={form.cgu} onChange={(e) => setField("cgu", e.target.checked)} className="mt-0.5 h-4 w-4" style={{ accentColor: SEA }} />
             <span className="text-[13px] text-muted-foreground">
               {t("proRegister.cguPrefix")}{" "}
-              <Link href="/cgu" className="underline" style={{ color: GOLD }}>{t("proRegister.cguLink")}</Link>
+              <Link href="/cgu" className="underline" style={{ color: SEA }}>{t("proRegister.cguLink")}</Link>
               {" "}{t("proRegister.cguAnd")}{" "}
-              <Link href="/cgv" className="underline" style={{ color: GOLD }}>{t("proRegister.cgvLink")}</Link> *
+              <Link href="/cgv" className="underline" style={{ color: SEA }}>{t("proRegister.cgvLink")}</Link> *
             </span>
           </label>
 
@@ -508,7 +515,7 @@ export default function RegisterPro() {
           </button>
 
           <p className="text-center text-[13px] text-muted-foreground">
-            <Link href="/auth/login" className="underline" style={{ color: GOLD }}>{t("login.haveAccount")}</Link>
+            <Link href="/auth/login" className="underline" style={{ color: SEA }}>{t("login.haveAccount")}</Link>
           </p>
         </form>
         )}
