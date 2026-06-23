@@ -11,8 +11,9 @@ interface LogoProps {
 export function Logo({ textClass = "text-foreground", className = "" }: LogoProps) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <svg viewBox="0 0 56 56" className="h-8 w-8 shrink-0 nc-logo" aria-hidden="true">
+      <svg viewBox="0 0 56 56" className="h-11 w-11 shrink-0 nc-logo" aria-hidden="true">
         <rect width="56" height="56" rx="14" fill="#F7F5F0" stroke="#0E1B2A" strokeOpacity="0.14" />
+        <circle className="nc-sun" cx="28" cy="15" r="7" fill="#E2761A" />
         <rect className="nc-tower" x="16" y="18" width="13" height="26" rx="2" fill="#0E1B2A" />
         <rect className="nc-tower nc-tower-2" x="28" y="24" width="13" height="20" rx="2" fill="#0F7B6C" />
         <g fill="#F7F5F0"><circle cx="22.5" cy="24" r="1.4" /><circle cx="22.5" cy="30" r="1.4" /><circle cx="22.5" cy="36" r="1.4" /></g>

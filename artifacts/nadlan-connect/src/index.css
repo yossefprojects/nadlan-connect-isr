@@ -285,3 +285,7 @@
 .nc-logo.nc-play .nc-tower-2 { animation-delay: 0.16s; }
 .nc-logo.nc-play circle { animation: nc-light 0.5s ease-out 0.95s both; }
 @media (prefers-reduced-motion: reduce) { .nc-logo.nc-play .nc-tower, .nc-logo.nc-play circle { animation: none; } }
+@keyframes nc-sunrise { from { transform: translateY(20px); } to { transform: translateY(0); } }
+.nc-logo .nc-sun { transform-box: fill-box; }
+.nc-logo.nc-play .nc-sun { animation: nc-sunrise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) { .nc-logo.nc-play .nc-sun { animation: none; } }

@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" role="img" aria-label="NadlanConnect">
   <rect x="0.75" y="0.75" width="54.5" height="54.5" rx="13.5" fill="#F7F5F0" stroke="#0E1B2A" stroke-opacity="0.10"/>
+  <circle cx="28" cy="15" r="7" fill="#E2761A"/>
   <rect x="16" y="18" width="13" height="26" rx="2" fill="#0E1B2A"/>
   <rect x="28" y="24" width="13" height="20" rx="2" fill="#0F7B6C"/>
   <g fill="#F7F5F0"><circle cx="22.5" cy="24" r="1.4"/><circle cx="22.5" cy="30" r="1.4"/><circle cx="22.5" cy="36" r="1.4"/></g>
