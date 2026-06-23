@@ -2,8 +2,8 @@ import { Link } from "wouter";
 import { useLanguage } from "@/components/layout/language-provider";
 import { Building2, Handshake, Home, Search, Check, ArrowRight } from "lucide-react";
 
-const NAVY = "#0F2235";
-const GOLD = "#C9A84C";
+const NAVY = "hsl(var(--foreground))";
+const GOLD = "hsl(var(--sea))";
 
 // Hebrew uses the gershayim ״ (U+05F4), never an ASCII quote, inside strings.
 const CONTENT = {
@@ -51,16 +51,16 @@ export default function Tarifs() {
   const Shekel = () => <span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span>;
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4]">
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F2235] to-[#1A3A5C]">
-        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#C9A84C]/20 blur-[120px]" />
+    <div className="min-h-screen bg-background">
+      <div className="relative overflow-hidden border-b border-border bg-card">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sea/10 blur-[120px]" />
         <div className="container relative py-12 text-center md:py-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sea/30 bg-sea-soft px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sea">
             {L.badge}
           </div>
-          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-5xl">{L.title}</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-white/60">{L.subtitle}</p>
-          <Link href="/auth/register" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 text-sm font-bold text-[#0A1628] transition-transform hover:-translate-y-0.5">
+          <h1 className="mt-5 font-serif text-3xl font-medium text-foreground md:text-5xl">{L.title}</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">{L.subtitle}</p>
+          <Link href="/auth/register" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:bg-ink-2">
             {L.cta}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>
@@ -72,11 +72,11 @@ export default function Tarifs() {
           {L.roles.map((role) => {
             const Icon = role.icon;
             return (
-              <div key={role.name} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#1A3A5C]/10">
-                  <Icon className="h-5 w-5 text-[#1A3A5C]" />
+              <div key={role.name} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-sea/10">
+                  <Icon className="h-5 w-5 text-sea" />
                 </div>
-                <h2 className="font-serif text-lg font-bold leading-tight text-[#0F2235]" dir="auto">{role.name}</h2>
+                <h2 className="font-serif text-lg font-bold leading-tight text-foreground" dir="auto">{role.name}</h2>
                 <p className="mt-1 text-[13px] text-muted-foreground" dir="auto">{role.desc}</p>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-3xl font-bold" style={{ color: NAVY }}>{role.price}<Shekel /></span>
@@ -86,7 +86,7 @@ export default function Tarifs() {
                 <ul className="mt-4 flex-1 space-y-1.5 border-t pt-4">
                   {role.features.map((f) => (
                     <li key={f} className="flex items-start gap-1.5 text-[13px]" dir="auto">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sea" />
                       <span>{f}</span>
                     </li>
                   ))}

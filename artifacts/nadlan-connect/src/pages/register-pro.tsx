@@ -5,8 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/components/layout/language-provider";
 import { Building2, Handshake, Search, Home, Check, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 
-const NAVY = "#0D1B3E";
-const GOLD = "#C9A84C";
+const NAVY = "hsl(var(--foreground))";
+const GOLD = "hsl(var(--sea))";
 
 // 4 selectable cards. Internally there are only 3 roles: "vaad" and "tzayad"
 // are two labels for the same role (apporteur / introducer), per the model.
@@ -55,7 +55,7 @@ function passwordScore(pw: string): number {
 }
 
 const inputBase =
-  "w-full rounded-lg border-[0.5px] border-black/15 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-[#C9A84C]";
+  "w-full rounded-lg border-[0.5px] border-black/15 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-sea";
 const labelCls = "block text-[12px] uppercase tracking-[0.05em] text-muted-foreground mb-1.5";
 
 // Role-specific copy (FR / EN / HE). Common field labels reuse the global i18n.
@@ -369,7 +369,7 @@ export default function RegisterPro() {
                 onClick={() => { setCard(id); setField("plan", DEFAULT_PLAN[id]); }}
                 aria-pressed={selected}
                 className="flex items-start gap-3 rounded-xl p-3.5 text-start transition-colors"
-                style={{ border: selected ? "2px solid #0D1B3E" : "0.5px solid rgba(0,0,0,0.15)", background: selected ? "#F7F5F0" : "#fff" }}
+                style={{ border: selected ? "2px solid hsl(var(--foreground))" : "0.5px solid rgba(0,0,0,0.15)", background: selected ? "hsl(var(--accent))" : "#fff" }}
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: selected ? GOLD : "#EEE9DD" }}>
                   <Icon className="h-4 w-4" style={{ color: NAVY }} />
@@ -432,7 +432,7 @@ export default function RegisterPro() {
                 return (
                   <button type="button" key={plan.id} onClick={() => setField("plan", plan.id)} aria-pressed={selected} className="text-start transition-colors"
                     style={{ borderRadius: "10px", padding: "20px", position: "relative", background: selected ? "#F7F5F0" : "#fff",
-                      border: selected ? "2px solid #0D1B3E" : plan.recommended ? "2px solid #C9A84C" : "0.5px solid rgba(0,0,0,0.12)" }}>
+                      border: selected ? "2px solid hsl(var(--foreground))" : plan.recommended ? "2px solid hsl(var(--sea))" : "0.5px solid rgba(0,0,0,0.12)" }}>
                     {plan.recommended && (
                       <span style={{ position: "absolute", top: 0, insetInlineEnd: 0, background: GOLD, color: NAVY, fontSize: "11px", borderRadius: "0 10px 0 8px", padding: "4px 10px" }}>
                         {t("proRegister.recommended")}
@@ -490,7 +490,7 @@ export default function RegisterPro() {
           </label>
 
           <button type="submit" disabled={isPending}
-            className="w-full flex items-center justify-center rounded-lg text-[15px] font-medium text-white bg-[#0D1B3E] hover:bg-[#1a2f5e] transition-colors disabled:opacity-60" style={{ height: "46px" }}>
+            className="w-full flex items-center justify-center rounded-lg text-[15px] font-medium text-white bg-primary hover:bg-ink-2 transition-colors disabled:opacity-60" style={{ height: "46px" }}>
             {isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
             {L.submit[card]}
           </button>

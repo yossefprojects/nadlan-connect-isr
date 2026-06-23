@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2, CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
 
-const NAVY = "#0D1B3E";
-const GOLD = "#C9A84C";
+const NAVY = "hsl(var(--foreground))";
+const GOLD = "hsl(var(--sea))";
 
 type SubStatus = { active: boolean; plan: string | null; currentPeriodEnd: string | null };
 

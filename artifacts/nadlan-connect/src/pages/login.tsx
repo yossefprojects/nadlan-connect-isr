@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-const NAVY = "#1A3A5C";
-const GOLD = "#C9A84C";
+const NAVY = "hsl(var(--foreground))";
+const GOLD = "hsl(var(--sea))";
 
 function pathForRole(role: string | null | undefined): string {
   switch (role) {
@@ -83,7 +83,7 @@ export default function Login() {
   return (
     <div
       className="min-h-[85vh] flex flex-col items-center justify-center p-4"
-      style={{ backgroundColor: "#F8F7F4" }}
+      style={{ backgroundColor: "hsl(var(--background))" }}
     >
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="text-center space-y-2">
@@ -194,7 +194,7 @@ export default function Login() {
 
           <div
             className="rounded-xl border p-4 space-y-3"
-            style={{ borderColor: GOLD, backgroundColor: "rgba(201,168,76,0.07)" }}
+            style={{ borderColor: GOLD, backgroundColor: "rgba(15,123,108,0.07)" }}
           >
             <p
               className="text-center text-sm font-semibold"
