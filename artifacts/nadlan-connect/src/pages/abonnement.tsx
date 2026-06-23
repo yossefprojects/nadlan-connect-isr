@@ -31,12 +31,11 @@ const CONTENT = {
     notConfigured: "Le paiement en ligne n'est pas encore activé. Réessayez bientôt.",
     recommended: "Recommandé",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["Accès aux projets luxueux", "Mise en avant prioritaire", "Badge Pro vérifié"] },
+      agent: [
+        { key: "agent_mensuel", name: "Abonnement agent immobilier", price: "300", per: "/mois", recommended: true, features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Aucune commission sur les ventes"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 projets", price: "499", recommended: false, features: ["Publication de 3 projets", "Offres des promoteurs", "Sans engagement"] },
-        { key: "apporteur_illimite", name: "Illimité", price: "990", recommended: true, features: ["Projets illimités", "Offres des promoteurs", "Mise en avant prioritaire", "Sans engagement"] },
+        { key: "introducer_annuel", name: "Abonnement annuel", price: "1000", per: "/an", recommended: true, features: ["Publication de vos projets", "Offres des promoteurs", "Sans engagement"] },
       ],
     },
   },
@@ -58,12 +57,11 @@ const CONTENT = {
     notConfigured: "Online payment isn't enabled yet. Please try again soon.",
     recommended: "Recommended",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["Access to luxury projects", "Priority placement", "Verified Pro badge"] },
+      agent: [
+        { key: "agent_mensuel", name: "Agent subscription", price: "300", per: "/mo", recommended: true, features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "No commission on sales"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 projects", price: "499", recommended: false, features: ["Publish 3 projects", "Offers from developers", "No commitment"] },
-        { key: "apporteur_illimite", name: "Unlimited", price: "990", recommended: true, features: ["Unlimited projects", "Offers from developers", "Priority placement", "No commitment"] },
+        { key: "introducer_annuel", name: "Annual subscription", price: "1000", per: "/yr", recommended: true, features: ["Publish your projects", "Offers from developers", "No commitment"] },
       ],
     },
   },
@@ -85,12 +83,11 @@ const CONTENT = {
     notConfigured: "התשלום המקוון עדיין לא פעיל. נסו שוב בקרוב.",
     recommended: "מומלץ",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["גישה לפרויקטים יוקרתיים", "מיקום מועדף", "תג Pro מאומת"] },
+      agent: [
+        { key: "agent_mensuel", name: "מנוי מתווך", price: "300", per: "/חודש", recommended: true, features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "ללא עמלה על מכירות"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 פרויקטים", price: "499", recommended: false, features: ["פרסום 3 פרויקטים", "הצעות מיזמים", "ללא התחייבות"] },
-        { key: "apporteur_illimite", name: "ללא הגבלה", price: "990", recommended: true, features: ["פרויקטים ללא הגבלה", "הצעות מיזמים", "מיקום מועדף", "ללא התחייבות"] },
+        { key: "introducer_annuel", name: "מנוי שנתי", price: "1000", per: "/שנה", recommended: true, features: ["פרסום הפרויקטים שלכם", "הצעות מיזמים", "ללא התחייבות"] },
       ],
     },
   },
@@ -127,7 +124,7 @@ export default function Abonnement() {
     },
   });
 
-  const plans = (L.plans as Record<string, ReadonlyArray<{ key: string; name: string; price: string; recommended: boolean; features: readonly string[] }>>)[role ?? ""] ?? null;
+  const plans = (L.plans as Record<string, ReadonlyArray<{ key: string; name: string; price: string; per: string; recommended: boolean; features: readonly string[] }>>)[role ?? ""] ?? null;
   const Shekel = () => <span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span>;
 
   return (
@@ -180,7 +177,7 @@ export default function Abonnement() {
                       <div className="text-sm font-medium" style={{ color: NAVY }}>{plan.name}</div>
                       <div className="mt-1 flex items-baseline gap-1">
                         <span className="text-3xl font-bold" style={{ color: NAVY }}>{plan.price}<Shekel /></span>
-                        <span className="text-xs text-muted-foreground">{L.perMonth}</span>
+                        <span className="text-xs text-muted-foreground">{plan.per}</span>
                       </div>
                       <ul className="mt-4 flex-1 space-y-1.5">
                         {plan.features.map((f) => (

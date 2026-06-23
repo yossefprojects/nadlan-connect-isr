@@ -158,7 +158,7 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-[#0A1628] text-white border-white/10">
-                  {(role === "developer" || role === "introducer") && (
+                  {(role === "agent" || role === "introducer") && (
                     <DropdownMenuItem asChild className="hover:bg-white/10 focus:bg-white/10 cursor-pointer">
                       <Link href="/abonnement" className="flex items-center">
                         <CreditCard className="mr-2 h-4 w-4" />

@@ -9,9 +9,9 @@ export const subscriptionsTable = pgTable("subscriptions", {
   userId: text("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
-  // Unambiguous plan key, e.g. 'promoteur_pro' | 'apporteur_3projets' | 'apporteur_illimite'.
+  // Unambiguous plan key, e.g. 'agent_mensuel' | 'introducer_annuel'.
   plan: text("plan").notNull(),
-  amount: integer("amount").notNull(), // NIS / month
+  amount: integer("amount").notNull(), // NIS (per month or per year, depending on the plan)
   currency: text("currency").notNull().default("ILS"),
   // 'pending' | 'active' | 'cancelled' | 'expired' | 'failed'
   status: text("status").notNull().default("pending"),
