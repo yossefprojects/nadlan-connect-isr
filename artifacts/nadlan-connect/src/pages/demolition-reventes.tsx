@@ -43,20 +43,20 @@ export default function DemolitionReventes() {
   const projects = data ?? [];
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4]">
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F2235] to-[#1A3A5C]">
-        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#C9A84C]/20 blur-[120px]" />
+    <div className="min-h-screen bg-background">
+      <div className="relative overflow-hidden border-b border-border bg-card">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sea/10 blur-[120px]" />
         <div className="container relative py-10 md:py-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sea/30 bg-sea-soft px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sea">
             <Handshake className="h-3.5 w-3.5" />
             {t("demo.reventes.nav")}
           </div>
-          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-4xl">
+          <h1 className="mt-5 font-serif text-3xl font-medium text-foreground md:text-4xl">
             {t("demo.reventes.title")}
           </h1>
-          <p className="mt-2 max-w-xl text-white/60">{t("demo.reventes.subtitle")}</p>
+          <p className="mt-2 max-w-xl text-muted-foreground">{t("demo.reventes.subtitle")}</p>
           <Link href="/outils/analyse-ia">
-            <Button variant="outline" className="mt-5 border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+            <Button variant="outline" className="mt-5 border-border bg-card text-foreground hover:bg-muted">
               <Sparkles className="me-2 h-4 w-4" />
               {t("nav.aiAnalysis")}
             </Button>
@@ -69,12 +69,12 @@ export default function DemolitionReventes() {
           <div className="flex flex-col items-center gap-4 rounded-2xl border bg-card p-10 text-center shadow-sm">
             <p className="text-muted-foreground">{t("demo.offerForm.loginRequired")}</p>
             <Link href="/auth/login">
-              <Button className="bg-[#1A3A5C] text-white hover:bg-[#2A5080]">{t("nav.login")}</Button>
+              <Button className="bg-primary text-primary-foreground hover:bg-ink-2">{t("nav.login")}</Button>
             </Link>
           </div>
         ) : isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-[#1A3A5C]" />
+            <Loader2 className="h-8 w-8 animate-spin text-sea" />
           </div>
         ) : projects.length === 0 ? (
           <div className="rounded-2xl border bg-card p-10 text-center text-muted-foreground shadow-sm">
@@ -87,11 +87,11 @@ export default function DemolitionReventes() {
                 key={listing.id}
                 className="flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#1A3A5C]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-sea/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-sea">
                   <Building2 className="h-3.5 w-3.5" />
                   {projectTypeLabel(t, listing.projectType)}
                 </div>
-                <h2 className="mt-3 font-serif text-lg font-bold text-[#0F2235]" dir="auto">
+                <h2 className="mt-3 font-serif text-lg font-bold text-foreground" dir="auto">
                   {listing.address ?? (listing.neighborhood ? `${listing.neighborhood}, ${listing.city}` : listing.city)}
                 </h2>
                 <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground" dir="auto">
@@ -101,27 +101,27 @@ export default function DemolitionReventes() {
 
                 <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-[#1A3A5C]" />
+                    <Layers className="h-4 w-4 text-sea" />
                     <span>{listing.units}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-[#1A3A5C]" />
+                    <Calendar className="h-4 w-4 text-sea" />
                     <span>{listing.buildYear}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-lg bg-[#F8F7F4] p-3 text-sm">
+                <div className="mt-4 rounded-lg bg-muted p-3 text-sm">
                   <div className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                     {t("demo.reventes.promoter")}
                   </div>
                   <div className="mt-1.5 flex items-center gap-2" dir="auto">
-                    <User className="h-4 w-4 text-[#1A3A5C]" />
+                    <User className="h-4 w-4 text-sea" />
                     {promoterCompany || promoterName || "—"}
                   </div>
                   {promoterEmail && (
                     <a
                       href={`mailto:${promoterEmail}`}
-                      className="mt-1.5 flex items-center gap-2 text-[#C9A84C] hover:underline"
+                      className="mt-1.5 flex items-center gap-2 text-sea hover:underline"
                     >
                       <Mail className="h-4 w-4" />
                       {promoterEmail}
