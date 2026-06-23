@@ -1,75 +1,46 @@
 import { Link } from "wouter";
 import { useLanguage } from "@/components/layout/language-provider";
-import { Building2, Search, Handshake, Check, ArrowRight } from "lucide-react";
+import { Building2, Handshake, Home, Search, Check, ArrowRight } from "lucide-react";
 
 const NAVY = "#0F2235";
 const GOLD = "#C9A84C";
 
+// Hebrew uses the gershayim ״ (U+05F4), never an ASCII quote, inside strings.
 const CONTENT = {
   fr: {
     badge: "Tarifs",
     title: "Nos offres",
-    subtitle:
-      "Promoteurs, apporteurs d'affaires, agences — l'inscription est gratuite. Passez Pro quand vous voulez, sans engagement.",
+    subtitle: "Promoteurs, agents, responsables d'immeuble, chasseurs de biens — choisissez votre profil. Tout est sans engagement.",
     cta: "Devenir partenaire",
-    perMonth: "/mois",
-    recommended: "Recommandé",
     roles: [
-      { icon: Building2, name: "Promoteur", desc: "Trouvez des projets, faites des offres, construisez.", plans: [
-        { name: "Gratuit", price: "0", recommended: false, features: ["Profil vérifié", "Accès au marché", "Faire des offres"] },
-        { name: "Pro", price: "490", per: true, recommended: true, features: ["Tout le plan Gratuit", "Accès aux projets luxueux", "Mise en avant prioritaire"] },
-      ] },
-      { icon: Search, name: "Apporteur d'affaires", desc: "Publiez des projets, recevez des offres des promoteurs.", plans: [
-        { name: "3 projets", price: "499", per: true, recommended: false, features: ["Publication de 3 projets", "Offres des promoteurs", "Sans engagement"] },
-        { name: "Illimité", price: "990", per: true, recommended: true, features: ["Projets illimités", "Mise en avant prioritaire", "Sans engagement"] },
-      ] },
-      { icon: Handshake, name: "Agence immobilière", desc: "Recevez des mandats de revente des promoteurs.", plans: [
-        { name: "Gratuit", price: "0", recommended: false, features: ["Inscription gratuite", "Mandats de revente", "Commission sur les ventes"] },
-      ] },
+      { icon: Building2, name: "Promoteur (יזם)", desc: "Vous construisez et achetez des projets.", price: "0", per: "", note: "Commission uniquement à la transaction (voir CGV)", features: ["Accès gratuit à la plateforme", "Faire des offres sur les projets", "Aucun abonnement"] },
+      { icon: Handshake, name: "Agent immobilier (מתווך)", desc: "Agent agréé — vous revendez les biens.", price: "300", per: "/mois", note: "Sans engagement", features: ["Mandats de revente des promoteurs", "Visibilité sur la plateforme", "Aucune commission sur les ventes"] },
+      { icon: Home, name: "Responsable d'immeuble (ועד בית)", desc: "Vous référencez votre immeuble.", price: "1000", per: "/an", note: "Sans engagement", features: ["Référencement de votre immeuble", "Offres des promoteurs", "Mise en relation sécurisée"] },
+      { icon: Search, name: "Chasseur de biens (צייד נכסים)", desc: "Vous dénichez des biens pour les promoteurs.", price: "1000", per: "/an", note: "Sans engagement", features: ["Publication de vos biens", "Offres des promoteurs", "Mise en relation sécurisée"] },
     ],
   },
   en: {
     badge: "Pricing",
     title: "Our offers",
-    subtitle:
-      "Developers, business introducers, agencies — signing up is free. Go Pro whenever you like, no commitment.",
+    subtitle: "Developers, agents, building managers, property hunters — pick your profile. Everything is commitment-free.",
     cta: "Become a partner",
-    perMonth: "/mo",
-    recommended: "Recommended",
     roles: [
-      { icon: Building2, name: "Developer", desc: "Find projects, make offers, build.", plans: [
-        { name: "Free", price: "0", recommended: false, features: ["Verified profile", "Market access", "Make offers"] },
-        { name: "Pro", price: "490", per: true, recommended: true, features: ["Everything in Free", "Access to luxury projects", "Priority placement"] },
-      ] },
-      { icon: Search, name: "Business introducer", desc: "Publish projects, receive offers from developers.", plans: [
-        { name: "3 projects", price: "499", per: true, recommended: false, features: ["Publish 3 projects", "Offers from developers", "No commitment"] },
-        { name: "Unlimited", price: "990", per: true, recommended: true, features: ["Unlimited projects", "Priority placement", "No commitment"] },
-      ] },
-      { icon: Handshake, name: "Real estate agency", desc: "Receive resale mandates from developers.", plans: [
-        { name: "Free", price: "0", recommended: false, features: ["Free registration", "Resale mandates", "Commission on sales"] },
-      ] },
+      { icon: Building2, name: "Developer (יזם)", desc: "You build and buy projects.", price: "0", per: "", note: "Commission only on transactions (see GTS)", features: ["Free access to the platform", "Make offers on projects", "No subscription"] },
+      { icon: Handshake, name: "Real estate agent (מתווך)", desc: "Licensed agent — you resell properties.", price: "300", per: "/mo", note: "No commitment", features: ["Resale mandates from developers", "Visibility on the platform", "No commission on sales"] },
+      { icon: Home, name: "Building manager (ועד בית)", desc: "You list your building.", price: "1000", per: "/yr", note: "No commitment", features: ["List your building", "Offers from developers", "Secure introductions"] },
+      { icon: Search, name: "Property hunter (צייד נכסים)", desc: "You find properties for developers.", price: "1000", per: "/yr", note: "No commitment", features: ["Publish your properties", "Offers from developers", "Secure introductions"] },
     ],
   },
   he: {
     badge: "מחירון",
     title: "המסלולים שלנו",
-    subtitle:
-      "יזמים, מתווכי עסקאות, סוכנויות — ההרשמה חינמית. שדרגו ל-Pro מתי שתרצו, ללא התחייבות.",
+    subtitle: "יזמים, מתווכים, ועדי בית, ציידי נכסים — בחרו את הפרופיל שלכם. הכול ללא התחייבות.",
     cta: "הצטרפות כשותף",
-    perMonth: "/חודש",
-    recommended: "מומלץ",
     roles: [
-      { icon: Building2, name: "יזם", desc: "מצאו פרויקטים, הגישו הצעות, בנו.", plans: [
-        { name: "חינם", price: "0", recommended: false, features: ["פרופיל מאומת", "גישה לשוק", "הגשת הצעות"] },
-        { name: "Pro", price: "490", per: true, recommended: true, features: ["כל מה שבחינם", "גישה לפרויקטים יוקרתיים", "מיקום מועדף"] },
-      ] },
-      { icon: Search, name: "מתווך עסקאות", desc: "פרסמו פרויקטים, קבלו הצעות מיזמים.", plans: [
-        { name: "3 פרויקטים", price: "499", per: true, recommended: false, features: ["פרסום 3 פרויקטים", "הצעות מיזמים", "ללא התחייבות"] },
-        { name: "ללא הגבלה", price: "990", per: true, recommended: true, features: ["פרויקטים ללא הגבלה", "מיקום מועדף", "ללא התחייבות"] },
-      ] },
-      { icon: Handshake, name: "סוכנות נדל\"ן", desc: "קבלו מנדטי מכירה מיזמים.", plans: [
-        { name: "חינם", price: "0", recommended: false, features: ["הרשמה חינמית", "מנדטי מכירה", "עמלה על מכירות"] },
-      ] },
+      { icon: Building2, name: "יזם", desc: "אתם בונים ורוכשים פרויקטים.", price: "0", per: "", note: "עמלה רק בעת עסקה (ראו תנאי מכר)", features: ["גישה חינם לפלטפורמה", "הגשת הצעות על פרויקטים", "ללא מנוי"] },
+      { icon: Handshake, name: "מתווך נדל״ן", desc: "מתווך מורשה — אתם מוכרים נכסים.", price: "300", per: "/חודש", note: "ללא התחייבות", features: ["מנדטי מכירה מיזמים", "נראות בפלטפורמה", "ללא עמלה על מכירות"] },
+      { icon: Home, name: "ועד בית", desc: "אתם מפרסמים את הבניין שלכם.", price: "1000", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הבניין שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
+      { icon: Search, name: "צייד נכסים", desc: "אתם מאתרים נכסים עבור יזמים.", price: "1000", per: "/שנה", note: "ללא התחייבות", features: ["פרסום הנכסים שלכם", "הצעות מיזמים", "חיבור מאובטח"] },
     ],
   },
 } as const;
@@ -89,71 +60,43 @@ export default function Tarifs() {
           </div>
           <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-5xl">{L.title}</h1>
           <p className="mx-auto mt-3 max-w-2xl text-white/60">{L.subtitle}</p>
-          <Link
-            href="/auth/register"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 text-sm font-bold text-[#0A1628] transition-transform hover:-translate-y-0.5"
-          >
+          <Link href="/auth/register" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 text-sm font-bold text-[#0A1628] transition-transform hover:-translate-y-0.5">
             {L.cta}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>
         </div>
       </div>
 
-      <div className="container space-y-12 py-12">
-        {L.roles.map((role) => {
-          const Icon = role.icon;
-          return (
-            <section key={role.name}>
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1A3A5C]/10">
+      <div className="container py-12">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {L.roles.map((role) => {
+            const Icon = role.icon;
+            return (
+              <div key={role.name} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#1A3A5C]/10">
                   <Icon className="h-5 w-5 text-[#1A3A5C]" />
                 </div>
-                <div>
-                  <h2 className="font-serif text-xl font-bold text-[#0F2235]">{role.name}</h2>
-                  <p className="text-sm text-muted-foreground">{role.desc}</p>
+                <h2 className="font-serif text-lg font-bold leading-tight text-[#0F2235]" dir="auto">{role.name}</h2>
+                <p className="mt-1 text-[13px] text-muted-foreground" dir="auto">{role.desc}</p>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-3xl font-bold" style={{ color: NAVY }}>{role.price}<Shekel /></span>
+                  {role.per && <span className="text-xs text-muted-foreground">{role.per}</span>}
                 </div>
+                {role.note && <div className="mt-0.5 text-[11px] font-medium" style={{ color: GOLD }} dir="auto">{role.note}</div>}
+                <ul className="mt-4 flex-1 space-y-1.5 border-t pt-4">
+                  {role.features.map((f) => (
+                    <li key={f} className="flex items-start gap-1.5 text-[13px]" dir="auto">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/auth/register" className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-semibold" style={{ borderColor: NAVY, color: NAVY }}>
+                  {L.cta}
+                </Link>
               </div>
-              <div className={`grid gap-4 ${role.plans.length > 1 ? "sm:grid-cols-2 lg:grid-cols-3" : "max-w-md"}`}>
-                {role.plans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className="flex flex-col rounded-2xl bg-white p-6 shadow-sm"
-                    style={{ border: plan.recommended ? `2px solid ${GOLD}` : "0.5px solid rgba(0,0,0,0.12)" }}
-                  >
-                    {plan.recommended && (
-                      <span className="mb-2 inline-block w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ background: GOLD, color: NAVY }}>
-                        {L.recommended}
-                      </span>
-                    )}
-                    <div className="text-sm font-medium" style={{ color: NAVY }}>{plan.name}</div>
-                    <div className="mt-1 flex items-baseline gap-1">
-                      <span className="text-3xl font-bold" style={{ color: NAVY }}>{plan.price}<Shekel /></span>
-                      {plan.per && <span className="text-xs text-muted-foreground">{L.perMonth}</span>}
-                    </div>
-                    <ul className="mt-4 flex-1 space-y-1.5">
-                      {plan.features.map((f) => (
-                        <li key={f} className="flex items-start gap-1.5 text-[13px]">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
-
-        <div className="rounded-3xl bg-gradient-to-br from-[#0A1628] to-[#1A3A5C] p-10 text-center">
-          <h2 className="font-serif text-2xl font-bold text-white">{L.title}</h2>
-          <Link
-            href="/auth/register"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-6 py-3 text-sm font-bold text-[#0A1628] transition-transform hover:-translate-y-0.5"
-          >
-            {L.cta}
-            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-          </Link>
+            );
+          })}
         </div>
       </div>
     </div>
