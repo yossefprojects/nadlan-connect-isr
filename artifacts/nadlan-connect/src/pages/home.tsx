@@ -198,62 +198,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Features Section — deliberate dark "data" band */}
-      <section className="py-24 md:py-28 bg-foreground text-white relative overflow-hidden">
-        <div className="absolute inset-0 md:w-1/2 w-full h-1/2 md:h-full rtl:right-0 rtl:left-auto">
-          <picture>
-            <source srcSet={abstractAiWebp} type="image/webp" />
-            <img src={abstractAi} alt={t("home.aiImageAlt")} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-25 md:opacity-40" />
-          </picture>
-          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r rtl:md:bg-gradient-to-l from-[#0E1B2A] via-[#0E1B2A]/85 to-transparent" />
-        </div>
-
-        <div className="container relative z-10 flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 w-full pt-56 md:pt-0 rtl:md:pr-16 md:pl-16">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="max-w-xl"
-            >
-              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 rounded-full border border-sea-bright/40 bg-sea-bright/10 px-4 py-1.5 mb-8">
-                <Brain className="h-4 w-4 text-sea-bright" />
-                <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-sea-bright">
-                  {t("home.aiEyebrow")}
-                </span>
-              </motion.div>
-
-              <motion.h2 variants={fadeInUp} className="font-serif text-4xl md:text-6xl font-medium text-white mb-6">
-                {t("home.aiTitle")}
-              </motion.h2>
-
-              <motion.p variants={fadeInUp} className="text-lg text-white/70 mb-10 leading-relaxed">
-                {t("home.aiDesc")}
-              </motion.p>
-
-              <motion.ul variants={staggerContainer} className="space-y-4 mb-12">
-                {[
-                  t("analyse.marketEstimate"),
-                  t("analyse.urbanPotential"),
-                  t("analyse.rentalYield"),
-                ].map((feature, i) => (
-                  <motion.li key={i} variants={fadeInUp} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-sea-bright" />
-                    <span className="text-white/90 font-medium">{feature}</span>
-                  </motion.li>
-                ))}
-              </motion.ul>
-
-              <motion.div variants={fadeInUp}>
-                <Link href="/outils/analyse-ia">
-                  <Button className="h-14 rounded-full bg-background text-foreground px-8 text-base font-bold hover:bg-background/90 hover:scale-105 transition-transform">
-                    {t("home.aiCta")} <ArrowRight className={`h-5 w-5 ${isRtl ? 'rotate-180 mr-2' : 'ml-2'}`} />
-                  </Button>
-                </Link>
-              </motion.div>
+      {/* AI Features Section — compact dark "data" band */}
+      <section className="py-16 md:py-20 bg-foreground text-white">
+        <div className="container grid items-center gap-10 md:grid-cols-2 lg:gap-16">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="max-w-xl"
+          >
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 rounded-full border border-sea-bright/40 bg-sea-bright/10 px-4 py-1.5 mb-6">
+              <Brain className="h-4 w-4 text-sea-bright" />
+              <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-sea-bright">
+                {t("home.aiEyebrow")}
+              </span>
             </motion.div>
-          </div>
+
+            <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl font-medium text-white mb-5">
+              {t("home.aiTitle")}
+            </motion.h2>
+
+            <motion.p variants={fadeInUp} className="text-base md:text-lg text-white/70 mb-7 leading-relaxed">
+              {t("home.aiDesc")}
+            </motion.p>
+
+            <motion.ul variants={staggerContainer} className="space-y-3 mb-8">
+              {[
+                t("analyse.marketEstimate"),
+                t("analyse.urbanPotential"),
+                t("analyse.rentalYield"),
+              ].map((feature, i) => (
+                <motion.li key={i} variants={fadeInUp} className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-sea-bright" />
+                  <span className="text-white/90 font-medium">{feature}</span>
+                </motion.li>
+              ))}
+            </motion.ul>
+
+            <motion.div variants={fadeInUp}>
+              <Link href="/outils/analyse-ia">
+                <Button className="h-12 rounded-full bg-background text-foreground px-7 text-base font-bold hover:bg-background/90 hover:scale-105 transition-transform">
+                  {t("home.aiCta")} <ArrowRight className={`h-5 w-5 ${isRtl ? 'rotate-180 mr-2' : 'ml-2'}`} />
+                </Button>
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden rounded-2xl border border-white/10"
+          >
+            <picture>
+              <source srcSet={abstractAiWebp} type="image/webp" />
+              <img src={abstractAi} alt={t("home.aiImageAlt")} loading="lazy" decoding="async" className="aspect-[5/4] w-full object-cover" />
+            </picture>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0E1B2A]/70 to-transparent" />
+          </motion.div>
         </div>
       </section>
 
