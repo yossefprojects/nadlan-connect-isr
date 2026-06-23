@@ -103,7 +103,7 @@ export function PhotoCarousel({
 
   return (
     <div
-      className={`relative overflow-hidden bg-muted touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C9A84C] ${className ?? ""}`}
+      className={`relative overflow-hidden bg-muted touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sea ${className ?? ""}`}
       role={hasMultiple ? "group" : undefined}
       aria-label={hasMultiple ? alt : undefined}
       aria-roledescription={hasMultiple ? "carousel" : undefined}

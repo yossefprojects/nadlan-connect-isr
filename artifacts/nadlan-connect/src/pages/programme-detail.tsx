@@ -173,7 +173,7 @@ export default function ProgrammeDetail() {
             ) : (
               <Badge
                 variant="outline"
-                className="border-[#0A1628]/15 bg-[#0A1628]/5 font-semibold text-[#0A1628]/70"
+                className="border-foreground/15 bg-foreground/5 font-semibold text-foreground/70"
               >
                 {t("publicPrograms.soldOut")}
               </Badge>

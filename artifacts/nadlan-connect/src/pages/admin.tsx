@@ -534,7 +534,7 @@ export default function Admin() {
                       </Badge>
                       {c.commissionStatus !== "none" && (
                         <Badge variant="secondary" className={
-                          c.commissionStatus === "paid" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-[#C9A84C]/15 text-[#8a7330] hover:bg-[#C9A84C]/15"
+                          c.commissionStatus === "paid" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-sea/15 text-sea hover:bg-sea/15"
                         }>
                           {t(`demo.commission.${c.commissionStatus}`)}
                         </Badge>

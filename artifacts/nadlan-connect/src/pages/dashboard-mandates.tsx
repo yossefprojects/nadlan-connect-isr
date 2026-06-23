@@ -80,8 +80,8 @@ export default function DashboardMandates() {
                   </td>
                   <td className="px-6 py-4">
                     {m.exclusive ? (
-                      <span className="flex items-center gap-1 text-[#C9A84C] font-medium">
-                        <Star className="h-3.5 w-3.5 fill-[#C9A84C]" /> {t("mandates.exclusive")}
+                      <span className="flex items-center gap-1 text-sea font-medium">
+                        <Star className="h-3.5 w-3.5 fill-sea" /> {t("mandates.exclusive")}
                       </span>
                     ) : (
                       <span className="text-muted-foreground">{t("mandates.nonExclusive")}</span>
@@ -157,9 +157,9 @@ export function ListingMandateRequests({ listingId }: { listingId: number }) {
               {m.exclusive && (
                 <Badge
                   variant="outline"
-                  className="border-[#C9A84C]/30 text-[#C9A84C] bg-[#C9A84C]/5 text-xs"
+                  className="border-sea/30 text-sea bg-sea/5 text-xs"
                 >
-                  <Star className="h-3 w-3 me-1 fill-[#C9A84C]" /> {t("mandates.exclusivityRequested")}
+                  <Star className="h-3 w-3 me-1 fill-sea" /> {t("mandates.exclusivityRequested")}
                 </Badge>
               )}
               <Badge variant="outline" className={`text-xs ${STATUS_STYLE[m.status] ?? ""}`}>
