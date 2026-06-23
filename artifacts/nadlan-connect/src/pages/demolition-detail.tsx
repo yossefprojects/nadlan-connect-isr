@@ -40,7 +40,7 @@ function standingLabel(t: (k: string) => string, s: string | null | undefined) {
 
 function scoreColor(score: number) {
   if (score >= 75) return "bg-emerald-100 text-emerald-800 border-emerald-200";
-  if (score >= 50) return "bg-[#C9A84C]/15 text-[#8a6f1f] border-[#C9A84C]/30";
+  if (score >= 50) return "bg-score-mid/15 text-score-mid border-score-mid/30";
   return "bg-orange-100 text-orange-800 border-orange-200";
 }
 
@@ -48,7 +48,7 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-[11px] text-muted-foreground">{label}</div>
-      <div className="text-sm font-semibold text-[#0F2235]" dir="auto">{value}</div>
+      <div className="text-sm font-semibold text-foreground" dir="auto">{value}</div>
     </div>
   );
 }
@@ -247,7 +247,7 @@ export default function DemolitionDetail() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F8F7F4]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1A3A5C]" />
+        <Loader2 className="h-8 w-8 animate-spin text-sea" />
       </div>
     );
   }
@@ -272,33 +272,33 @@ export default function DemolitionDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4]">
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F2235] to-[#1A3A5C]">
-        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#C9A84C]/20 blur-[120px]" />
+    <div className="min-h-screen bg-background">
+      <div className="relative overflow-hidden border-b border-border bg-card">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sea/10 blur-[120px]" />
         <div className="container relative py-10 md:py-14">
           <Link href="/demolition/listings">
-            <button className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white">
+            <button className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               {t("demo.browse")}
             </button>
           </Link>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sea/30 bg-sea-soft px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sea">
             <Building2 className="h-3.5 w-3.5" />
             {projectTypeLabel(t, listing.projectType)}
           </div>
-          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-4xl" dir="auto">
+          <h1 className="mt-5 font-serif text-3xl font-medium text-foreground md:text-4xl" dir="auto">
             {listing.isAddressRevealed && listing.address
               ? listing.address
               : listing.neighborhood
                 ? `${listing.neighborhood}, ${listing.city}`
                 : listing.city}
           </h1>
-          <div className="mt-2 flex items-center gap-1.5 text-white/60" dir="auto">
+          <div className="mt-2 flex items-center gap-1.5 text-muted-foreground" dir="auto">
             <MapPin className="h-4 w-4" />
             {listing.city}
           </div>
           {!listing.isAddressRevealed && (
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/70">
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
               <Lock className="h-3 w-3" />
               {t("demo.privacy.addressHidden")}
             </div>
@@ -310,33 +310,33 @@ export default function DemolitionDetail() {
         <div className="space-y-8 lg:col-span-2">
           {/* Characteristics */}
           <section className="rounded-2xl border bg-card p-6 shadow-sm">
-            <h2 className="font-serif text-xl font-bold text-[#0F2235]">{t("demo.detail.characteristics")}</h2>
+            <h2 className="font-serif text-xl font-bold text-foreground">{t("demo.detail.characteristics")}</h2>
             <div className="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1A3A5C]/10">
-                  <Layers className="h-5 w-5 text-[#1A3A5C]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sea/10">
+                  <Layers className="h-5 w-5 text-sea" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("demo.units")}</div>
-                  <div className="font-semibold text-[#0F2235]">{listing.units}</div>
+                  <div className="font-semibold text-foreground">{listing.units}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1A3A5C]/10">
-                  <Calendar className="h-5 w-5 text-[#1A3A5C]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sea/10">
+                  <Calendar className="h-5 w-5 text-sea" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("demo.builtIn")}</div>
-                  <div className="font-semibold text-[#0F2235]">{listing.buildYear}</div>
+                  <div className="font-semibold text-foreground">{listing.buildYear}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1A3A5C]/10">
-                  <Building2 className="h-5 w-5 text-[#1A3A5C]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sea/10">
+                  <Building2 className="h-5 w-5 text-sea" />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("demo.filter.projectType")}</div>
-                  <div className="font-semibold text-[#0F2235]">{projectTypeLabel(t, listing.projectType)}</div>
+                  <div className="font-semibold text-foreground">{projectTypeLabel(t, listing.projectType)}</div>
                 </div>
               </div>
             </div>
@@ -346,14 +346,14 @@ export default function DemolitionDetail() {
           {(listing.approxLat != null && listing.approxLng != null) && (
             <section className="rounded-2xl border bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-serif text-xl font-bold text-[#0F2235]">{t("demo.detail.location")}</h2>
+                <h2 className="font-serif text-xl font-bold text-foreground">{t("demo.detail.location")}</h2>
                 {listing.isAddressRevealed ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-800">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     {t("demo.privacy.exactShown")}
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2235]/5 px-3 py-1 text-[11px] font-semibold text-[#0F2235]/70">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-3 py-1 text-[11px] font-semibold text-foreground/70">
                     <Lock className="h-3.5 w-3.5" />
                     {t("demo.privacy.approxOnly")}
                   </span>
@@ -361,7 +361,7 @@ export default function DemolitionDetail() {
               </div>
               {listing.neighborhood && (
                 <p className="mt-2 text-sm text-muted-foreground" dir="auto">
-                  {t("demo.neighborhood")}: <span className="font-medium text-[#0F2235]">{listing.neighborhood}</span>
+                  {t("demo.neighborhood")}: <span className="font-medium text-foreground">{listing.neighborhood}</span>
                 </p>
               )}
               <div className="mt-4">
@@ -384,7 +384,7 @@ export default function DemolitionDetail() {
 
           {/* Documents */}
           <section className="rounded-2xl border bg-card p-6 shadow-sm">
-            <h2 className="font-serif text-xl font-bold text-[#0F2235]">{t("demo.detail.documents")}</h2>
+            <h2 className="font-serif text-xl font-bold text-foreground">{t("demo.detail.documents")}</h2>
             {documents.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">{t("demo.detail.noDocuments")}</p>
             ) : (
@@ -395,9 +395,9 @@ export default function DemolitionDetail() {
                       href={d.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-lg border bg-[#F8F7F4] px-4 py-3 text-sm transition-colors hover:border-[#C9A84C]/50"
+                      className="flex items-center gap-3 rounded-lg border bg-[#F8F7F4] px-4 py-3 text-sm transition-colors hover:border-sea/50"
                     >
-                      <FileText className="h-5 w-5 shrink-0 text-[#1A3A5C]" />
+                      <FileText className="h-5 w-5 shrink-0 text-sea" />
                       <span className="truncate" dir="auto">{d.name}</span>
                     </a>
                   </li>
@@ -409,7 +409,7 @@ export default function DemolitionDetail() {
           {/* Offers (owner or admin only) */}
           {canViewOffers && (
             <section className="rounded-2xl border bg-card p-6 shadow-sm">
-              <h2 className="font-serif text-xl font-bold text-[#0F2235]">
+              <h2 className="font-serif text-xl font-bold text-foreground">
                 {t("demo.detail.offersReceived")} ({offers?.length ?? 0})
               </h2>
               {!offers || offers.length === 0 ? (
@@ -434,18 +434,18 @@ export default function DemolitionDetail() {
                         <div
                           key={o.id}
                           className={`relative flex flex-col rounded-xl border bg-[#F8F7F4] p-5 ${
-                            isTop ? "border-[#C9A84C] ring-1 ring-[#C9A84C]/40" : ""
+                            isTop ? "border-sea ring-1 ring-sea/40" : ""
                           }`}
                         >
                           {isTop && (
-                            <div className="absolute -top-3 start-4 inline-flex items-center gap-1 rounded-full bg-[#C9A84C] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#0F2235]">
+                            <div className="absolute -top-3 start-4 inline-flex items-center gap-1 rounded-full bg-sea px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground">
                               <Trophy className="h-3 w-3" />
                               {t("demo.detail.bestOffer")}
                             </div>
                           )}
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <div className="font-semibold text-[#0F2235]" dir="auto">
+                              <div className="font-semibold text-foreground" dir="auto">
                                 {o.promoterCompany || o.promoterName || o.promoterEmail}
                               </div>
                               <div className="text-xs text-muted-foreground">
@@ -474,13 +474,13 @@ export default function DemolitionDetail() {
                               ] as const).map(([key, val, max]) => (
                                 <div key={key} className="flex items-center gap-2">
                                   <span className="w-28 shrink-0 text-[11px] text-muted-foreground">{t(key)}</span>
-                                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#0F2235]/10">
+                                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-foreground/10">
                                     <div
-                                      className="h-full rounded-full bg-[#1A3A5C]"
+                                      className="h-full rounded-full bg-sea"
                                       style={{ width: `${((val ?? 0) / max) * 100}%` }}
                                     />
                                   </div>
-                                  <span className="w-10 shrink-0 text-end text-[11px] font-semibold text-[#1A3A5C]">
+                                  <span className="w-10 shrink-0 text-end text-[11px] font-semibold text-sea">
                                     {val ?? 0}/{max}
                                   </span>
                                 </div>
@@ -489,7 +489,7 @@ export default function DemolitionDetail() {
                           )}
 
                           <div className="mt-4 border-t pt-3">
-                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                               <Coins className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionFinancial")}
                             </div>
                             <div className="mt-2 grid grid-cols-2 gap-3">
@@ -501,7 +501,7 @@ export default function DemolitionDetail() {
                           </div>
 
                           <div className="mt-4 border-t pt-3">
-                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                               <Award className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionQuality")}
                             </div>
                             <div className="mt-2 grid grid-cols-2 gap-3">
@@ -517,7 +517,7 @@ export default function DemolitionDetail() {
                             {amenities.length > 0 && (
                               <div className="mt-3 flex flex-wrap gap-1.5">
                                 {amenities.map((a) => (
-                                  <span key={a} className="rounded-full bg-[#1A3A5C]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#1A3A5C]">
+                                  <span key={a} className="rounded-full bg-sea/10 px-2.5 py-0.5 text-[11px] font-medium text-sea">
                                     {a}
                                   </span>
                                 ))}
@@ -526,7 +526,7 @@ export default function DemolitionDetail() {
                           </div>
 
                           <div className="mt-4 border-t pt-3">
-                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                               <ShieldCheck className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionTimeline")}
                             </div>
                             <div className="mt-2 grid grid-cols-2 gap-3">
@@ -547,7 +547,7 @@ export default function DemolitionDetail() {
                           {o.promoterEmail && (
                             <a
                               href={`mailto:${o.promoterEmail}`}
-                              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#C9A84C] hover:underline"
+                              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-sea hover:underline"
                             >
                               <Mail className="h-4 w-4" />
                               {o.promoterEmail}
@@ -569,7 +569,7 @@ export default function DemolitionDetail() {
                                       {t("demo.connection.validated")}
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C]/15 px-3 py-1.5 text-xs font-semibold text-[#8a6f1f]">
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sea/15 px-3 py-1.5 text-xs font-semibold text-sea">
                                       <Clock className="h-4 w-4" />
                                       {t("demo.connection.pending")}
                                     </span>
@@ -584,7 +584,7 @@ export default function DemolitionDetail() {
                                   size="sm"
                                   disabled={acceptOffer.isPending}
                                   onClick={() => handleAcceptOffer(o.id)}
-                                  className="bg-[#1A3A5C] text-white hover:bg-[#2A5080]"
+                                  className="bg-sea text-white hover:opacity-90"
                                 >
                                   {acceptOffer.isPending ? (
                                     <Loader2 className="me-2 h-4 w-4 animate-spin" />
@@ -614,10 +614,10 @@ export default function DemolitionDetail() {
         <div className="space-y-6">
           {/* Resale mandate — the winning promoter mandates an agence to resell */}
           {resale.isWinningPromoter && (listing.status as string) === "offer_locked" && (
-            <section className="rounded-2xl border border-[#C9A84C]/40 bg-card p-6 shadow-sm">
+            <section className="rounded-2xl border border-sea/40 bg-card p-6 shadow-sm">
               <div className="flex items-center gap-2">
-                <Handshake className="h-5 w-5 text-[#C9A84C]" />
-                <h2 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.resale.title")}</h2>
+                <Handshake className="h-5 w-5 text-sea" />
+                <h2 className="font-serif text-lg font-bold text-foreground">{t("demo.resale.title")}</h2>
               </div>
               {resale.resaleAgentId ? (
                 <div className="mt-4 flex items-start gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
@@ -649,7 +649,7 @@ export default function DemolitionDetail() {
                       <Button
                         disabled={!selectedAgent || mandateResale.isPending}
                         onClick={() => mandateResale.mutate(selectedAgent)}
-                        className="w-full bg-[#C9A84C] text-[#0F2235] hover:bg-[#E8C96A]"
+                        className="w-full bg-sea text-white hover:opacity-90"
                       >
                         {mandateResale.isPending ? (
                           <Loader2 className="me-2 h-4 w-4 animate-spin" />
@@ -668,21 +668,21 @@ export default function DemolitionDetail() {
           {/* Contact (owner/admin only) */}
           {(listing.ownerEmail || listing.ownerPhone) && (
             <section className="rounded-2xl border bg-card p-6 shadow-sm">
-              <h2 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.detail.contact")}</h2>
+              <h2 className="font-serif text-lg font-bold text-foreground">{t("demo.detail.contact")}</h2>
               <div className="mt-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3" dir="auto">
-                  <User className="h-4 w-4 text-[#1A3A5C]" />
+                  <User className="h-4 w-4 text-sea" />
                   {listing.ownerName}
                 </div>
                 {listing.ownerEmail && (
-                  <a href={`mailto:${listing.ownerEmail}`} className="flex items-center gap-3 hover:text-[#C9A84C]">
-                    <Mail className="h-4 w-4 text-[#1A3A5C]" />
+                  <a href={`mailto:${listing.ownerEmail}`} className="flex items-center gap-3 hover:text-sea">
+                    <Mail className="h-4 w-4 text-sea" />
                     {listing.ownerEmail}
                   </a>
                 )}
                 {listing.ownerPhone && (
-                  <a href={`tel:${listing.ownerPhone}`} className="flex items-center gap-3 hover:text-[#C9A84C]">
-                    <Phone className="h-4 w-4 text-[#1A3A5C]" />
+                  <a href={`tel:${listing.ownerPhone}`} className="flex items-center gap-3 hover:text-sea">
+                    <Phone className="h-4 w-4 text-sea" />
                     {listing.ownerPhone}
                   </a>
                 )}
@@ -693,19 +693,19 @@ export default function DemolitionDetail() {
           {/* Offer form (developer only) — hidden once the listing is locked/closed */}
           {isDeveloper && listing.status !== "active" ? (
             <section className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground shadow-sm">
-              <div className="flex items-center gap-2 font-medium text-[#0F2235]">
+              <div className="flex items-center gap-2 font-medium text-foreground">
                 <Lock className="h-4 w-4" />
                 {t("demo.offerForm.noLongerAvailable")}
               </div>
             </section>
           ) : isDeveloper ? (
-            <section className="rounded-2xl border border-[#C9A84C]/40 bg-card p-6 shadow-sm">
-              <h2 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.offerForm.title")}</h2>
+            <section className="rounded-2xl border border-sea/40 bg-card p-6 shadow-sm">
+              <h2 className="font-serif text-lg font-bold text-foreground">{t("demo.offerForm.title")}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{t("demo.offerForm.subtitle")}</p>
               <form onSubmit={submitOffer} className="mt-4 space-y-5">
                 {/* Financial */}
                 <fieldset className="space-y-3">
-                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                     <Coins className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionFinancial")}
                   </legend>
                   <div className="space-y-1.5">
@@ -732,7 +732,7 @@ export default function DemolitionDetail() {
 
                 {/* Qualitative */}
                 <fieldset className="space-y-3 border-t pt-4">
-                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                     <Award className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionQuality")}
                   </legend>
                   <div className="space-y-1.5">
@@ -794,7 +794,7 @@ export default function DemolitionDetail() {
 
                 {/* Timeline & security */}
                 <fieldset className="space-y-3 border-t pt-4">
-                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3A5C]">
+                  <legend className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-sea">
                     <ShieldCheck className="h-3.5 w-3.5" /> {t("demo.offerForm.sectionTimeline")}
                   </legend>
                   <div className="grid grid-cols-2 gap-3">
@@ -827,7 +827,7 @@ export default function DemolitionDetail() {
                     onChange={(e) => setOfferForm({ ...offerForm, message: e.target.value })} />
                 </div>
                 <Button type="submit" disabled={createOffer.isPending}
-                  className="w-full bg-[#1A3A5C] text-white hover:bg-[#2A5080]">
+                  className="w-full bg-sea text-white hover:opacity-90">
                   {createOffer.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <Send className="me-2 h-4 w-4" />}
                   {createOffer.isPending ? t("demo.offerForm.submitting") : t("demo.offerForm.submit")}
                 </Button>
