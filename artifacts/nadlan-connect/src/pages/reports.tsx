@@ -77,27 +77,27 @@ export default function Reports() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4]">
-      <div className="bg-gradient-to-br from-[#0F2235] to-[#1A3A5C] text-white">
+    <div className="min-h-screen bg-background">
+      <div className="border-b border-border bg-card">
         <div className="container py-10">
-          <h1 className="font-serif text-3xl">{t("reports.title")}</h1>
-          <p className="mt-2 text-white/70">{t("reports.subtitle")}</p>
+          <h1 className="font-serif text-3xl text-foreground">{t("reports.title")}</h1>
+          <p className="mt-2 text-muted-foreground">{t("reports.subtitle")}</p>
         </div>
       </div>
 
       <div className="container py-8">
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-[#C9A84C]" />
+            <Loader2 className="h-8 w-8 animate-spin text-sea" />
           </div>
         ) : !reports || reports.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-              <ScrollText className="mb-3 h-10 w-10 text-[#C9A84C]" />
-              <p className="font-medium text-[#1A3A5C]">{t("reports.emptyTitle")}</p>
+              <ScrollText className="mb-3 h-10 w-10 text-sea" />
+              <p className="font-medium text-foreground">{t("reports.emptyTitle")}</p>
               <p className="text-sm">{t("reports.emptyDesc")}</p>
               <Link href="/outils/analyse-ia">
-                <Button className="mt-4 bg-[#C9A84C] hover:bg-[#b8963e] text-white border-0">
+                <Button className="mt-4 bg-sea hover:opacity-90 text-white border-0">
                   <Sparkles className="mr-2 h-4 w-4" />
                   {t("reports.cta")}
                 </Button>
@@ -110,11 +110,11 @@ export default function Reports() {
               <Card key={r.id} className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col gap-3 p-5">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#C9A84C]/15">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sea/15">
                       {r.kind === "chat" ? (
-                        <MessageSquare className="h-4 w-4 text-[#C9A84C]" />
+                        <MessageSquare className="h-4 w-4 text-sea" />
                       ) : (
-                        <FileText className="h-4 w-4 text-[#C9A84C]" />
+                        <FileText className="h-4 w-4 text-sea" />
                       )}
                     </div>
                     <Badge variant="outline" className="font-normal">
@@ -122,7 +122,7 @@ export default function Reports() {
                     </Badge>
                   </div>
                   <div className="flex-1">
-                    <h3 className="line-clamp-2 font-medium text-[#1A3A5C]">{r.title}</h3>
+                    <h3 className="line-clamp-2 font-medium text-foreground">{r.title}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {new Date(r.createdAt).toLocaleDateString(
                         localeForLanguage(language),
@@ -138,7 +138,7 @@ export default function Reports() {
                     <Link href={`/outils/analyse-ia?reportId=${r.id}`} className="flex-1">
                       <Button
                         size="sm"
-                        className="w-full bg-[#1A3A5C] hover:bg-[#0F2235] text-white border-0"
+                        className="w-full bg-primary hover:bg-ink-2 text-primary-foreground border-0"
                       >
                         <FolderOpen className="h-4 w-4" />
                         <span className="ml-1.5">{t("reports.view")}</span>
@@ -147,7 +147,7 @@ export default function Reports() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-[#1A3A5C]/20 text-[#1A3A5C]"
+                      className="border-primary/20 text-primary"
                       onClick={() => handleDownload(r)}
                       disabled={downloadingId === r.id}
                       aria-label="PDF"

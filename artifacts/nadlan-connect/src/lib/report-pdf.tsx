@@ -21,9 +21,9 @@ Font.register({ family: "Heebo", src: heeboRegularUrl });
 Font.register({ family: "Heebo-Bold", src: heeboBoldUrl });
 Font.registerHyphenationCallback((word) => [word]);
 
-const NAVY_DARK = "#0F2235";
-const NAVY = "#1A3A5C";
-const GOLD = "#C9A84C";
+const NAVY_DARK = "#0E1B2A";
+const NAVY = "#1C3049";
+const GOLD = "#0F7B6C";
 const INK = "#334155";
 const MUTED = "#64748B";
 const LINE = "#D8D4CB";

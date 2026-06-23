@@ -82,7 +82,7 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Palette « Méditerranée » — ink #0E1B2A · sea #0F7B6C · gold #C8923A · paper #F7F5F0 */
+  /* Palette « Méditerranée » — ink #0E1B2A · sea #0F7B6C · sea-bright #37B3A1 · paper #F7F5F0 */
   --background: 43 30% 95%;
   --foreground: 212 50% 11%;
 
@@ -249,7 +249,7 @@
   font-weight: 600;
 }
 .markdown-body blockquote {
-  border-inline-start: 3px solid #C8923A;
+  border-inline-start: 3px solid #0F7B6C;
   margin: 0.6rem 0;
   padding-inline-start: 0.75rem;
   color: #475569;
