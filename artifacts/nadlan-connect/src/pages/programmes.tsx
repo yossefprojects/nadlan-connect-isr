@@ -51,42 +51,42 @@ export default function Programmes() {
   const count = filtered.length;
 
   return (
-    <div className="bg-[#F8F7F4] min-h-screen">
+    <div className="bg-background min-h-screen">
       {/* Hero header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F2235] to-[#1A3A5C]">
+      <div className="relative overflow-hidden bg-card border-b border-border">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(rgba(14,27,42,0.9) 1px, transparent 1px)",
             backgroundSize: "22px 22px",
           }}
         />
-        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#C9A84C]/20 blur-[120px]" />
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sea/10 blur-[120px]" />
         <div className="container relative py-14 md:py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sea/30 bg-sea-soft px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sea">
             <Building2 className="h-3.5 w-3.5" />
             {t("publicPrograms.catalog")}
           </div>
-          <h1 className="mt-5 font-serif text-4xl font-bold text-white md:text-5xl">
+          <h1 className="mt-5 font-serif text-4xl font-medium text-foreground md:text-5xl">
             {t("publicPrograms.title")}
           </h1>
-          <p className="mt-3 max-w-xl text-base text-white/60">
+          <p className="mt-3 max-w-xl text-base text-muted-foreground">
             {t("publicPrograms.tagline")}
           </p>
         </div>
       </div>
 
       {/* Sticky filter bar */}
-      <div className="sticky top-[112px] z-30 border-b border-[#E5E7EB] bg-white/85 backdrop-blur-md">
+      <div className="sticky top-[112px] z-30 border-b border-border bg-background/85 backdrop-blur-md">
         <div className="container flex flex-col gap-4 py-4 md:flex-row md:items-end">
-          <div className="hidden items-center gap-2 pb-2 text-sm font-semibold text-[#1A3A5C] md:flex">
-            <SlidersHorizontal className="h-4 w-4 text-[#C9A84C]" />
+          <div className="hidden items-center gap-2 pb-2 text-sm font-semibold text-foreground md:flex">
+            <SlidersHorizontal className="h-4 w-4 text-sea" />
             {t("listings.filter")}
           </div>
           <div className="flex-1 space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">{t("listings.city")}</label>
             <Select value={ville} onValueChange={setVille}>
-              <SelectTrigger className="h-11 rounded-xl border-[1.5px] bg-[#FAFCFA] focus:border-[#1A3A5C] focus:ring-0">
+              <SelectTrigger className="h-11 rounded-xl border-[1.5px] bg-card focus:border-sea focus:ring-0">
                 <SelectValue placeholder={t("listings.allCities")} />
               </SelectTrigger>
               <SelectContent>
@@ -108,7 +108,7 @@ export default function Programmes() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder={t("publicPrograms.searchPlaceholder")}
-                className="h-11 rounded-xl border-[1.5px] bg-[#FAFCFA] ps-9 focus-visible:border-[#1A3A5C] focus-visible:ring-0"
+                className="h-11 rounded-xl border-[1.5px] bg-card ps-9 focus-visible:border-sea focus-visible:ring-0"
               />
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Programmes() {
               {t("publicPrograms.sortBy")}
             </label>
             <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-              <SelectTrigger className="h-11 rounded-xl border-[1.5px] bg-[#FAFCFA] focus:border-[#1A3A5C] focus:ring-0">
+              <SelectTrigger className="h-11 rounded-xl border-[1.5px] bg-card focus:border-sea focus:ring-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,7 +129,7 @@ export default function Programmes() {
             </Select>
           </div>
 
-          <Button className="h-11 gap-2 rounded-xl bg-[#1A3A5C] px-8 text-white shadow-[0_4px_12px_rgba(26,58,92,0.25)] hover:bg-[#2A5080]">
+          <Button className="h-11 gap-2 rounded-xl bg-primary px-8 text-primary-foreground shadow-sm hover:bg-ink-2">
             <Filter className="h-4 w-4" /> {t("listings.filter")}
           </Button>
         </div>
@@ -139,22 +139,22 @@ export default function Programmes() {
       <div className="container py-10">
         {!isLoading && count > 0 && (
           <p className="mb-6 text-sm text-muted-foreground">
-            <span className="font-bold text-[#1A3A5C]">{count}</span> {t("publicPrograms.subtitle")}
+            <span className="font-bold text-sea">{count}</span> {t("publicPrograms.subtitle")}
           </p>
         )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-[360px] animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-[360px] animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         ) : count === 0 ? (
-          <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#C9A84C]/30 bg-white py-20 text-center">
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1A3A5C]/5">
-              <Building2 className="h-8 w-8 text-[#1A3A5C]/40" />
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card py-20 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+              <Building2 className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="mb-2 font-serif text-xl font-bold text-[#0A1628]">
+            <h3 className="mb-2 font-serif text-xl font-semibold text-foreground">
               {t("publicPrograms.noResults")}
             </h3>
             <p className="mb-6 max-w-sm text-muted-foreground">
@@ -162,7 +162,7 @@ export default function Programmes() {
             </p>
             <Button
               variant="outline"
-              className="rounded-full border-[#1A3A5C]/20 text-[#1A3A5C] hover:bg-[#1A3A5C]/5"
+              className="rounded-full border-primary/20 text-primary hover:bg-primary/5"
               onClick={() => {
                 setVille(ALL);
                 setKeyword("");
@@ -175,7 +175,7 @@ export default function Programmes() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((p) => (
               <Link key={p.id} href={`/programme/${p.slug}`}>
-                <Card className="group flex h-full cursor-pointer flex-col overflow-hidden border-[#E5E7EB] transition-shadow hover:shadow-[0_8px_30px_rgba(15,34,53,0.12)]">
+                <Card className="group flex h-full cursor-pointer flex-col overflow-hidden border-border transition-all hover:border-sea hover:shadow-[0_22px_44px_-30px_rgba(14,27,42,0.45)] hover:-translate-y-1">
                   <div className="aspect-video relative bg-muted">
                     {p.coverImageUrl ? (
                       <img
@@ -190,7 +190,7 @@ export default function Programmes() {
                     )}
                     <Badge
                       variant="outline"
-                      className="absolute top-2 end-2 bg-card/90 border-[#C9A84C]/30 text-[#1A3A5C]"
+                      className="absolute top-2 end-2 bg-card/90 border-sea/30 text-sea"
                     >
                       {t("listings.newDev")}
                     </Badge>
@@ -209,7 +209,7 @@ export default function Programmes() {
                         ((p.availableCount ?? 0) > 0 ? (
                           <Badge
                             variant="outline"
-                            className="border-emerald-600/30 bg-emerald-50 font-semibold text-emerald-700"
+                            className="border-sea/30 bg-sea-soft font-semibold text-sea"
                           >
                             {t("publicPrograms.available")
                               .replace("{available}", String(p.availableCount ?? 0))
@@ -218,13 +218,13 @@ export default function Programmes() {
                         ) : (
                           <Badge
                             variant="outline"
-                            className="border-[#0A1628]/15 bg-[#0A1628]/5 font-semibold text-[#0A1628]/70"
+                            className="border-border bg-muted font-semibold text-muted-foreground"
                           >
                             {t("publicPrograms.soldOut")}
                           </Badge>
                         ))}
                     </div>
-                    <div className="mt-auto flex items-center gap-1.5 text-sm font-semibold text-[#1A3A5C] transition-colors group-hover:text-[#C9A84C]">
+                    <div className="mt-auto flex items-center gap-1.5 text-sm font-semibold text-sea transition-colors group-hover:text-ink-2">
                       {t("publicPrograms.view")}
                       <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                     </div>
