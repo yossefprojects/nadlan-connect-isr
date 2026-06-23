@@ -360,8 +360,8 @@ export default function RegisterPro() {
         <circle className="nc-sun" cx="28" cy="10" r="8" fill="#E2761A" />
             <rect className="nc-tower" x="9" y="11" width="19" height="38" rx="3" fill="#0E1B2A" />
             <rect className="nc-tower nc-tower-2" x="27" y="20" width="19" height="29" rx="3" fill="#0F7B6C" />
-            <g fill="#F7F5F0"><circle cx="18.5" cy="20" r="1.9" /><circle cx="18.5" cy="30" r="1.9" /><circle cx="18.5" cy="40" r="1.9" /></g>
-            <g fill="#fff"><circle cx="36.5" cy="29" r="1.9" /><circle cx="36.5" cy="39" r="1.9" /></g>
+            <g fill="#F7F5F0"><circle cx="14.5" cy="20" r="1.9" /><circle cx="22.5" cy="20" r="1.9" /><circle cx="14.5" cy="30" r="1.9" /><circle cx="22.5" cy="30" r="1.9" /><circle cx="14.5" cy="40" r="1.9" /><circle cx="22.5" cy="40" r="1.9" /></g>
+            <g fill="#fff"><circle cx="32.5" cy="30" r="1.9" /><circle cx="40.5" cy="30" r="1.9" /><circle cx="32.5" cy="40" r="1.9" /><circle cx="40.5" cy="40" r="1.9" /></g>
           </svg>
           <span style={{ color: NAVY }}>Nadlan<span style={{ color: SEA }}>Connect</span></span>
         </div>
