@@ -38,5 +38,30 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      /* Logo « tours jumelles » : joue l'entrée quand le logo entre dans le viewport (chargement + scroll), rejoue au survol. Sans JS → logo statique visible. */
+      (function () {
+        function play(el) { el.classList.remove('nc-play'); void el.offsetWidth; el.classList.add('nc-play'); }
+        var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { play(e.target); io.unobserve(e.target); } });
+        }, { threshold: 0.4 }) : null;
+        var seen = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+        function hook(el) {
+          if (seen) { if (seen.has(el)) return; seen.add(el); }
+          if (io) io.observe(el); else play(el);
+          el.addEventListener('mouseenter', function () { play(el); });
+        }
+        function scan(n) {
+          if (!n || n.nodeType !== 1) return;
+          if (n.classList && n.classList.contains('nc-logo')) hook(n);
+          if (n.querySelectorAll) n.querySelectorAll('.nc-logo').forEach(hook);
+        }
+        function start() {
+          scan(document.body);
+          new MutationObserver(function (ms) { ms.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes, scan); }); }).observe(document.body, { childList: true, subtree: true });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+      })();
+    </script>
   </body>
 </html>

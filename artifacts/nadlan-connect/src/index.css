@@ -277,10 +277,11 @@
   .ticker-track { animation: none; }
 }
 
-/* Logo tours jumelles: entrance — buildings rise from the ground, then windows light up */
+/* Logo tours jumelles: entrance (.nc-play) — slower, solemn rise from the ground + windows light up. JS triggers on view & hover-replay. */
 @keyframes nc-rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes nc-light { from { opacity: 0; } to { opacity: 1; } }
-.nc-logo .nc-tower { transform-box: fill-box; transform-origin: bottom; animation: nc-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.nc-logo .nc-tower-2 { animation-delay: 0.1s; }
-.nc-logo circle { animation: nc-light 0.4s ease-out 0.65s both; }
-@media (prefers-reduced-motion: reduce) { .nc-logo .nc-tower, .nc-logo circle { animation: none; } }
+.nc-logo .nc-tower { transform-box: fill-box; transform-origin: bottom; }
+.nc-logo.nc-play .nc-tower { animation: nc-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.nc-logo.nc-play .nc-tower-2 { animation-delay: 0.16s; }
+.nc-logo.nc-play circle { animation: nc-light 0.5s ease-out 0.95s both; }
+@media (prefers-reduced-motion: reduce) { .nc-logo.nc-play .nc-tower, .nc-logo.nc-play circle { animation: none; } }
