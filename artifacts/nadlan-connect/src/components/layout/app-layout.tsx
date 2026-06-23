@@ -2,7 +2,7 @@ import { Navbar } from "./navbar";
 import { MarketBar } from "./market-bar";
 import { PartnersMarquee } from "./partners-marquee";
 import { useLanguage } from "./language-provider";
-import { IsraelFlag } from "./israel-flag";
+import { Logo } from "./logo";
 import { Link, useLocation } from "wouter";
 import { Calculator, Linkedin, Instagram, Mail, MapPin, ArrowUpRight } from "lucide-react";
 
@@ -34,12 +34,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <footer className="bg-card text-muted-foreground border-t border-border">
         <div className="container grid max-w-6xl grid-cols-1 gap-12 py-14 md:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <div className="mb-4 flex items-center gap-2.5">
-              <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-              <span className="relative inline-block font-serif text-xl text-foreground">
-                Nadlan<span className="text-sea">Connect</span>
-                <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
-              </span>
+            <div className="mb-4">
+              <Logo />
             </div>
             <p className="mb-6 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {t("footer.tagline")}

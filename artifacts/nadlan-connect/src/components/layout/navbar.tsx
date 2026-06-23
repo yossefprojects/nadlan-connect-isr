@@ -8,7 +8,7 @@ import { Globe, LogOut, Menu, UserCircle, CreditCard } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { IsraelFlag } from "./israel-flag";
+import { Logo } from "./logo";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -113,14 +113,8 @@ export function Navbar() {
     >
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center space-x-2.5 group shrink-0">
-            <div className="h-8 w-8 rounded-lg overflow-hidden relative">
-               <img src="/favicon.png" alt="NadlanConnect" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-            </div>
-            <span className="relative inline-block font-serif text-xl tracking-tight text-foreground transition-opacity group-hover:opacity-90">
-              Nadlan<span className="text-sea">Connect</span>
-              <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
-            </span>
+          <Link href="/" className="group shrink-0">
+            <Logo className="transition-opacity group-hover:opacity-90" />
           </Link>
           <nav className="hidden xl:flex gap-6">
             <NavLinks />
@@ -191,12 +185,8 @@ export function Navbar() {
             <SheetContent side="right" className="w-[85vw] sm:w-[350px] bg-background/95 backdrop-blur-xl border-border p-0 text-foreground">
               <div className="flex flex-col h-full">
                 <div className="p-6 border-b border-border">
-                  <Link href="/" className="flex items-center space-x-2.5">
-                    <img src="/favicon.png" alt="NadlanConnect" className="h-8 w-8 rounded-lg" />
-                    <span className="relative inline-block font-serif text-xl tracking-tight text-foreground">
-                      Nadlan<span className="text-sea">Connect</span>
-                      <IsraelFlag className="absolute -bottom-1 -right-4 h-[15px] w-5 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.35)] ring-1 ring-black/5" />
-                    </span>
+                  <Link href="/">
+                    <Logo />
                   </Link>
                 </div>
 
