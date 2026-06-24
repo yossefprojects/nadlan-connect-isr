@@ -325,6 +325,7 @@ async function resolveAgenceName(userId: string): Promise<string | null> {
     .where(eq(usersTable.id, userId))
     .limit(1);
   if (!user) return null;
+  if (!user.email) return promoterDisplayName(user);
   const [prof] = await db
     .select({ companyName: profilesTable.companyName })
     .from(profilesTable)

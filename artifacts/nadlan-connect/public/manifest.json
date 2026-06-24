@@ -1,0 +1,15 @@
+{
+  "name": "NadlanConnect — Immobilier en Israël",
+  "short_name": "NadlanConnect",
+  "description": "Achetez, investissez et trouvez les meilleures propriétés en Israël. Estimation IA, score d'investissement et connexion directe avec promoteurs et agences.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8F7F4",
+  "theme_color": "#0F2235",
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

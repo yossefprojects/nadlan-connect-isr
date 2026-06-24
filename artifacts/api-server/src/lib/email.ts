@@ -270,7 +270,7 @@ export async function sendOfferRejectedEmail(
 
 interface ResaleMandateEmailData {
   agentName: string | null;
-  agentEmail: string;
+  agentEmail: string | null;
   promoterName: string | null;
   promoterCompany: string | null;
   buildingCity: string;

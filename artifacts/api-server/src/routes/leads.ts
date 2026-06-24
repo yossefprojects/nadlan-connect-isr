@@ -23,6 +23,40 @@ import {
 
 const router = Router();
 
+// Authorization helper: a lead may only be accessed by its buyer, the owner of
+// the target listing, or an admin. Returns the loaded lead + listing so callers
+// can reuse them without an extra query.
+async function loadLeadAuth(userId: string, leadId: number) {
+  const [lead] = await db
+    .select()
+    .from(leadsTable)
+    .where(eq(leadsTable.id, leadId))
+    .limit(1);
+  if (!lead) {
+    return { lead: null as null } as const;
+  }
+  const [listing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.id, lead.listingId))
+    .limit(1);
+  const [u] = await db
+    .select({ role: usersTable.role })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
+  const isAdmin = u?.role === "admin";
+  const isBuyer = lead.buyerId === userId;
+  const isOwner = !!listing && listing.ownerId === userId;
+  return {
+    lead,
+    listing: listing ?? null,
+    isAdmin,
+    canView: isBuyer || isOwner || isAdmin, // participants + admin
+    canManage: isOwner || isAdmin, // only the pro (listing owner) or admin
+  } as const;
+}
+
 function serializeLead(
   lead: typeof leadsTable.$inferSelect,
   listing?: typeof listingsTable.$inferSelect | null,
@@ -171,19 +205,19 @@ router.get("/leads/:leadId", async (req, res): Promise<void> => {
     return;
   }
 
-  const [lead] = await db
-    .select()
-    .from(leadsTable)
-    .where(eq(leadsTable.id, params.data.leadId))
-    .limit(1);
-
-  if (!lead) {
+  const auth = await loadLeadAuth(req.user!.id, params.data.leadId);
+  if (!auth.lead) {
     res.status(404).json({ error: "Lead not found" });
     return;
   }
+  if (!auth.canView) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  const lead = auth.lead;
 
   const [listing, buyer, messages] = await Promise.all([
-    db.select().from(listingsTable).where(eq(listingsTable.id, lead.listingId)).limit(1).then((r) => r[0] ?? null),
+    Promise.resolve(auth.listing),
     db.select().from(usersTable).where(eq(usersTable.id, lead.buyerId)).limit(1).then((r) => r[0] ?? null),
     db.select().from(messagesTable).where(eq(messagesTable.leadId, lead.id)).orderBy(messagesTable.createdAt),
   ]);
@@ -213,6 +247,17 @@ router.patch("/leads/:leadId", async (req, res): Promise<void> => {
     return;
   }
 
+  const auth = await loadLeadAuth(req.user!.id, params.data.leadId);
+  if (!auth.lead) {
+    res.status(404).json({ error: "Lead not found" });
+    return;
+  }
+  // Updating a lead's status is a "pro" action: only the listing owner or admin.
+  if (!auth.canManage) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
   const [updated] = await db
     .update(leadsTable)
     .set({ status: parsed.data.status })
@@ -236,6 +281,16 @@ router.get("/leads/:leadId/messages", async (req, res): Promise<void> => {
   const params = GetLeadMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid lead ID" });
+    return;
+  }
+
+  const auth = await loadLeadAuth(req.user!.id, params.data.leadId);
+  if (!auth.lead) {
+    res.status(404).json({ error: "Lead not found" });
+    return;
+  }
+  if (!auth.canView) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
 
@@ -264,6 +319,16 @@ router.post("/leads/:leadId/messages", async (req, res): Promise<void> => {
   const parsed = SendMessageBody.safeParse(req.body);
   if (!params.success || !parsed.success) {
     res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  const auth = await loadLeadAuth(req.user!.id, params.data.leadId);
+  if (!auth.lead) {
+    res.status(404).json({ error: "Lead not found" });
+    return;
+  }
+  if (!auth.canView) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
 

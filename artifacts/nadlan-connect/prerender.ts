@@ -22,7 +22,7 @@ const TEMPLATE_PATH = join(DIST_DIR, "index.html");
 // ─── Site metadata ────────────────────────────────────────────────────────────
 
 const DOMAINS = process.env.REPLIT_DOMAINS?.split(",")[0]?.trim() ?? "";
-const SITE_URL = DOMAINS ? `https://${DOMAINS}` : "https://nadlanconnect.fr";
+const SITE_URL = DOMAINS ? `https://${DOMAINS}` : "https://nadlanconnect.com";
 const DEFAULT_IMAGE = `${SITE_URL}/opengraph.jpg`;
 const DEFAULT_TITLE = "NadlanConnect — Immobilier en Israël";
 const DEFAULT_DESC =
@@ -246,6 +246,23 @@ async function prerenderStaticRoutes(template: string): Promise<void> {
       "Consultez les conditions générales de vente de la plateforme NadlanConnect.",
     url: SITE_URL + "/cgv",
     noscriptHtml: `<main><h1>Conditions Générales de Vente — NadlanConnect</h1></main>`,
+  });
+
+  // Politique de confidentialité
+  await writeRoute(template, "confidentialite", {
+    title: "Politique de confidentialité — NadlanConnect",
+    description:
+      "Découvrez comment NadlanConnect collecte, utilise et protège vos données personnelles (RGPD).",
+    url: SITE_URL + "/confidentialite",
+    noscriptHtml: `<main><h1>Politique de confidentialité — NadlanConnect</h1></main>`,
+  });
+
+  // Mentions légales
+  await writeRoute(template, "mentions-legales", {
+    title: "Mentions légales — NadlanConnect",
+    description: "Mentions légales du site NadlanConnect : éditeur, hébergeur et contact.",
+    url: SITE_URL + "/mentions-legales",
+    noscriptHtml: `<main><h1>Mentions légales — NadlanConnect</h1></main>`,
   });
 }
 

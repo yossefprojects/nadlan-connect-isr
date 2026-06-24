@@ -36,7 +36,36 @@ app.use(
     },
   }),
 );
-app.use(cors({ credentials: true, origin: true }));
+// CORS — restrict to an explicit allow-list in production via ALLOWED_ORIGINS
+// (comma-separated). Falls back to reflecting the origin only when no list is
+// configured (dev convenience).
+const allowedOrigins = process.env["ALLOWED_ORIGINS"]
+  ?.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    credentials: true,
+    origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : true,
+  }),
+);
+
+// Baseline security headers (no extra dependency). A stricter Content-Security
+// -Policy should be added once the payment (PayPlus) and font flows have been
+// verified end-to-end, to avoid silently breaking them.
+app.use((_req: Request, res: Response, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-XSS-Protection", "0");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload",
+  );
+  next();
+});
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,8 +74,9 @@ app.use(authMiddleware);
 app.get("/sitemap.xml", async (_req: Request, res: Response) => {
   try {
     const domain =
-      process.env["REPLIT_DOMAINS"]?.split(",")[0]?.trim() ??
-      "nadlanconnect.replit.app";
+      process.env["PUBLIC_SITE_DOMAIN"]?.trim() ||
+      process.env["REPLIT_DOMAINS"]?.split(",")[0]?.trim() ||
+      "nadlanconnect.com";
     const base = `https://${domain}`;
 
     const [listings, programmes] = await Promise.all([
@@ -72,6 +102,8 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
       },
       { loc: `${base}/cgu`, changefreq: "yearly", priority: "0.3" },
       { loc: `${base}/cgv`, changefreq: "yearly", priority: "0.3" },
+      { loc: `${base}/confidentialite`, changefreq: "yearly", priority: "0.3" },
+      { loc: `${base}/mentions-legales`, changefreq: "yearly", priority: "0.3" },
     ];
 
     const listingUrls = listings.map((l) => ({

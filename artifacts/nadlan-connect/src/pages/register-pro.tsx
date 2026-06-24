@@ -299,7 +299,7 @@ export default function RegisterPro() {
           style={{ borderRadius: "14px", border: "0.5px solid rgba(0,0,0,0.08)" }}
         >
           <CheckCircle2 className="h-14 w-14 text-green-600" />
-          <h1 className="font-serif text-2xl" style={{ color: NAVY }}>{t("proRegister.successTitle")}</h1>
+          <h2 className="font-serif text-2xl" style={{ color: NAVY }}>{t("proRegister.successTitle")}</h2>
           <p className="text-muted-foreground">{L.successText}</p>
           <Link href="/" className="mt-2 inline-flex h-11 items-center rounded-lg px-5 text-sm font-medium text-white" style={{ backgroundColor: NAVY }}>
             {t("proRegister.backHome")}

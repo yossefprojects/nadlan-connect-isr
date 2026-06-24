@@ -44,6 +44,12 @@ router.post("/payments/checkout", requireAuth, async (req, res): Promise<void> =
     res.status(404).json({ error: "Utilisateur introuvable." });
     return;
   }
+  if (!user.email) {
+    res
+      .status(400)
+      .json({ error: "Une adresse e-mail est requise pour le paiement." });
+    return;
+  }
 
   // Record a pending subscription, then create the hosted payment page.
   const [sub] = await db
