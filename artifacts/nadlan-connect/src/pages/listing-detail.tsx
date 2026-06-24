@@ -430,7 +430,7 @@ export default function ListingDetail() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           <div
-            className="rounded-xl overflow-hidden aspect-video bg-muted relative touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#C9A84C]"
+            className="rounded-xl overflow-hidden aspect-video bg-muted relative touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sea"
             role={hasMultipleImages ? "group" : undefined}
             aria-label={hasMultipleImages ? listing.title : undefined}
             aria-roledescription={hasMultipleImages ? "carousel" : undefined}
@@ -523,10 +523,10 @@ export default function ListingDetail() {
 
           {/* Agent: Devenir mandataire */}
           {isAuthenticated && role === "agent" && listing.type === "new_development" && (
-            <div className="rounded-xl border-2 border-[#1A3A5C]/20 bg-[#1A3A5C]/5 p-6">
+            <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-6">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#1A3A5C]/10 flex items-center justify-center">
-                  <Handshake className="h-6 w-6 text-[#1A3A5C]" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Handshake className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-primary mb-1">{t("detail.becomeMandateTitle")}</h4>
@@ -546,7 +546,7 @@ export default function ListingDetail() {
                   ) : (
                     <Button
                       onClick={() => setShowMandateForm(true)}
-                      className="bg-[#1A3A5C] hover:bg-[#142d47] text-white"
+                      className="bg-primary hover:bg-ink-2 text-primary-foreground"
                     >
                       <Handshake className="h-4 w-4 mr-2" />
                       {t("detail.applyMandate")}
@@ -558,9 +558,9 @@ export default function ListingDetail() {
           )}
 
           {/* AI Simulator CTA */}
-          <div className="rounded-xl border-2 border-dashed border-[#C9A84C]/40 bg-[#C9A84C]/5 p-6 flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C9A84C]/15 flex items-center justify-center">
-              <Bot className="h-6 w-6 text-[#C9A84C]" />
+          <div className="rounded-xl border-2 border-dashed border-sea/40 bg-sea-soft p-6 flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-sea/15 flex items-center justify-center">
+              <Bot className="h-6 w-6 text-sea" />
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h4 className="font-semibold text-primary mb-1">{t("detail.simTitle")}</h4>
@@ -572,14 +572,14 @@ export default function ListingDetail() {
               <Button
                 onClick={handleEvaluate}
                 variant="outline"
-                className="gap-2 border-[#1A3A5C]/30 text-[#1A3A5C] hover:bg-[#1A3A5C]/5"
+                className="gap-2 border-primary/30 text-primary hover:bg-primary/5"
               >
                 <Scale className="h-4 w-4" />
                 {t("detail.evaluate")}
               </Button>
               <Button
                 onClick={handleSendToSimulator}
-                className="gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
+                className="gap-2 bg-sea text-white hover:opacity-90"
               >
                 {aiSent ? <Check className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                 {aiSent ? t("detail.sent") : t("detail.analyze")}
@@ -607,7 +607,7 @@ export default function ListingDetail() {
               ₪{listing.price.toLocaleString(locale)}
             </div>
             {listing.estimatedPrice && (
-              <div className="text-sm font-medium text-emerald-600 mb-6">
+              <div className="text-sm font-medium text-sea mb-6">
                 {t("detail.marketEstimate")}: ₪{listing.estimatedPrice.toLocaleString(locale)}
               </div>
             )}
@@ -648,7 +648,7 @@ export default function ListingDetail() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-primary">
-              <Handshake className="h-5 w-5 text-[#1A3A5C]" />
+              <Handshake className="h-5 w-5 text-primary" />
               {t("detail.mandateModalTitle")}
             </DialogTitle>
             <DialogDescription>
@@ -661,7 +661,7 @@ export default function ListingDetail() {
             <div className="flex items-center justify-between p-4 bg-muted/40 rounded-lg">
               <div>
                 <div className="font-medium flex items-center gap-2">
-                  <Star className="h-4 w-4 text-[#C9A84C]" />
+                  <Star className="h-4 w-4 text-sea" />
                   {t("detail.exclusiveMandate")}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -708,7 +708,7 @@ export default function ListingDetail() {
               {t("detail.cancel")}
             </Button>
             <Button
-              className="flex-1 gap-2 bg-[#1A3A5C] hover:bg-[#142d47] text-white"
+              className="flex-1 gap-2 bg-primary hover:bg-ink-2 text-primary-foreground"
               onClick={handleApplyMandate}
               disabled={applyForMandate.isPending}
             >
@@ -724,7 +724,7 @@ export default function ListingDetail() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-primary">
-              <Bot className="h-5 w-5 text-[#C9A84C]" />
+              <Bot className="h-5 w-5 text-sea" />
               {t("detail.simModalTitle")}
             </DialogTitle>
             <DialogDescription>
@@ -756,13 +756,13 @@ export default function ListingDetail() {
             {listing.estimatedPrice && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("detail.marketEstimateShort")}</span>
-                <span className="font-medium text-emerald-600">₪{listing.estimatedPrice.toLocaleString(locale)}</span>
+                <span className="font-medium text-sea">₪{listing.estimatedPrice.toLocaleString(locale)}</span>
               </div>
             )}
             {listing.investmentScore != null && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("detail.investmentScore")}</span>
-                <span className="font-semibold text-[#C9A84C]">{listing.investmentScore}/100</span>
+                <span className="font-semibold text-sea">{listing.investmentScore}/100</span>
               </div>
             )}
           </div>
@@ -772,7 +772,7 @@ export default function ListingDetail() {
               {t("detail.cancel")}
             </Button>
             <Button
-              className="flex-1 gap-2 bg-[#C9A84C] hover:bg-[#b8963e] text-white"
+              className="flex-1 gap-2 bg-sea text-white hover:opacity-90"
               onClick={handleSendToSimulator}
             >
               <ExternalLink className="h-4 w-4" />

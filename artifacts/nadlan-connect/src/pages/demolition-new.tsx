@@ -103,16 +103,16 @@ export default function DemolitionNew() {
   const busy = createListing.isPending || isUploading;
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4]">
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F2235] to-[#1A3A5C]">
-        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#C9A84C]/20 blur-[120px]" />
+    <div className="min-h-screen bg-background">
+      <div className="relative overflow-hidden border-b border-border bg-card">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sea/10 blur-[120px]" />
         <div className="container relative py-12 md:py-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sea/30 bg-sea-soft px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-sea">
             <Building2 className="h-3.5 w-3.5" />
             {t("demo.badge")}
           </div>
-          <h1 className="mt-5 font-serif text-3xl font-bold text-white md:text-4xl">{t("demo.new.title")}</h1>
-          <p className="mt-3 max-w-xl text-base text-white/60">{t("demo.new.subtitle")}</p>
+          <h1 className="mt-5 font-serif text-3xl font-medium text-foreground md:text-4xl">{t("demo.new.title")}</h1>
+          <p className="mt-3 max-w-xl text-base text-muted-foreground">{t("demo.new.subtitle")}</p>
         </div>
       </div>
 
@@ -231,7 +231,7 @@ export default function DemolitionNew() {
                         <img src={docPreviews[i]!} alt={f.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
-                          <FileText className="h-6 w-6 text-[#1A3A5C]" />
+                          <FileText className="h-6 w-6 text-sea" />
                           <span className="line-clamp-2 break-all text-[10px] text-muted-foreground">{f.name}</span>
                         </div>
                       )}
@@ -249,8 +249,8 @@ export default function DemolitionNew() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[#C9A84C]/40 bg-[#C9A84C]/5 p-5">
-            <h3 className="font-serif text-lg font-bold text-[#0F2235]">{t("demo.new.commissionTitle")}</h3>
+          <div className="rounded-xl border border-sea/40 bg-sea-soft p-5">
+            <h3 className="font-serif text-lg font-bold text-foreground">{t("demo.new.commissionTitle")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("demo.new.commissionDesc").replace("{amount}", commissionLabel)}
             </p>
@@ -264,7 +264,7 @@ export default function DemolitionNew() {
             <Button variant="outline" type="button" onClick={() => setLocation("/demolition/listings")}>
               {t("listingForm.cancel")}
             </Button>
-            <Button type="submit" disabled={busy} className="bg-[#1A3A5C] text-white hover:bg-[#2A5080]">
+            <Button type="submit" disabled={busy} className="bg-primary text-primary-foreground hover:bg-ink-2">
               {busy && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
               {busy ? t("demo.new.submitting") : t("demo.new.submit")}
             </Button>

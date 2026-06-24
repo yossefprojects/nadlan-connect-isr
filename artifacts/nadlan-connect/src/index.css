@@ -45,6 +45,15 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-destructive-border: var(--destructive-border);
 
+  /* Brand tokens — palette « Méditerranée » (données / accents) */
+  --color-sea: hsl(var(--sea));
+  --color-sea-soft: hsl(var(--sea-soft));
+  --color-sea-bright: hsl(var(--sea-bright));
+  --color-ink-2: hsl(var(--ink-2));
+  --color-score-good: hsl(var(--score-good));
+  --color-score-mid: hsl(var(--score-mid));
+  --color-score-low: hsl(var(--score-low));
+
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
@@ -73,54 +82,60 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Navy: #1A3A5C -> HSL: 211, 56%, 23% */
-  /* Gold: #C9A84C -> HSL: 44, 53%, 54% */
-  /* Background: #F8F7F4 -> HSL: 45, 22%, 96% (warm white, matches simzip) */
+  /* Palette « Méditerranée » — ink #0E1B2A · sea #0F7B6C · sea-bright #37B3A1 · paper #F7F5F0 */
+  --background: 43 30% 95%;
+  --foreground: 212 50% 11%;
 
-  --background: 45 22% 96%;
-  --foreground: 211 56% 23%;
-
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 211 56% 23%;
+  --border: 40 19% 82%;
+  --input: 40 19% 82%;
+  --ring: 172 78% 27%;
 
   --card: 0 0% 100%;
-  --card-foreground: 211 56% 23%;
-  --card-border: 220 13% 91%;
+  --card-foreground: 212 50% 11%;
+  --card-border: 40 19% 82%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 211 56% 23%;
-  --popover-border: 211 20% 88%;
+  --popover-foreground: 212 50% 11%;
+  --popover-border: 40 19% 82%;
 
-  --primary: 211 56% 23%;
+  --primary: 212 50% 11%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 44 53% 54%;
+  --secondary: 172 78% 27%;
   --secondary-foreground: 0 0% 100%;
 
-  --muted: 220 10% 90%;
-  --muted-foreground: 211 20% 45%;
+  --muted: 40 20% 90%;
+  --muted-foreground: 216 11% 47%;
 
-  --accent: 44 53% 54%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 40 27% 91%;
+  --accent-foreground: 212 50% 11%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
   --sidebar: 0 0% 100%;
-  --sidebar-foreground: 211 56% 23%;
-  --sidebar-border: 211 20% 88%;
-  --sidebar-primary: 211 56% 23%;
+  --sidebar-foreground: 212 50% 11%;
+  --sidebar-border: 40 19% 82%;
+  --sidebar-primary: 212 50% 11%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 220 10% 90%;
-  --sidebar-accent-foreground: 211 56% 23%;
-  --sidebar-ring: 211 56% 23%;
+  --sidebar-accent: 40 27% 91%;
+  --sidebar-accent-foreground: 212 50% 11%;
+  --sidebar-ring: 172 78% 27%;
 
-  --app-font-sans: 'Plus Jakarta Sans', sans-serif;
-  --app-font-serif: 'DM Serif Display', serif;
-  --app-font-mono: 'Menlo', monospace;
+  /* Brand tokens (accents data) */
+  --sea: 172 78% 27%;
+  --sea-soft: 168 33% 91%;
+  --sea-bright: 171 53% 46%;
+  --ink-2: 213 44% 20%;
+  --score-good: 172 78% 27%;
+  --score-mid: 28 79% 49%;
+  --score-low: 5 59% 44%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Fraunces', serif;
+  --app-font-mono: 'IBM Plex Mono', monospace;
   
-  --radius: 0.25rem;
+  --radius: 0.625rem;
 }
 
 .dark {
@@ -136,7 +151,7 @@
 
   --border: 211 30% 20%;
   --input: 211 30% 20%;
-  --ring: 44 53% 54%;
+  --ring: 172 55% 44%;
 
   --card: 211 56% 12%;
   --card-foreground: 220 14% 96%;
@@ -146,7 +161,7 @@
   --popover-foreground: 220 14% 96%;
   --popover-border: 211 30% 20%;
 
-  --primary: 44 53% 54%;
+  --primary: 172 55% 44%;
   --primary-foreground: 211 56% 10%;
 
   --secondary: 211 30% 20%;
@@ -155,7 +170,7 @@
   --muted: 211 30% 20%;
   --muted-foreground: 211 10% 65%;
 
-  --accent: 44 53% 54%;
+  --accent: 172 55% 44%;
   --accent-foreground: 211 56% 10%;
 
   --destructive: 0 62% 30%;
@@ -192,7 +207,7 @@
 .markdown-body h3,
 .markdown-body h4 {
   font-weight: 600;
-  color: #0f2235;
+  color: #0E1B2A;
   margin: 0.85rem 0 0.4rem;
   line-height: 1.3;
 }
@@ -205,8 +220,8 @@
   padding-inline-start: 1.25rem;
 }
 .markdown-body li { margin: 0.2rem 0; }
-.markdown-body strong { font-weight: 600; color: #0f2235; }
-.markdown-body a { color: #1a3a5c; text-decoration: underline; }
+.markdown-body strong { font-weight: 600; color: #0E1B2A; }
+.markdown-body a { color: #0F7B6C; text-decoration: underline; }
 .markdown-body code {
   background: rgba(15, 34, 53, 0.06);
   border-radius: 4px;
@@ -230,11 +245,11 @@
   white-space: nowrap;
 }
 .markdown-body th {
-  background: rgba(201, 168, 76, 0.12);
+  background: rgba(200, 146, 58, 0.12);
   font-weight: 600;
 }
 .markdown-body blockquote {
-  border-inline-start: 3px solid #c9a84c;
+  border-inline-start: 3px solid #0F7B6C;
   margin: 0.6rem 0;
   padding-inline-start: 0.75rem;
   color: #475569;
@@ -261,3 +276,16 @@
 @media (prefers-reduced-motion: reduce) {
   .ticker-track { animation: none; }
 }
+
+/* Logo tours jumelles: entrance (.nc-play) — slower, solemn rise from the ground + windows light up. JS triggers on view & hover-replay. */
+@keyframes nc-rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes nc-light { from { opacity: 0; } to { opacity: 1; } }
+.nc-logo .nc-tower { transform-box: fill-box; transform-origin: bottom; }
+.nc-logo.nc-play .nc-tower { animation: nc-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.nc-logo.nc-play .nc-tower-2 { animation-delay: 0.16s; }
+.nc-logo.nc-play circle { animation: nc-light 0.5s ease-out 0.95s both; }
+@media (prefers-reduced-motion: reduce) { .nc-logo.nc-play .nc-tower, .nc-logo.nc-play circle { animation: none; } }
+@keyframes nc-sunrise { from { transform: translateY(20px); } to { transform: translateY(0); } }
+.nc-logo .nc-sun { transform-box: fill-box; }
+.nc-logo.nc-play .nc-sun { animation: nc-sunrise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) { .nc-logo.nc-play .nc-sun { animation: none; } }

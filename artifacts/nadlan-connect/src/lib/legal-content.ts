@@ -46,8 +46,8 @@ export const CGU: Record<Language, LegalDoc> = {
       {
         heading: "Rémunération de la plateforme",
         paragraphs: [
-          "NadlanConnect perçoit une rémunération correspondant à 0,5 % du montant total de chaque transaction immobilière conclue par l'intermédiaire de la plateforme.",
-          "Cette rémunération est répartie à parts égales entre les professionnels : 0,25 % à la charge du promoteur et 0,25 % à la charge de l'agence immobilière.",
+          "L'accès du promoteur (יזם) est gratuit. En contrepartie, NadlanConnect perçoit une commission à la charge exclusive du promoteur sur chaque transaction immobilière conclue via la plateforme : 0,50 % pour les transactions inférieures à 100 000 000 ₪, et 0,25 % au-delà (détail dans les CGV).",
+          "L'agent immobilier (מתווך), le responsable d'immeuble (ועד בית) et le chasseur de biens (צייד נכסים) accèdent à la plateforme par abonnement et ne sont redevables d'aucune commission sur les transactions.",
           "L'acheteur ne supporte aucun frais au titre de cette rémunération. Les modalités détaillées figurent dans les Conditions Générales de Vente (CGV).",
         ],
       },
@@ -137,8 +137,8 @@ export const CGU: Record<Language, LegalDoc> = {
       {
         heading: "Platform remuneration",
         paragraphs: [
-          "NadlanConnect receives remuneration equal to 0.5% of the total amount of every real estate transaction completed through the platform.",
-          "This remuneration is split equally between the professionals: 0.25% borne by the developer and 0.25% borne by the real estate agency.",
+          "Developer (יזם) access is free. In return, NadlanConnect receives a commission, borne solely by the developer, on each real estate transaction completed through the platform: 0.50% for transactions below 100,000,000 ₪, and 0.25% above (details in the GTS).",
+          "The real estate agent (מתווך), the building manager (ועד בית) and the property hunter (צייד נכסים) access the platform via a subscription and owe no commission on transactions.",
           "The buyer bears no fees in respect of this remuneration. Detailed terms are set out in the General Terms of Sale (GTS).",
         ],
       },
@@ -250,16 +250,16 @@ export const CGV: Record<Language, LegalDoc> = {
       {
         heading: "Commission et rémunération",
         paragraphs: [
-          "Au titre de la mise en relation et des services fournis, NadlanConnect perçoit une commission égale à 0,5 % du prix de vente de chaque bien immobilier dont la transaction est réalisée grâce à la plateforme.",
-          "Cette commission de 0,5 % est répartie de la manière suivante : 0,25 % à la charge du promoteur et 0,25 % à la charge de l'agence immobilière intervenant dans la transaction.",
-          "La commission est calculée sur le prix de vente et devient exigible à la signature de l'acte authentique de vente.",
-          "L'acquéreur (acheteur final) n'est redevable d'aucune commission envers NadlanConnect.",
+          "Le promoteur (יזם, Yazam) accède gratuitement à la plateforme. En contrepartie, il verse à NadlanConnect une commission sur chaque bien immobilier dont la transaction est réalisée grâce à la plateforme.",
+          "Le taux de cette commission, calculé sur le prix de vente, dépend du montant de la transaction : 0,50 % pour les transactions inférieures à 100 000 000 ₪, et 0,25 % pour les transactions supérieures ou égales à 100 000 000 ₪.",
+          "Cette commission est à la charge exclusive du promoteur et devient exigible à la signature de l'acte authentique de vente.",
+          "L'agent immobilier (מתווך), le responsable d'immeuble (ועד בית) et le chasseur de biens (צייד נכסים) accèdent à la plateforme par abonnement et ne sont redevables d'aucune commission sur les transactions. L'acquéreur (acheteur final) n'est redevable d'aucune commission envers NadlanConnect.",
         ],
       },
       {
         heading: "Facturation et paiement",
         paragraphs: [
-          "La commission fait l'objet d'une facture émise par NadlanConnect à chaque professionnel pour la part lui incombant (0,25 %). Le règlement intervient selon les délais indiqués sur la facture.",
+          "La commission fait l'objet d'une facture émise par NadlanConnect au promoteur. Le règlement intervient selon les délais indiqués sur la facture.",
         ],
       },
       {
@@ -315,16 +315,16 @@ export const CGV: Record<Language, LegalDoc> = {
       {
         heading: "Commission and remuneration",
         paragraphs: [
-          "In consideration of the matchmaking and services provided, NadlanConnect receives a commission equal to 0.5% of the sale price of each property whose transaction is completed thanks to the platform.",
-          "This 0.5% commission is split as follows: 0.25% borne by the developer and 0.25% borne by the real estate agency involved in the transaction.",
-          "The commission is calculated on the sale price and becomes due upon signature of the final deed of sale.",
-          "The purchaser (final buyer) owes no commission to NadlanConnect.",
+          "The developer (יזם, Yazam) accesses the platform free of charge. In return, they pay NadlanConnect a commission on each property whose transaction is completed thanks to the platform.",
+          "The rate of this commission, calculated on the sale price, depends on the transaction amount: 0.50% for transactions below 100,000,000 ₪, and 0.25% for transactions of 100,000,000 ₪ or more.",
+          "This commission is borne solely by the developer and becomes due upon signature of the final deed of sale.",
+          "The real estate agent (מתווך), the building manager (ועד בית) and the property hunter (צייד נכסים) access the platform via a subscription and owe no commission on transactions. The purchaser (final buyer) owes no commission to NadlanConnect.",
         ],
       },
       {
         heading: "Invoicing and payment",
         paragraphs: [
-          "The commission is invoiced by NadlanConnect to each professional for the share due from them (0.25%). Payment is made within the time limits stated on the invoice.",
+          "The commission is invoiced by NadlanConnect to the developer. Payment is made within the time limits stated on the invoice.",
         ],
       },
       {

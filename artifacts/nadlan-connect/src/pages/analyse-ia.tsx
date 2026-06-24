@@ -55,7 +55,7 @@ import {
   PieChart,
 } from "lucide-react";
 
-const GOLD = "#C9A84C";
+const SEA = "hsl(var(--sea))";
 
 const RECO_STYLE: Record<string, { bg: string; text: string; dot: string }> = {
   green: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
@@ -101,7 +101,7 @@ function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-black/5 last:border-0">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold text-[#1A3A5C]">{value}</span>
+      <span className="text-sm font-semibold text-primary">{value}</span>
     </div>
   );
 }
@@ -419,13 +419,13 @@ export default function AnalyseIA() {
 
   const fieldLabelCls = "text-[11px] uppercase tracking-wide text-muted-foreground";
   const fieldInputCls =
-    "rounded-lg border-[0.5px] border-black/10 bg-[#F5F4F0] text-[13px] focus-visible:border-[#C9A84C] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0";
+    "rounded-lg border-[0.5px] border-black/10 bg-muted text-[13px] focus-visible:border-sea focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0";
 
   const QuickFieldsCard = (
     <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-wide text-muted-foreground">
-          <SlidersHorizontal className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.quickFields")}
+          <SlidersHorizontal className="h-4 w-4 text-sea" /> {t("analyse.quickFields")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -463,7 +463,7 @@ export default function AnalyseIA() {
             <Input className={fieldInputCls} value={qf.goal} onChange={(e) => setQf({ ...qf, goal: e.target.value })} placeholder={t("analyse.qfGoalPh")} />
           </div>
         </div>
-        <Button variant="outline" size="sm" className="w-full rounded-lg border-[0.5px] border-black/15 text-[13px] text-[#1A3A5C] shadow-none hover:bg-muted" onClick={applyFields}>
+        <Button variant="outline" size="sm" className="w-full rounded-lg border-[0.5px] border-black/15 text-[13px] text-primary shadow-none hover:bg-muted" onClick={applyFields}>
           <Wand2 className="mr-2 h-3.5 w-3.5" /> {t("analyse.fillFields")}
         </Button>
       </CardContent>
@@ -473,10 +473,10 @@ export default function AnalyseIA() {
   return (
     <div className="min-h-screen bg-[#F8F7F4]">
       {/* Hero */}
-      <div className="bg-[#0D1B3E] text-white">
+      <div className="bg-foreground text-white">
         <div className="container py-10">
           <div className="mb-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C] px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[#C9A84C]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sea-bright px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-sea-bright">
               <Scale className="h-3.5 w-3.5" /> {t("analyse.shamaiBadge")}
             </span>
           </div>
@@ -495,11 +495,11 @@ export default function AnalyseIA() {
             </span>
             <span className="flex items-center gap-1.5">
               <span className="text-white/55">{t("market.boiRate")}</span>
-              <span className="font-semibold text-[#facc15]">4.5%</span>
+              <span className="font-semibold text-white">4.5%</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="text-white/55">{t("market.mortgageRate")}</span>
-              <span className="font-semibold text-[#facc15]">5.2%</span>
+              <span className="font-semibold text-white">5.2%</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="text-white/55">{t("market.cbsIndex")}</span>
@@ -514,7 +514,7 @@ export default function AnalyseIA() {
               onClick={() => setMode("analysis")}
               className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 mode === "analysis"
-                  ? "bg-[#C9A84C] text-[#0D1B3E]"
+                  ? "bg-sea-bright text-foreground"
                   : "text-white/55 hover:text-white"
               }`}
             >
@@ -524,7 +524,7 @@ export default function AnalyseIA() {
               onClick={() => setMode("chat")}
               className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 mode === "chat"
-                  ? "bg-[#C9A84C] text-[#0D1B3E]"
+                  ? "bg-sea-bright text-foreground"
                   : "text-white/55 hover:text-white"
               }`}
             >
@@ -543,13 +543,13 @@ export default function AnalyseIA() {
               <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-wide text-muted-foreground">
-                    <ClipboardList className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.inputTitle")}
+                    <ClipboardList className="h-4 w-4 text-sea" /> {t("analyse.inputTitle")}
                   </CardTitle>
                   <CardDescription className="text-[13px]">{t("analyse.inputDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="rounded-lg border border-[#1A3A5C]/15 bg-[#1A3A5C]/[0.03] p-3 space-y-2">
-                    <Label className="text-xs flex items-center gap-1.5 text-[#1A3A5C]">
+                  <div className="rounded-lg border border-primary/15 bg-primary/[0.03] p-3 space-y-2">
+                    <Label className="text-xs flex items-center gap-1.5 text-primary">
                       <LinkIcon className="h-3.5 w-3.5" /> {t("analyse.urlLabel")}
                     </Label>
                     <div className="flex flex-col gap-2 sm:flex-row">
@@ -572,7 +572,7 @@ export default function AnalyseIA() {
                         variant="outline"
                         onClick={handleImportUrl}
                         disabled={extract.isPending || !url.trim()}
-                        className="border-[#1A3A5C]/20 text-[#1A3A5C] shrink-0"
+                        className="border-primary/20 text-primary shrink-0"
                       >
                         {extract.isPending ? (
                           <>
@@ -593,13 +593,13 @@ export default function AnalyseIA() {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder={t("analyse.placeholder")}
-                    className="min-h-[120px] resize-y rounded-lg border-[0.5px] border-black/10 bg-[#F5F4F0] text-[13px] leading-relaxed focus-visible:border-[#C9A84C] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="min-h-[120px] resize-y rounded-lg border-[0.5px] border-black/10 bg-muted text-[13px] leading-relaxed focus-visible:border-sea focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                   <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
                       onClick={() => setText(t("analyse.example"))}
-                      className="text-[11px] text-[#C9A84C] underline underline-offset-2 hover:opacity-80"
+                      className="text-[11px] text-sea underline underline-offset-2 hover:opacity-80"
                     >
                       {t("analyse.insertExample")}
                     </button>
@@ -610,7 +610,7 @@ export default function AnalyseIA() {
                   <Button
                     onClick={handleAnalyze}
                     disabled={analyze.isPending}
-                    className="h-11 w-full rounded-lg border-0 bg-[#C9A84C] text-sm font-medium text-[#0D1B3E] shadow-none transition-colors hover:bg-[#b8963e]"
+                    className="h-11 w-full rounded-lg border-0 bg-sea text-sm font-medium text-white shadow-none transition-colors hover:opacity-90"
                   >
                     {analyze.isPending ? (
                       <>
@@ -635,20 +635,20 @@ export default function AnalyseIA() {
               <Card className="rounded-xl border-[0.5px] border-black/10 shadow-none">
                 <CardContent className="px-6 py-8">
                   <div className="flex flex-col items-center text-center">
-                    <div className="mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-[#FBF5E6]">
-                      <PieChart className="h-6 w-6 text-[#C9A84C]" />
+                    <div className="mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-sea-soft">
+                      <PieChart className="h-6 w-6 text-sea" />
                     </div>
-                    <p className="text-[15px] font-medium text-[#1A3A5C]">{t("analyse.emptyTitle")}</p>
+                    <p className="text-[15px] font-medium text-primary">{t("analyse.emptyTitle")}</p>
                     <p className="mt-1 max-w-[240px] text-[13px] text-muted-foreground">{t("analyse.emptyDesc")}</p>
                   </div>
                   <div className="mt-6 space-y-2.5 border-t border-black/10 pt-6">
                     {[1, 2, 3].map((n) => (
-                      <div key={n} className="flex items-start gap-3 rounded-lg bg-[#F5F4F0] p-3">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#C9A84C] text-[12px] font-semibold text-[#0D1B3E]">
+                      <div key={n} className="flex items-start gap-3 rounded-lg bg-muted p-3">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sea text-[12px] font-semibold text-white">
                           {n}
                         </span>
                         <div className="space-y-0.5">
-                          <p className="text-[13px] font-medium text-[#1A3A5C]">{t(`analyse.step${n}Title`)}</p>
+                          <p className="text-[13px] font-medium text-primary">{t(`analyse.step${n}Title`)}</p>
                           <p className="text-[12px] leading-snug text-muted-foreground">{t(`analyse.step${n}Desc`)}</p>
                         </div>
                       </div>
@@ -661,8 +661,8 @@ export default function AnalyseIA() {
             {analyze.isPending && (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                  <Loader2 className="h-10 w-10 mb-3 animate-spin text-[#C9A84C]" />
-                  <p className="font-medium text-[#1A3A5C]">{t("analyse.claudeAnalyzing")}</p>
+                  <Loader2 className="h-10 w-10 mb-3 animate-spin text-sea" />
+                  <p className="font-medium text-primary">{t("analyse.claudeAnalyzing")}</p>
                   <p className="text-sm text-muted-foreground">{t("analyse.claudeAnalyzingSub")}</p>
                 </CardContent>
               </Card>
@@ -673,8 +673,8 @@ export default function AnalyseIA() {
                 {/* Score + recommendation */}
                 <Card className="overflow-hidden">
                   <div className="flex flex-col sm:flex-row">
-                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#0A1628] to-[#1A3A5C] p-6 text-white sm:w-48">
-                      <span className="font-serif text-5xl text-[#C9A84C]">{result.overallScore}</span>
+                    <div className="flex flex-col items-center justify-center bg-foreground p-6 text-white sm:w-48">
+                      <span className="font-serif text-5xl text-sea-bright">{result.overallScore}</span>
                       <span className="text-xs uppercase tracking-wider text-white/60">{t("analyse.scoreOf")}</span>
                     </div>
                     <div className="flex-1 p-6">
@@ -682,14 +682,14 @@ export default function AnalyseIA() {
                         <span className={`h-2 w-2 rounded-full ${reco.dot}`} />
                         {t(`reco.${result.recommendation}`)}
                       </div>
-                      <p className="mt-3 text-sm text-[#1A3A5C]">{result.recommendationText}</p>
+                      <p className="mt-3 text-sm text-primary">{result.recommendationText}</p>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={handleExport}
                           disabled={exporting}
-                          className="border-[#1A3A5C]/20 text-[#1A3A5C]"
+                          className="border-primary/20 text-primary"
                         >
                           {exporting ? (
                             <>
@@ -708,7 +708,7 @@ export default function AnalyseIA() {
                           size="sm"
                           onClick={handleSaveAnalysis}
                           disabled={createReport.isPending}
-                          className="border-[#1A3A5C]/20 text-[#1A3A5C]"
+                          className="border-primary/20 text-primary"
                         >
                           {createReport.isPending ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -725,7 +725,7 @@ export default function AnalyseIA() {
                 {/* Summary */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-[#1A3A5C]">{t("analyse.summary")}</CardTitle>
+                    <CardTitle className="text-base text-primary">{t("analyse.summary")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground leading-relaxed">{result.summary}</p>
@@ -735,14 +735,14 @@ export default function AnalyseIA() {
                 {/* Shamai appraisal */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                      <Scale className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.appraisal")}
+                    <CardTitle className="flex items-center gap-2 text-base text-primary">
+                      <Scale className="h-4 w-4 text-sea" /> {t("analyse.appraisal")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="mb-4 rounded-lg bg-[#0F2235] p-4 text-white">
+                    <div className="mb-4 rounded-lg bg-foreground p-4 text-white">
                       <div className="text-xs uppercase tracking-wider text-white/60">{t("analyse.appraisalValue")}</div>
-                      <div className="text-2xl font-serif" style={{ color: GOLD }}>
+                      <div className="text-2xl font-serif" style={{ color: SEA }}>
                         {fmtShekel(result.appraisal.estimatedValue)}
                       </div>
                       <div className="mt-1 text-xs text-white/70">
@@ -769,7 +769,7 @@ export default function AnalyseIA() {
                             <tbody className="divide-y divide-black/5">
                               {result.appraisal.coefficients.map((c, i) => (
                                 <tr key={i}>
-                                  <td className="px-3 py-2 text-[#1A3A5C]">{c.factor}</td>
+                                  <td className="px-3 py-2 text-primary">{c.factor}</td>
                                   <td className="px-3 py-2 text-right tabular-nums">
                                     {c.coefficient != null ? c.coefficient.toFixed(2) : "—"}
                                   </td>
@@ -788,8 +788,8 @@ export default function AnalyseIA() {
                   {/* Features */}
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                        <Home className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.features")}
+                      <CardTitle className="flex items-center gap-2 text-base text-primary">
+                        <Home className="h-4 w-4 text-sea" /> {t("analyse.features")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-0">
@@ -806,9 +806,9 @@ export default function AnalyseIA() {
                   {/* Market */}
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                      <CardTitle className="flex items-center justify-between text-base text-primary">
                         <span className="flex items-center gap-2">
-                          <Gauge className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.marketEstimate")}
+                          <Gauge className="h-4 w-4 text-sea" /> {t("analyse.marketEstimate")}
                         </span>
                         <Badge variant="outline" className="font-normal">
                           {t(`verdict.${result.marketEstimate.verdict}`)}
@@ -826,8 +826,8 @@ export default function AnalyseIA() {
                   {/* Rental yield */}
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                        <TrendingUp className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.rentalYield")}
+                      <CardTitle className="flex items-center gap-2 text-base text-primary">
+                        <TrendingUp className="h-4 w-4 text-sea" /> {t("analyse.rentalYield")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-0">
@@ -841,9 +841,9 @@ export default function AnalyseIA() {
                   {/* Renovation */}
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                      <CardTitle className="flex items-center justify-between text-base text-primary">
                         <span className="flex items-center gap-2">
-                          <Wrench className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.renovation")}
+                          <Wrench className="h-4 w-4 text-sea" /> {t("analyse.renovation")}
                         </span>
                         <Badge variant="outline" className="font-normal">
                           {t(`level.${result.renovation.level}`)}
@@ -860,8 +860,8 @@ export default function AnalyseIA() {
                 {/* Fiscal analysis */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                      <Landmark className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.fiscal")}
+                    <CardTitle className="flex items-center gap-2 text-base text-primary">
+                      <Landmark className="h-4 w-4 text-sea" /> {t("analyse.fiscal")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -874,7 +874,7 @@ export default function AnalyseIA() {
                             ["analyse.heitelHashvacha", result.fiscalAnalysis.heitelHashvacha],
                           ] as const).map(([key, line]) => (
                             <tr key={key}>
-                              <td className="px-3 py-2 text-[#1A3A5C]">{t(key)}</td>
+                              <td className="px-3 py-2 text-primary">{t(key)}</td>
                               <td className="px-3 py-2 text-right tabular-nums font-semibold">{fmtShekel(line.amount)}</td>
                               <td className="px-3 py-2 text-right text-muted-foreground">{fmtPct(line.ratePct)}</td>
                             </tr>
@@ -893,11 +893,11 @@ export default function AnalyseIA() {
                 {/* Urban score */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                    <CardTitle className="flex items-center justify-between text-base text-primary">
                       <span className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.urbanScore")}
+                        <Building2 className="h-4 w-4 text-sea" /> {t("analyse.urbanScore")}
                       </span>
-                      <span className="font-serif text-2xl text-[#1A3A5C]">
+                      <span className="font-serif text-2xl text-primary">
                         {result.urbanScore.score ?? "—"}
                         <span className="text-sm text-muted-foreground"> {t("analyse.urbanScoreUnit")}</span>
                       </span>
@@ -917,7 +917,7 @@ export default function AnalyseIA() {
                           <tbody className="divide-y divide-black/5">
                             {result.urbanScore.criteria.map((c, i) => (
                               <tr key={i}>
-                                <td className="px-3 py-2 text-[#1A3A5C]">{c.label}</td>
+                                <td className="px-3 py-2 text-primary">{c.label}</td>
                                 <td className="px-3 py-2 text-muted-foreground">{c.status}</td>
                                 <td className="px-3 py-2 text-right text-muted-foreground">{c.valueImpact}</td>
                               </tr>
@@ -941,9 +941,9 @@ export default function AnalyseIA() {
                 {/* Promoter ROI */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                    <CardTitle className="flex items-center justify-between text-base text-primary">
                       <span className="flex items-center gap-2">
-                        <Calculator className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.promoterRoi")}
+                        <Calculator className="h-4 w-4 text-sea" /> {t("analyse.promoterRoi")}
                       </span>
                       <Badge variant="outline" className="font-normal">
                         {result.promoterRoi.applicable ? t("analyse.promotionOp") : t("analyse.notApplicable")}
@@ -953,8 +953,8 @@ export default function AnalyseIA() {
                   <CardContent className="pt-0">
                     {result.promoterRoi.applicable ? (
                       <>
-                        <div className="mb-4 flex items-center gap-3 rounded-lg bg-[#0F2235] p-4 text-white">
-                          <span className="text-3xl font-serif" style={{ color: GOLD }}>
+                        <div className="mb-4 flex items-center gap-3 rounded-lg bg-foreground p-4 text-white">
+                          <span className="text-3xl font-serif" style={{ color: SEA }}>
                             {fmtPct(result.promoterRoi.grossRoiPct)}
                           </span>
                           <span className="text-xs uppercase tracking-wider text-white/60">
@@ -979,8 +979,8 @@ export default function AnalyseIA() {
                 {/* Anomalies */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base text-[#1A3A5C]">
-                      <TriangleAlert className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.anomalies")}
+                    <CardTitle className="flex items-center gap-2 text-base text-primary">
+                      <TriangleAlert className="h-4 w-4 text-sea" /> {t("analyse.anomalies")}
                       <span className="text-sm font-normal text-muted-foreground">({result.anomalies.length})</span>
                     </CardTitle>
                   </CardHeader>
@@ -993,7 +993,7 @@ export default function AnalyseIA() {
                       return (
                         <div key={i} className="rounded-lg border border-black/5 bg-white p-3">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-semibold text-[#1A3A5C]">{a.label}</span>
+                            <span className="text-sm font-semibold text-primary">{a.label}</span>
                             <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${sevCls}`}>{t(`severity.${a.severity}`)}</span>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{a.detail}</p>
@@ -1018,19 +1018,19 @@ export default function AnalyseIA() {
           <div className="lg:col-span-3">
             <Card className="flex flex-col" style={{ minHeight: "60vh" }}>
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between text-base text-[#1A3A5C]">
+                <CardTitle className="flex items-center justify-between text-base text-primary">
                   <span className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-[#C9A84C]" /> {t("analyse.chatTitle")}
+                    <MessageSquare className="h-4 w-4 text-sea" /> {t("analyse.chatTitle")}
                   </span>
                   {messages.length > 0 && (
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={handleExportChat} disabled={chatExporting} className="text-[#1A3A5C]" aria-label={t("analyse.downloadReport")} title={t("analyse.downloadReport")}>
+                      <Button variant="ghost" size="sm" onClick={handleExportChat} disabled={chatExporting} className="text-primary" aria-label={t("analyse.downloadReport")} title={t("analyse.downloadReport")}>
                         {chatExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={handleSaveChat} disabled={createReport.isPending} className="text-[#1A3A5C]" aria-label={t("analyse.save")} title={t("analyse.save")}>
+                      <Button variant="ghost" size="sm" onClick={handleSaveChat} disabled={createReport.isPending} className="text-primary" aria-label={t("analyse.save")} title={t("analyse.save")}>
                         {createReport.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setMessages([])} className="text-[#1A3A5C]" aria-label={t("analyse.reset")} title={t("analyse.reset")}>
+                      <Button variant="ghost" size="sm" onClick={() => setMessages([])} className="text-primary" aria-label={t("analyse.reset")} title={t("analyse.reset")}>
                         <RotateCcw className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1042,13 +1042,13 @@ export default function AnalyseIA() {
                 <div ref={threadRef} className="flex-1 space-y-4 overflow-y-auto" style={{ maxHeight: "50vh" }}>
                   {messages.length === 0 && !chat.isPending && (
                     <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
-                      <Scale className="mb-3 h-10 w-10 text-[#C9A84C]" />
-                      <p className="font-medium text-[#1A3A5C]">{t("analyse.chatEmptyTitle")}</p>
+                      <Scale className="mb-3 h-10 w-10 text-sea" />
+                      <p className="font-medium text-primary">{t("analyse.chatEmptyTitle")}</p>
                       <p className="mt-1 max-w-sm text-sm">{t("analyse.chatEmptyDesc")}</p>
                       <button
                         type="button"
                         onClick={() => setChatInput(t("analyse.chatExample"))}
-                        className="mt-4 text-xs text-[#1A3A5C] underline underline-offset-2 hover:text-[#C9A84C]"
+                        className="mt-4 text-xs text-primary underline underline-offset-2 hover:text-sea"
                       >
                         {t("analyse.insertExample")}
                       </button>
@@ -1057,13 +1057,13 @@ export default function AnalyseIA() {
                   {messages.map((m, i) =>
                     m.role === "user" ? (
                       <div key={i} className="flex justify-end">
-                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-[#1A3A5C] px-4 py-2.5 text-sm text-white">
+                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-sm text-white">
                           {m.content}
                         </div>
                       </div>
                     ) : (
                       <div key={i} className="flex justify-start">
-                        <div className="markdown-body min-w-0 max-w-[90%] overflow-hidden rounded-2xl rounded-bl-sm border border-black/5 bg-white px-4 py-3 text-sm text-[#1A3A5C]">
+                        <div className="markdown-body min-w-0 max-w-[90%] overflow-hidden rounded-2xl rounded-bl-sm border border-black/5 bg-white px-4 py-3 text-sm text-primary">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                         </div>
                       </div>
@@ -1072,7 +1072,7 @@ export default function AnalyseIA() {
                   {chat.isPending && (
                     <div className="flex justify-start">
                       <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-black/5 bg-white px-4 py-3 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#C9A84C]" />
+                        <Loader2 className="h-4 w-4 animate-spin text-sea" />
                         {t("analyse.chatThinking")}
                       </div>
                     </div>
@@ -1095,7 +1095,7 @@ export default function AnalyseIA() {
                   <Button
                     onClick={handleSend}
                     disabled={chat.isPending || chatInput.trim().length < 2}
-                    className="h-[52px] shrink-0 border-0 bg-gradient-to-r from-[#C9A84C] to-[#E8C96A] text-[#0A1628] shadow-[0_4px_14px_rgba(201,168,76,0.35)] transition-all hover:shadow-[0_6px_20px_rgba(201,168,76,0.5)]"
+                    className="h-[52px] shrink-0 border-0 bg-sea text-white shadow-sm transition-all hover:opacity-90"
                   >
                     <Send className="h-4 w-4" />
                   </Button>

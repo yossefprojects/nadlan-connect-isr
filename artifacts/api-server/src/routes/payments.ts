@@ -11,11 +11,11 @@ import { logger } from "../lib/logger";
 
 const router = Router();
 
-// Plan catalogue (NIS / month). Keys are unambiguous (role baked into the key).
-const PLANS: Record<string, { amount: number; label: string }> = {
-  promoteur_pro: { amount: 490, label: "NadlanConnect Pro — Promoteur" },
-  apporteur_3projets: { amount: 499, label: "NadlanConnect — Apporteur (3 projets)" },
-  apporteur_illimite: { amount: 990, label: "NadlanConnect — Apporteur (illimité)" },
+// Plan catalogue. Keys are unambiguous (role baked into the key); `interval`
+// drives the PayPlus recurrence so the annual plan is not charged every month.
+const PLANS: Record<string, { amount: number; label: string; interval: "monthly" | "yearly" }> = {
+  agent_mensuel: { amount: 290, label: "NadlanConnect — Agent immobilier (mensuel)", interval: "monthly" },
+  introducer_annuel: { amount: 990, label: "NadlanConnect — Abonnement annuel", interval: "yearly" },
 };
 
 function publicBase(req: Request): string {
@@ -70,6 +70,7 @@ router.post("/payments/checkout", requireAuth, async (req, res): Promise<void> =
       customerName: name,
       customerEmail: user.email,
       recurring: true,
+      recurringType: plan.interval,
       refURL_success: `${base}/abonnement/merci`,
       refURL_failure: `${base}/abonnement?status=echec`,
       refURL_callback: `${base}/payments/payplus/callback`,

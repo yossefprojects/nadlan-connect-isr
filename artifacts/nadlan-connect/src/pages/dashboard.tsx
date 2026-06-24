@@ -57,7 +57,7 @@ export default function Dashboard() {
         <h1 className="font-serif text-3xl font-bold text-primary">{t("dashboard.title")}</h1>
         <div className="flex flex-wrap gap-3">
           <Link href="/outils/analyse-ia">
-            <Button variant="outline" className="gap-2 border-[#C9A84C]/40 text-[#1A3A5C] hover:bg-[#C9A84C]/10">
+            <Button variant="outline" className="gap-2 border-sea/40 text-sea hover:bg-sea/10">
               <Scale className="h-4 w-4" /> {t("dashboard.shamaiTool")}
             </Button>
           </Link>
@@ -220,7 +220,7 @@ export default function Dashboard() {
                     <td className="px-6 py-4 font-medium">
                       <div dir="auto">{listing.title}</div>
                       {listing.type === "new_development" && (
-                        <span className="text-xs text-[#C9A84C] font-medium">{t("dashboard.newDevBadge")}</span>
+                        <span className="text-xs text-sea font-medium">{t("dashboard.newDevBadge")}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{listing.ville}</td>

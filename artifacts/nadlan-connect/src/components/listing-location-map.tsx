@@ -55,7 +55,7 @@ export function ListingLocationMap({
           <CircleMarker
             center={center}
             radius={10}
-            pathOptions={{ color: "#C9A84C", fillColor: "#C9A84C", fillOpacity: 0.9 }}
+            pathOptions={{ color: "#0F7B6C", fillColor: "#0F7B6C", fillOpacity: 0.9 }}
           >
             <Popup>{exactLabel}</Popup>
           </CircleMarker>
@@ -63,7 +63,7 @@ export function ListingLocationMap({
           <Circle
             center={center}
             radius={approxRadiusM}
-            pathOptions={{ color: "#1A3A5C", fillColor: "#1A3A5C", fillOpacity: 0.15 }}
+            pathOptions={{ color: "#0E1B2A", fillColor: "#0E1B2A", fillOpacity: 0.15 }}
           >
             <Popup>{approxLabel}</Popup>
           </Circle>

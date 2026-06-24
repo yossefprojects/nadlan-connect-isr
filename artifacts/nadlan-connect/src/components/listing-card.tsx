@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Listing } from "@workspace/api-client-react";
-import { InvestmentScore } from "./investment-score";
-import { MapPin, Maximize, Home as HomeIcon, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { ScoreBadge } from "./score-badge";
+import { MapPin, Maximize, Home as HomeIcon, Heart, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/layout/language-provider";
 
 interface ListingCardProps {
@@ -124,9 +124,9 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
 
   return (
     <Link href={`/listings/${listing.slug}`}>
-      <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-[10px] border-[0.5px] border-[#E5E7EB] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:border-[#C9A84C] hover:shadow-[0_4px_16px_rgba(26,58,92,0.12)]">
+      <Card className="overflow-hidden cursor-pointer group h-full flex flex-col rounded-2xl border-[0.5px] border-border bg-card shadow-[0_1px_4px_rgba(14,27,42,0.05)] transition-all duration-200 hover:border-sea hover:shadow-[0_22px_44px_-30px_rgba(14,27,42,0.45)] hover:-translate-y-1">
         <div
-          className="relative aspect-[4/3] overflow-hidden bg-muted touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C9A84C]"
+          className="relative aspect-[4/3] overflow-hidden bg-muted touch-pan-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sea"
           role={hasMultiple ? "group" : undefined}
           aria-label={hasMultiple ? listing.title : undefined}
           aria-roledescription={hasMultiple ? "carousel" : undefined}
@@ -189,7 +189,7 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
             </>
           )}
           <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3 flex gap-2">
-            <Badge variant="secondary" className="bg-white/90 text-primary hover:bg-white backdrop-blur-sm shadow-sm font-semibold">
+            <Badge className="bg-ink-2/90 text-white hover:bg-ink-2 backdrop-blur-sm shadow-sm font-semibold border-0">
               {listing.type === "new_development" ? t("listings.newDev") : t("listings.resale")}
             </Badge>
             {showStatus && listing.status !== "published" && (
@@ -198,6 +198,13 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
               </Badge>
             )}
           </div>
+          {listing.investmentScore != null && (
+            <ScoreBadge
+              score={listing.investmentScore}
+              label={t("card.score")}
+              className="absolute top-3 right-3 rtl:right-auto rtl:left-3"
+            />
+          )}
           {onRemove && (
             <button
               type="button"
@@ -209,53 +216,46 @@ export function ListingCard({ listing, showStatus, onRemove, isRemoving }: Listi
                 e.stopPropagation();
                 onRemove();
               }}
-              className="absolute top-3 right-3 rtl:right-auto rtl:left-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute bottom-3 right-3 rtl:right-auto rtl:left-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Heart className="h-5 w-5 fill-current" />
             </button>
           )}
         </div>
         <CardHeader className="p-4 pb-2">
-          <div className="flex justify-between items-start gap-4">
-            <div>
-              <h3 dir="auto" className="font-serif text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">
-                {listing.title}
-              </h3>
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                <MapPin className="h-3 w-3" />
-                {cityLabel}{listing.quartier ? <>, <span dir="auto">{listing.quartier}</span></> : ""}
-              </p>
-            </div>
-          </div>
+          <h3 dir="auto" className="font-serif text-lg font-semibold line-clamp-1 group-hover:text-sea transition-colors">
+            {listing.title}
+          </h3>
+          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+            <MapPin className="h-3 w-3" />
+            {cityLabel}{listing.quartier ? <>, <span dir="auto">{listing.quartier}</span></> : ""}
+          </p>
         </CardHeader>
         <CardContent className="p-4 pt-0 flex-1 flex flex-col justify-end">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-            <div className="flex items-center gap-1">
-              <Maximize className="h-4 w-4 text-primary/70" />
-              <span>{listing.surface} m²</span>
+          <div className="font-serif text-2xl font-semibold text-foreground">
+            {formatPrice(listing.price)}
+          </div>
+
+          <div className="flex items-center gap-5 text-sm text-muted-foreground mt-3 pt-3 border-t border-border">
+            <div className="flex items-center gap-1.5">
+              <Maximize className="h-4 w-4 text-sea" />
+              <span className="font-mono text-foreground">{listing.surface}</span> m²
             </div>
-            <div className="flex items-center gap-1">
-              <HomeIcon className="h-4 w-4 text-primary/70" />
-              <span>{listing.nbPieces} {t("card.rooms")}</span>
+            <div className="flex items-center gap-1.5">
+              <HomeIcon className="h-4 w-4 text-sea" />
+              <span className="font-mono text-foreground">{listing.nbPieces}</span> {t("card.rooms")}
             </div>
           </div>
 
-          {listing.investmentScore != null && (
-            <div className="mb-4">
-              <InvestmentScore score={listing.investmentScore} />
+          {listing.estimatedPrice != null && listing.estimatedPrice > 0 && (
+            <div className="mt-3 flex items-center justify-between rounded-[10px] bg-sea-soft px-3 py-2 text-[12.5px]">
+              <span className="flex items-center gap-1.5 font-medium text-ink-2">
+                <Sparkles className="h-3.5 w-3.5 text-sea" />
+                {t("card.estimation")}
+              </span>
+              <span className="font-mono font-semibold text-sea">{formatPrice(listing.estimatedPrice)}</span>
             </div>
           )}
-
-          <div className="mt-auto">
-            <div className="text-xl font-bold text-foreground">
-              {formatPrice(listing.price)}
-            </div>
-            {listing.estimatedPrice != null && listing.estimatedPrice > listing.price && (
-              <div className="text-xs font-medium text-emerald-600 mt-1">
-                {t("card.estimation")}: {formatPrice(listing.estimatedPrice)}
-              </div>
-            )}
-          </div>
         </CardContent>
       </Card>
     </Link>

@@ -26,6 +26,7 @@ export interface GenerateLinkParams {
   customerName: string;
   customerEmail: string;
   recurring?: boolean;
+  recurringType?: "monthly" | "yearly";
   refURL_success: string;
   refURL_failure: string;
   refURL_callback: string;
@@ -54,7 +55,7 @@ export async function generatePaymentLink(
   if (p.recurring) {
     // TODO: confirm the exact recurring_settings schema against your PayPlus plan
     // (cadence / start date / number of charges). Logged IPN payloads will guide it.
-    body.recurring_settings = { recurring_type: "monthly" };
+    body.recurring_settings = { recurring_type: p.recurringType ?? "monthly" };
   }
 
   const res = await fetch(`${baseUrl()}/PaymentPages/generateLink`, {

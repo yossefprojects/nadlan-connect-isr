@@ -20,7 +20,7 @@ export function MarketBar() {
   });
 
   return (
-    <div className="w-full overflow-hidden bg-[#0A1628] text-xs">
+    <div className="w-full overflow-hidden border-b border-border bg-muted text-xs">
       <div className="ticker-track">
         {[0, 1, 2, 3].map((copy) => (
           <div
@@ -28,17 +28,17 @@ export function MarketBar() {
             className="flex h-8 shrink-0 items-center gap-5 px-2.5"
             aria-hidden={copy !== 0}
           >
-            <span className="flex items-center gap-1.5 text-[#9CABBF]">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
               <TrendingUp className="h-3 w-3" />
-              <span className="text-[#85B7EB]">
+              <span className="text-sea">
                 {t("market.asOf")} {dateStr}
               </span>
             </span>
             {marketData.map((item) => (
-              <span key={item.label} className="flex items-center gap-1.5 text-[#9CABBF]">
+              <span key={item.label} className="flex items-center gap-1.5 text-muted-foreground">
                 <span>{item.label}</span>
-                <span className="font-semibold text-[#C9A84C]">{item.value}</span>
-                {item.trend && <span className="font-medium text-[#0F6E56]">{item.trend}</span>}
+                <span className="font-semibold text-foreground">{item.value}</span>
+                {item.trend && <span className="font-medium text-sea">{item.trend}</span>}
               </span>
             ))}
           </div>

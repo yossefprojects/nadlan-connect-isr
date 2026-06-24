@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2, CheckCircle2, CreditCard, ShieldCheck } from "lucide-react";
 
-const NAVY = "#0D1B3E";
-const GOLD = "#C9A84C";
+const NAVY = "hsl(var(--foreground))";
+const SEA = "hsl(var(--sea))";
 
 type SubStatus = { active: boolean; plan: string | null; currentPeriodEnd: string | null };
 
@@ -31,12 +31,11 @@ const CONTENT = {
     notConfigured: "Le paiement en ligne n'est pas encore activé. Réessayez bientôt.",
     recommended: "Recommandé",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["Accès aux projets luxueux", "Mise en avant prioritaire", "Badge Pro vérifié"] },
+      agent: [
+        { key: "agent_mensuel", name: "Abonnement agent immobilier", price: "290", per: "/mois", recommended: true, features: ["Profil agent vérifié (Risha'yon)", "Mandats de revente des promoteurs", "Aucune commission sur les ventes"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 projets", price: "499", recommended: false, features: ["Publication de 3 projets", "Offres des promoteurs", "Sans engagement"] },
-        { key: "apporteur_illimite", name: "Illimité", price: "990", recommended: true, features: ["Projets illimités", "Offres des promoteurs", "Mise en avant prioritaire", "Sans engagement"] },
+        { key: "introducer_annuel", name: "Abonnement annuel", price: "990", per: "/an", recommended: true, features: ["Publication de vos projets", "Offres des promoteurs", "Sans engagement"] },
       ],
     },
   },
@@ -58,12 +57,11 @@ const CONTENT = {
     notConfigured: "Online payment isn't enabled yet. Please try again soon.",
     recommended: "Recommended",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["Access to luxury projects", "Priority placement", "Verified Pro badge"] },
+      agent: [
+        { key: "agent_mensuel", name: "Agent subscription", price: "290", per: "/mo", recommended: true, features: ["Verified agent profile (Risha'yon)", "Resale mandates from developers", "No commission on sales"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 projects", price: "499", recommended: false, features: ["Publish 3 projects", "Offers from developers", "No commitment"] },
-        { key: "apporteur_illimite", name: "Unlimited", price: "990", recommended: true, features: ["Unlimited projects", "Offers from developers", "Priority placement", "No commitment"] },
+        { key: "introducer_annuel", name: "Annual subscription", price: "990", per: "/yr", recommended: true, features: ["Publish your projects", "Offers from developers", "No commitment"] },
       ],
     },
   },
@@ -85,12 +83,11 @@ const CONTENT = {
     notConfigured: "התשלום המקוון עדיין לא פעיל. נסו שוב בקרוב.",
     recommended: "מומלץ",
     plans: {
-      developer: [
-        { key: "promoteur_pro", name: "Pro", price: "490", recommended: true, features: ["גישה לפרויקטים יוקרתיים", "מיקום מועדף", "תג Pro מאומת"] },
+      agent: [
+        { key: "agent_mensuel", name: "מנוי מתווך", price: "290", per: "/חודש", recommended: true, features: ["פרופיל מתווך מאומת (רישיון)", "מנדטי מכירה מיזמים", "ללא עמלה על מכירות"] },
       ],
       introducer: [
-        { key: "apporteur_3projets", name: "3 פרויקטים", price: "499", recommended: false, features: ["פרסום 3 פרויקטים", "הצעות מיזמים", "ללא התחייבות"] },
-        { key: "apporteur_illimite", name: "ללא הגבלה", price: "990", recommended: true, features: ["פרויקטים ללא הגבלה", "הצעות מיזמים", "מיקום מועדף", "ללא התחייבות"] },
+        { key: "introducer_annuel", name: "מנוי שנתי", price: "990", per: "/שנה", recommended: true, features: ["פרסום הפרויקטים שלכם", "הצעות מיזמים", "ללא התחייבות"] },
       ],
     },
   },
@@ -127,7 +124,7 @@ export default function Abonnement() {
     },
   });
 
-  const plans = (L.plans as Record<string, ReadonlyArray<{ key: string; name: string; price: string; recommended: boolean; features: readonly string[] }>>)[role ?? ""] ?? null;
+  const plans = (L.plans as Record<string, ReadonlyArray<{ key: string; name: string; price: string; per: string; recommended: boolean; features: readonly string[] }>>)[role ?? ""] ?? null;
   const Shekel = () => <span style={{ fontFamily: "Arial, 'Segoe UI', sans-serif" }}>₪</span>;
 
   return (
@@ -171,16 +168,16 @@ export default function Abonnement() {
               <>
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {plans.map((plan) => (
-                    <div key={plan.key} className="flex flex-col rounded-2xl bg-white p-6 shadow-sm" style={{ border: plan.recommended ? `2px solid ${GOLD}` : "0.5px solid rgba(0,0,0,0.12)" }}>
+                    <div key={plan.key} className="flex flex-col rounded-2xl bg-white p-6 shadow-sm" style={{ border: plan.recommended ? `2px solid ${SEA}` : "0.5px solid rgba(0,0,0,0.12)" }}>
                       {plan.recommended && (
-                        <span className="mb-2 inline-block w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ background: GOLD, color: NAVY }}>
+                        <span className="mb-2 inline-block w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ background: SEA, color: NAVY }}>
                           {L.recommended}
                         </span>
                       )}
                       <div className="text-sm font-medium" style={{ color: NAVY }}>{plan.name}</div>
                       <div className="mt-1 flex items-baseline gap-1">
                         <span className="text-3xl font-bold" style={{ color: NAVY }}>{plan.price}<Shekel /></span>
-                        <span className="text-xs text-muted-foreground">{L.perMonth}</span>
+                        <span className="text-xs text-muted-foreground">{plan.per}</span>
                       </div>
                       <ul className="mt-4 flex-1 space-y-1.5">
                         {plan.features.map((f) => (
