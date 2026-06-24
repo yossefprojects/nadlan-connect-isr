@@ -10,6 +10,9 @@ import {
 } from "@workspace/api-zod";
 import { hashPassword } from "../lib/auth";
 import { requireAdmin } from "../middlewares/authMiddleware";
+import { rateLimit } from "../middlewares/rateLimit";
+
+const signupLimiter = rateLimit({ windowMs: 60_000, max: 5, name: "pro-signup" });
 
 const router = Router();
 
@@ -72,7 +75,7 @@ async function emailTaken(email: string): Promise<boolean> {
 const SUCCESS_MESSAGE = "Compte créé — vérification sous 24h";
 
 // POST /profiles/promoteur — promoteur (developer) onboarding application
-router.post("/profiles/promoteur", async (req, res): Promise<void> => {
+router.post("/profiles/promoteur", signupLimiter, async (req, res): Promise<void> => {
   const parsed = RegisterPromoteurBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -141,7 +144,7 @@ router.post("/profiles/promoteur", async (req, res): Promise<void> => {
 });
 
 // POST /profiles/agence — agence (agent) onboarding application
-router.post("/profiles/agence", async (req, res): Promise<void> => {
+router.post("/profiles/agence", signupLimiter, async (req, res): Promise<void> => {
   const parsed = RegisterAgenceBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

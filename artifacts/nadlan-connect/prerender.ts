@@ -22,7 +22,7 @@ const TEMPLATE_PATH = join(DIST_DIR, "index.html");
 // ─── Site metadata ────────────────────────────────────────────────────────────
 
 const DOMAINS = process.env.REPLIT_DOMAINS?.split(",")[0]?.trim() ?? "";
-const SITE_URL = DOMAINS ? `https://${DOMAINS}` : "https://nadlanconnect.fr";
+const SITE_URL = DOMAINS ? `https://${DOMAINS}` : "https://nadlanconnect.com";
 const DEFAULT_IMAGE = `${SITE_URL}/opengraph.jpg`;
 const DEFAULT_TITLE = "NadlanConnect — Immobilier en Israël";
 const DEFAULT_DESC =

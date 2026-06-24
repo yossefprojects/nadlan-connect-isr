@@ -6,6 +6,10 @@ import {
 } from "@workspace/api-zod";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { rateLimit } from "../middlewares/rateLimit";
+
+const loginLimiter = rateLimit({ windowMs: 60_000, max: 10, name: "login" });
+const registerLimiter = rateLimit({ windowMs: 60_000, max: 5, name: "register" });
 import {
   clearSession,
   getSessionId,
@@ -49,7 +53,7 @@ router.get("/auth/user", (req: Request, res: Response) => {
   );
 });
 
-router.post("/auth/login", async (req: Request, res: Response) => {
+router.post("/auth/login", loginLimiter, async (req: Request, res: Response) => {
   const parsed = LoginWithPasswordBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Email ou mot de passe invalide." });
@@ -101,7 +105,7 @@ router.post("/auth/login", async (req: Request, res: Response) => {
   );
 });
 
-router.post("/auth/register", async (req: Request, res: Response) => {
+router.post("/auth/register", registerLimiter, async (req: Request, res: Response) => {
   const parsed = RegisterWithPasswordBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

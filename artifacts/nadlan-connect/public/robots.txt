@@ -6,4 +6,4 @@ Disallow: /auth/
 Disallow: /favorites
 Disallow: /leads
 
-Sitemap: https://nadlanconnect.replit.app/sitemap.xml
+Sitemap: https://nadlanconnect.com/sitemap.xml
