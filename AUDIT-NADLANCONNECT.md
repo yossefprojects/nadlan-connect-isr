@@ -113,6 +113,38 @@ La même checklist (ci-dessus) s'applique telle quelle.
 
 ---
 
+## ✅ Corrections appliquées dans le code (24 juin 2026)
+_Toutes vérifiées par `pnpm run typecheck` (workspace entier = vert)._
+
+**Sécurité (backend)**
+- IDOR corrigé sur `/leads/:leadId` (GET/PATCH/messages) : accès réservé acheteur / propriétaire de l'annonce / admin ; changement de statut réservé au pro/admin (`routes/leads.ts`).
+- Rate-limiting ajouté sur `/auth/login`, `/auth/register`, `/profiles/promoteur|agence` (`middlewares/rateLimit.ts`).
+- CORS restreint via `ALLOWED_ORIGINS` ; en-têtes de sécurité ajoutés (nosniff, X-Frame-Options, Referrer-Policy, HSTS, Permissions-Policy) (`app.ts`).
+- Bugs de type pré-existants corrigés (email nullable : `payments.ts`, `demolition.ts`, `email.ts`).
+
+**SEO**
+- Domaine unifié sur `nadlanconnect.com` (`app.ts` sitemap, `prerender.ts`, `robots.txt`).
+- Pages légales ajoutées au sitemap + prérendu.
+- Double `<h1>` corrigé (`register-pro.tsx`, `abonnement.tsx`).
+- Loader GA4 gated par `VITE_GA_ID` + emplacement meta Search Console (`analytics.ts`, `index.html`).
+
+**Légal / RGPD**
+- Politique de confidentialité (`/confidentialite`) et Mentions légales (`/mentions-legales`) créées, liées au footer.
+- Bandeau de consentement cookies (`cookie-consent.tsx`) ; analytics chargé uniquement après acceptation.
+
+**Contenu / a11y / PWA**
+- `viewport maximum-scale` retiré ; `apple-touch-icon` + `manifest.json` + `theme-color` ajoutés.
+- Placeholder e-mail de login passé en i18n ; `alt` ajouté sur l'aperçu de document ; liens sociaux morts retirés.
+
+**Reste à faire (hors code / à compléter par vous)**
+- Renseigner les champs « à compléter par l'éditeur » des pages légales (forme juridique, immatriculation, siège, hébergeur, DPO) et **faire valider par un juriste** ; fournir les traductions EN/HE.
+- Définir `ALLOWED_ORIGINS`, `VITE_GA_ID`, (option) `PUBLIC_SITE_DOMAIN` en prod ; vérifier dans Search Console.
+- Captcha sur inscriptions (nécessite des clés) ; compression `hero-bg.png` + code-splitting (perf).
+- ⏳ En ligne/infra : SSL, redirections www/http→https, tests appareils réels, `pnpm audit`, sauvegardes, exclusion du `mockup-sandbox`.
+- ❌ **Simmo** : non audité (dépôt absent + domaine bloqué ici).
+
+---
+
 ## Top priorités (ordre conseillé)
 1. 🔴 **Sécurité** : corriger l'IDOR + l'autorisation sur `/leads/:leadId*`.
 2. 🔴 **Légal** : publier mentions légales + politique de confidentialité (RGPD/Anthropic) + bandeau cookies.
