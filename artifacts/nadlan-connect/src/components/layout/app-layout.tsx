@@ -47,10 +47,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </p>
             <div className="flex gap-2.5">
               {[
-                { icon: Linkedin, label: "LinkedIn", href: "#" },
-                { icon: Instagram, label: "Instagram", href: "#" },
+                { icon: Linkedin, label: "LinkedIn", href: "" },
+                { icon: Instagram, label: "Instagram", href: "" },
                 { icon: Mail, label: "Email", href: "mailto:contact@nadlanconnect.co.il" },
-              ].map(({ icon: Icon, label, href }) => (
+              ]
+                .filter((s) => s.href !== "")
+                .map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
                   href={href}
@@ -108,6 +110,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Link href="/cgu" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.cgu")}</Link>
             <span className="text-white/10">·</span>
             <Link href="/cgv" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.cgv")}</Link>
+            <span className="text-white/10">·</span>
+            <Link href="/confidentialite" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.privacy")}</Link>
+            <span className="text-white/10">·</span>
+            <Link href="/mentions-legales" className="text-white/30 transition-colors hover:text-[#C9A84C]">{t("footer.legal")}</Link>
           </div>
           <p className="text-[11px] text-white/20">
             © {new Date().getFullYear()} NadlanConnect · {t("footer.disclaimer")}

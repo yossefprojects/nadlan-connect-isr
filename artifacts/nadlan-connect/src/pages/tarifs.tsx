@@ -128,7 +128,7 @@ export default function Tarifs() {
                     <div className="text-sm font-medium" style={{ color: NAVY }}>{plan.name}</div>
                     <div className="mt-1 flex items-baseline gap-1">
                       <span className="text-3xl font-bold" style={{ color: NAVY }}>{plan.price}<Shekel /></span>
-                      {plan.per && <span className="text-xs text-muted-foreground">{L.perMonth}</span>}
+                      {"per" in plan && plan.per && <span className="text-xs text-muted-foreground">{L.perMonth}</span>}
                     </div>
                     <ul className="mt-4 flex-1 space-y-1.5">
                       {plan.features.map((f) => (

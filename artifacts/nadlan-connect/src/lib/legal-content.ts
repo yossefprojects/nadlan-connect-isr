@@ -401,3 +401,142 @@ export const CGV: Record<Language, LegalDoc> = {
     ],
   },
 };
+
+// NOTE — Brouillons à FAIRE VALIDER par un juriste. Les champs « (à compléter
+// par l'éditeur) » doivent être renseignés avec les informations réelles de la
+// société (forme juridique, immatriculation, siège, hébergeur, DPO) avant la
+// mise en ligne. Versions EN/HE à confier à un traducteur juridique : la page
+// retombe sur le français tant qu'elles ne sont pas fournies.
+export const CONFIDENTIALITE: Record<string, LegalDoc> = {
+  fr: {
+    title: "Politique de confidentialité",
+    lastUpdated: "24 juin 2026",
+    intro:
+      "La présente politique décrit comment NadlanConnect collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi israélienne sur la protection de la vie privée.",
+    sections: [
+      {
+        heading: "Responsable du traitement",
+        paragraphs: [
+          "Le responsable du traitement est NadlanConnect (forme juridique, immatriculation et siège social : à compléter par l'éditeur).",
+          "Pour toute question relative à vos données : contact@nadlanconnect.co.il.",
+        ],
+      },
+      {
+        heading: "Données collectées",
+        paragraphs: [
+          "Données d'identité et de contact : nom, prénom, e-mail, téléphone, société (pour les professionnels).",
+          "Données de compte : identifiants de connexion, mot de passe (stocké sous forme hachée, jamais en clair).",
+          "Contenus que vous publiez : annonces, programmes, projets de démolition, messages et demandes de mise en relation (leads).",
+          "Données de paiement : traitées directement par notre prestataire PayPlus ; nous ne stockons jamais votre numéro de carte.",
+          "Données techniques : cookies, journaux de connexion, adresse IP, type d'appareil.",
+        ],
+      },
+      {
+        heading: "Finalités et bases légales",
+        paragraphs: [
+          "Fourniture du service et mise en relation acheteurs / professionnels : exécution du contrat.",
+          "Gestion des comptes, des abonnements et facturation : exécution du contrat et obligations légales.",
+          "Sécurité, prévention de la fraude et amélioration du service : intérêt légitime.",
+          "Analyse de bien par intelligence artificielle (« Agent Shamai ») : à votre demande / sur la base de votre consentement.",
+          "Mesure d'audience : sur la base de votre consentement (bandeau cookies).",
+        ],
+      },
+      {
+        heading: "Intelligence artificielle et transfert hors UE",
+        paragraphs: [
+          "Lorsque vous utilisez l'analyse IA, le contenu que vous soumettez est transmis à notre sous-traitant Anthropic (États-Unis) afin de générer l'analyse.",
+          "Ce transfert hors Union européenne est encadré par des garanties appropriées (clauses contractuelles types). Évitez d'insérer des données personnelles sensibles non nécessaires dans les annonces analysées.",
+        ],
+      },
+      {
+        heading: "Destinataires des données",
+        paragraphs: [
+          "Les professionnels avec lesquels vous choisissez d'être mis en relation (selon vos actions sur la plateforme).",
+          "Nos sous-traitants techniques : hébergement, envoi d'e-mails, paiement (PayPlus), analyse IA (Anthropic). Ils n'agissent que sur nos instructions.",
+        ],
+      },
+      {
+        heading: "Durées de conservation",
+        paragraphs: [
+          "Compte et contenus : pendant la durée d'utilisation du service, puis suppression ou anonymisation dans un délai raisonnable.",
+          "Documents de facturation : conservés pour la durée légale applicable.",
+          "Les durées précises sont à confirmer par l'éditeur en fonction des obligations locales.",
+        ],
+      },
+      {
+        heading: "Vos droits",
+        paragraphs: [
+          "Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité, ainsi que du droit de retirer votre consentement à tout moment.",
+          "Pour exercer ces droits : contact@nadlanconnect.co.il.",
+          "Vous pouvez introduire une réclamation auprès de l'autorité de contrôle compétente (CNIL en France, Autorité de protection de la vie privée en Israël).",
+        ],
+      },
+      {
+        heading: "Cookies",
+        paragraphs: [
+          "Nous utilisons des cookies strictement nécessaires au fonctionnement (session, préférences de langue).",
+          "Les cookies de mesure d'audience ne sont déposés qu'après votre consentement via le bandeau dédié, que vous pouvez modifier à tout moment.",
+        ],
+      },
+      {
+        heading: "Sécurité",
+        paragraphs: [
+          "Les mots de passe sont hachés (bcrypt), les sessions reposent sur des cookies HttpOnly et l'accès aux données est restreint. Aucune mesure ne pouvant garantir une sécurité absolue, nous nous engageons à une obligation de moyens renforcée.",
+        ],
+      },
+      {
+        heading: "Contact / Délégué à la protection des données",
+        paragraphs: [
+          "Délégué à la protection des données (DPO) : à compléter par l'éditeur. À défaut, toute demande peut être adressée à contact@nadlanconnect.co.il.",
+        ],
+      },
+    ],
+  },
+};
+
+export const MENTIONS: Record<string, LegalDoc> = {
+  fr: {
+    title: "Mentions légales",
+    lastUpdated: "24 juin 2026",
+    intro:
+      "Conformément à la réglementation en vigueur, les informations suivantes sont portées à la connaissance des utilisateurs du site NadlanConnect.",
+    sections: [
+      {
+        heading: "Éditeur du site",
+        paragraphs: [
+          "NadlanConnect — forme juridique, capital social, numéro d'immatriculation (RCS / registre des sociétés) et siège social : à compléter par l'éditeur.",
+          "Contact : contact@nadlanconnect.co.il.",
+          "Directeur de la publication : à compléter par l'éditeur.",
+        ],
+      },
+      {
+        heading: "Hébergement",
+        paragraphs: [
+          "Le site est hébergé par son prestataire d'infrastructure (nom et adresse de l'hébergeur : à compléter par l'éditeur).",
+        ],
+      },
+      {
+        heading: "Propriété intellectuelle",
+        paragraphs: [
+          "La marque NadlanConnect, le logo, la charte graphique et les contenus du site sont protégés. Toute reproduction ou réutilisation sans autorisation est interdite. Les marques de tiers éventuellement citées appartiennent à leurs titulaires respectifs.",
+        ],
+      },
+      {
+        heading: "Responsabilité",
+        paragraphs: [
+          "Les estimations de prix et scores d'investissement sont fournis à titre indicatif et non contractuel. NadlanConnect ne saurait être tenue responsable des décisions prises sur la seule base de ces informations.",
+        ],
+      },
+      {
+        heading: "Données personnelles",
+        paragraphs: [
+          "Le traitement de vos données personnelles est décrit dans notre Politique de confidentialité, accessible depuis le pied de page.",
+        ],
+      },
+      {
+        heading: "Contact",
+        paragraphs: ["Pour toute question : contact@nadlanconnect.co.il."],
+      },
+    ],
+  },
+};

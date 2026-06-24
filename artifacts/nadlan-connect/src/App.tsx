@@ -17,6 +17,9 @@ import AnalyseIA from "@/pages/analyse-ia";
 import Reports from "@/pages/reports";
 import Cgu from "@/pages/cgu";
 import Cgv from "@/pages/cgv";
+import Confidentialite from "@/pages/confidentialite";
+import MentionsLegales from "@/pages/mentions-legales";
+import { CookieConsent } from "@/components/cookie-consent";
 import Dashboard from "@/pages/dashboard";
 import DashboardProgrammes from "@/pages/dashboard-programmes";
 import DashboardProgrammeEdit from "@/pages/dashboard-programme-edit";
@@ -70,6 +73,8 @@ function Router() {
       <Route path="/demolition/:id" component={DemolitionDetail} />
       <Route path="/cgu" component={Cgu} />
       <Route path="/cgv" component={Cgv} />
+      <Route path="/confidentialite" component={Confidentialite} />
+      <Route path="/mentions-legales" component={MentionsLegales} />
       
       {/* Dashboard Routes */}
       <Route path="/dashboard" component={Dashboard} />
@@ -107,6 +112,7 @@ function App() {
               <AppLayout>
                 <Router />
               </AppLayout>
+              <CookieConsent />
             </WouterRouter>
             <Toaster />
           </TooltipProvider>

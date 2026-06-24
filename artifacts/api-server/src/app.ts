@@ -102,6 +102,8 @@ app.get("/sitemap.xml", async (_req: Request, res: Response) => {
       },
       { loc: `${base}/cgu`, changefreq: "yearly", priority: "0.3" },
       { loc: `${base}/cgv`, changefreq: "yearly", priority: "0.3" },
+      { loc: `${base}/confidentialite`, changefreq: "yearly", priority: "0.3" },
+      { loc: `${base}/mentions-legales`, changefreq: "yearly", priority: "0.3" },
     ];
 
     const listingUrls = listings.map((l) => ({

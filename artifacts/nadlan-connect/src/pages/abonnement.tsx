@@ -136,7 +136,7 @@ export default function Abonnement() {
         {merci ? (
           <div className="rounded-2xl bg-white p-10 text-center shadow-sm" style={{ border: "0.5px solid rgba(0,0,0,0.08)" }}>
             <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" />
-            <h1 className="mt-4 font-serif text-2xl" style={{ color: NAVY }}>{L.merciTitle}</h1>
+            <h2 className="mt-4 font-serif text-2xl" style={{ color: NAVY }}>{L.merciTitle}</h2>
             <p className="mt-2 text-muted-foreground">{L.merciDesc}</p>
             <Link href="/" className="mt-6 inline-flex h-11 items-center rounded-lg px-5 text-sm font-medium text-white" style={{ backgroundColor: NAVY }}>
               {L.back}

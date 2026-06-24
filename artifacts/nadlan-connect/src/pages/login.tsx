@@ -123,7 +123,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="vous@exemple.com"
+                placeholder={t("login.emailPh")}
                 required
                 autoComplete="email"
               />

@@ -228,7 +228,7 @@ export default function DemolitionNew() {
                       className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
                     >
                       {isImage && docPreviews[i] ? (
-                        <img src={docPreviews[i]!} alt="" className="h-full w-full object-cover" />
+                        <img src={docPreviews[i]!} alt={f.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
                           <FileText className="h-6 w-6 text-[#1A3A5C]" />
