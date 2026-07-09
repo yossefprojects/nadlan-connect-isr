@@ -40,7 +40,7 @@ export function ListingLocationMap({
   if (!center) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border" style={{ height: 320 }}>
+    <div className="relative isolate overflow-hidden rounded-xl border" style={{ height: 320 }}>
       <MapContainer
         center={center}
         zoom={showExact ? 16 : 14}

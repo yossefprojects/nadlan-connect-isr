@@ -382,7 +382,8 @@ export default function DemolitionDetail() {
             </section>
           )}
 
-          {/* Documents */}
+          {/* Documents — owner/admin only: photos can reveal the exact building */}
+          {canViewOffers && (
           <section className="rounded-2xl border bg-card p-6 shadow-sm">
             <h2 className="font-serif text-xl font-bold text-foreground">{t("demo.detail.documents")}</h2>
             {documents.length === 0 ? (
@@ -392,7 +393,7 @@ export default function DemolitionDetail() {
                 {documents.map((d) => (
                   <li key={d.id}>
                     <a
-                      href={d.url}
+                      href={d.url.startsWith("/objects/") ? `/api/storage${d.url}` : d.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 rounded-lg border bg-[#F8F7F4] px-4 py-3 text-sm transition-colors hover:border-sea/50"
@@ -405,6 +406,7 @@ export default function DemolitionDetail() {
               </ul>
             )}
           </section>
+          )}
 
           {/* Offers (owner or admin only) */}
           {canViewOffers && (

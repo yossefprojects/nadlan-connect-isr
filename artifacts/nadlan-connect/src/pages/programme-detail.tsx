@@ -134,13 +134,13 @@ export default function ProgrammeDetail() {
           {photos.map((photo) => (
             <a
               key={photo.id}
-              href={photo.url}
+              href={photo.url.startsWith("/objects/") ? `/api/storage${photo.url}` : photo.url}
               target="_blank"
               rel="noopener noreferrer"
               className="block rounded-xl overflow-hidden bg-muted aspect-square"
             >
               <img
-                src={photo.url}
+                src={photo.url.startsWith("/objects/") ? `/api/storage${photo.url}` : photo.url}
                 alt={photo.fileName ?? program.title}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform hover:scale-105"

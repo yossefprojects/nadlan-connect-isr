@@ -33,8 +33,10 @@ import {
   sendResaleMandateEmail,
 } from "../lib/email";
 import { geocodeAddress, fuzzCoords, APPROX_RADIUS_M } from "../lib/geocode";
+import { ObjectStorageService } from "../lib/objectStorage";
 
 const router = Router();
+const objectStorageService = new ObjectStorageService();
 
 type ListingRow = typeof demolitionListingsTable.$inferSelect;
 type DocumentRow = typeof demolitionDocumentsTable.$inferSelect;
@@ -476,6 +478,20 @@ router.post("/demolition/listings", requireAuth, async (req, res): Promise<void>
       .returning();
   }
 
+  // Mark uploaded documents private + owned by the apporteur, so the object
+  // route serves them only to the owner or an admin (defence in depth: the URLs
+  // are already withheld from unauthorised viewers in the detail endpoint).
+  for (const doc of docRows) {
+    try {
+      await objectStorageService.trySetObjectEntityAclPolicy(doc.url, {
+        owner: req.user!.id,
+        visibility: "private",
+      });
+    } catch (err) {
+      req.log.warn({ err, docId: doc.id }, "Failed to set document ACL policy");
+    }
+  }
+
   res.status(201).json({
     listing: serializeListing(listing, 0, true, true),
     documents: docRows.map(serializeDocument),
@@ -597,7 +613,11 @@ router.get("/demolition/listings/:listingId", async (req, res): Promise<void> =>
       isWinningPromoter,
       resaleAgentName,
     }),
-    documents: documents.map(serializeDocument),
+    // Documents (owner-uploaded photos/files) can reveal the exact building, so
+    // they are disclosed ONLY to the owner or an admin — never to promoters,
+    // even a validated/winning one, and never anonymously. This mirrors the
+    // "offers are owner/admin only" rule and keeps the address confidential.
+    documents: isOwnerOrAdmin ? documents.map(serializeDocument) : [],
   });
 });
 

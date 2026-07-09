@@ -193,7 +193,7 @@ export function DocumentManager({
                         )}
                       </span>
                       <span className="flex items-center gap-1 shrink-0">
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                        <a href={doc.url.startsWith("/objects/") ? `/api/storage${doc.url}` : doc.url} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="h-8">
                             <ExternalLink className="h-4 w-4 me-1" /> {t("documents.view")}
                           </Button>

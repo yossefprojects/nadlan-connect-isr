@@ -4,8 +4,10 @@ import {
   RequestUploadUrlBody,
   RequestUploadUrlResponse,
 } from "@workspace/api-zod";
+import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
-import { ObjectPermission } from "../lib/objectAcl";
+import { ObjectPermission, getObjectAclPolicy } from "../lib/objectAcl";
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -91,20 +93,41 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
     const objectPath = `/objects/${wildcardPath}`;
     const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
 
-    // --- Protected route example (uncomment when using replit-auth) ---
-    // if (!req.isAuthenticated()) {
-    //   res.status(401).json({ error: "Unauthorized" });
-    //   return;
-    // }
-    // const canAccess = await objectStorageService.canAccessObjectEntity({
-    //   userId: req.user.id,
-    //   objectFile,
-    //   requestedPermission: ObjectPermission.READ,
-    // });
-    // if (!canAccess) {
-    //   res.status(403).json({ error: "Forbidden" });
-    //   return;
-    // }
+    // Access control. Objects explicitly marked "private" (e.g. demolition
+    // documents, which can reveal a confidential address) are served ONLY to
+    // their owner or an admin. Objects with no ACL or "public" visibility —
+    // listing and programme images — stay openly served, so image display is
+    // unaffected and requires no data migration.
+    let aclPolicy = null;
+    try {
+      aclPolicy = await getObjectAclPolicy(objectFile);
+    } catch {
+      aclPolicy = null;
+    }
+    if (aclPolicy?.visibility === "private") {
+      const userId = req.isAuthenticated() ? req.user!.id : undefined;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      let allowed = await objectStorageService.canAccessObjectEntity({
+        userId,
+        objectFile,
+        requestedPermission: ObjectPermission.READ,
+      });
+      if (!allowed) {
+        const [u] = await db
+          .select({ role: usersTable.role })
+          .from(usersTable)
+          .where(eq(usersTable.id, userId))
+          .limit(1);
+        allowed = u?.role === "admin";
+      }
+      if (!allowed) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+    }
 
     const response = await objectStorageService.downloadObject(objectFile);
 
